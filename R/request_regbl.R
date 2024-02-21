@@ -1,8 +1,6 @@
 # For more info about the RegBl MADD API see: https://www.housing-stat.ch/fr/madd/restricted/ech-0206.html
 # To found XPath and names of a node in the web service request from RegBl, the eCH-0206 standard is used. See: https://www.housing-stat.ch/files/STAN_d_DRA_2020-07-21_eCH-0206_V2.0_GWR-Daten_an_Dritte_Draft-0.99.pdf
 # Variable names for RegBl data come from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2" https://www.bfs.admin.ch/asset/fr/22905271
-# TODO 2nd heating and 2nd hot water system not taken into account
-
 
 # Load necessary libraries
 library(httr2)
@@ -14,12 +12,40 @@ building$DEINR <- 8
 building$STRNAME <- "Rue des Diamants"
 building$DPLZ4 <- 2503
 
-# create a request function
+# create the roxygen2 documentation$
+#' Request building data from the RegBl MADD API
+#'
+#' This function sends a request to the RegBl MADD API to get building data.
+#'
+#' @param building A list with the following elements:
+#'  - DEINR: The building entrance number
+#' - STRNAME: The street name
+#' - DPLZ4: The postal code
+#'
+#' @return A list with the following elements:
+#' - EGID: The unique building identifier
+#' - GKAT: The building category
+#' - GBAUJ: The year of construction
+#' - GBAUP: The period of construction
+#' - GABBJ: The year of demolition
+#' - GAREA: The surface area of the building
+#' - GASTW: The number of floors
+#' - GEBF: The energy relevant surface
+#' - GWAERZH1-2: The heat generator for heating (1st and 2nd system)
+#' - GENH1-2: The energy source for heating
+#' - GWAERSCEH1-2: The information source for heating
+#' - GWAERDATH1-2: The revision date for heating
+#' - GWAERZW1-2: The heat generator for warm water
+#' - GENW1-2: The energy source for warm water
+#' - GWAERSCEW1-2: The information source for warm water
+#' - GWAERDATW1-2: The revision date for warm water
+#'
+#' @export
 request_regbl <- function(building) {
-	# Check if the building data is complete
-	if (is.null(building$DEINR) || is.null(building$STRNAME) || is.null(building$DPLZ4)) {
-		stop("Building data is incomplete")
-	}
+    # Check if the building data is complete
+    if (is.null(building$DEINR) || is.null(building$STRNAME) || is.null(building$DPLZ4)) {
+        stop("Building data is incomplete")
+    }
 
     # API request parameters
     madd_url <- "https://madd.bfs.admin.ch/eCH-0206"

@@ -35,3 +35,4 @@ pkg_install(packages = c(
   , "xml2" # XML parsing
   , "ids" # Generate random identifiers
 ), repos = "https://stat.ethz.ch/CRAN")
+

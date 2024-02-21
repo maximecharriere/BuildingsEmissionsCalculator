@@ -1,3 +1,2 @@
-# Definition of the coding style. Most of the default linters are based on the tidyverse style guide -> style.tidyverse.org
 linters: linters_with_defaults() # see vignette("lintr")
 encoding: "UTF-8"

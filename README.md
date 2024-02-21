@@ -24,3 +24,8 @@ library(FinancedEmissionsCalculator)
 ## TODO basic example code
 ```
 
+## Coding style
+
+The Tidyverse style is used  -> [style.tidyverse.org](https://style.tidyverse.org/).
+
+
