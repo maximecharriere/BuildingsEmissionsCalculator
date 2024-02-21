@@ -33,4 +33,5 @@ pkg_install(packages = c(
   , "RSQLite" # SQLite database
   , "httr2" # HTTP requests
   , "xml2" # XML parsing
+  , "ids" # Generate random identifiers
 ), repos = "https://stat.ethz.ch/CRAN")
