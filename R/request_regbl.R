@@ -7,11 +7,6 @@ library(httr2)
 library(xml2)
 library(ids)
 
-building <- list()
-building$DEINR <- 8
-building$STRNAME <- "Rue des Diamants"
-building$DPLZ4 <- 2503
-
 # create the roxygen2 documentation$
 #' Request building data from the RegBl MADD API
 #'
@@ -25,6 +20,7 @@ building$DPLZ4 <- 2503
 #' @return A list with the following elements:
 #' - EGID: The unique building identifier
 #' - GKAT: The building category
+#' - GKLAS: The building class
 #' - GBAUJ: The year of construction
 #' - GBAUP: The period of construction
 #' - GABBJ: The year of demolition
@@ -142,6 +138,9 @@ request_regbl <- function(building) {
         xml_text()
     building$GKAT <- xml_content %>%
         xml_find_first(".//d1:buildingCategory") %>%
+        xml_text()
+    building$GKLAS <- xml_content %>%
+        xml_find_first(".//d1:buildingClass") %>%
         xml_text()
     building$GBAUJ <- xml_content %>%
         xml_find_first(".//d1:dateOfConstruction/d1:dateOfConstruction") %>%
