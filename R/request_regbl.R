@@ -7,7 +7,7 @@ library(httr2)
 library(xml2)
 library(ids)
 
-# create the roxygen2 documentation$
+
 #' Request building data from the RegBl MADD API
 #'
 #' This function sends a request to the RegBl MADD API to get building data.
@@ -98,9 +98,6 @@ request_regbl <- function(building) {
 
     # Parse the XML response
     xml_content <- response %>% resp_body_xml()
-    xml_namespaces <- xml_content %>% xml_ns()
-    # Get response datetime
-    response_datetime <- response %>% resp_header("Date")
 
     # Check XML response status. See https://www.housing-stat.ch/files/error_codes_flags.xlsx
     xml_status_code <- xml_content %>%
@@ -135,83 +132,90 @@ request_regbl <- function(building) {
     # Extract data from the XML response
     building$EGID <- xml_content %>%
         xml_find_first(".//d1:EGID") %>%
-        xml_text()
+        xml_integer()
     building$GKAT <- xml_content %>%
         xml_find_first(".//d1:buildingCategory") %>%
-        xml_text()
+        xml_integer()
     building$GKLAS <- xml_content %>%
         xml_find_first(".//d1:buildingClass") %>%
-        xml_text()
+        xml_integer()
     building$GBAUJ <- xml_content %>%
         xml_find_first(".//d1:dateOfConstruction/d1:dateOfConstruction") %>%
-        xml_text()
+        xml_text() # TODO check if text of int must be extrated
     building$GBAUP <- xml_content %>%
         xml_find_first(".//d1:dateOfConstruction/d1:periodOfConstruction") %>%
-        xml_text()
+        xml_integer()
     building$GABBJ <- xml_content %>%
         xml_find_first(".//d1:yearOfDemolition") %>%
-        xml_text()
+        xml_integer()
     building$GAREA <- xml_content %>%
         xml_find_first(".//d1:surfaceAreaOfBuilding") %>%
-        xml_text()
+        xml_integer()
     building$GASTW <- xml_content %>%
         xml_find_first(".//d1:numberOfFloors") %>%
-        xml_text()
+        xml_integer()
     building$GEBF <- xml_content %>%
         xml_find_first(".//d1:energyRelevantSurface") %>%
-        xml_text()
+        xml_integer()
+
+    building$DKODE <- xml_content %>%
+        xml_find_first(".//d1:coordinates/d1:east ") %>%
+        xml_double()
+    building$DKODN <- xml_content %>%
+        xml_find_first(".//d1:coordinates/d1:north ") %>%
+        xml_double()
 
     building$GWAERZH1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:heatGeneratorHeating") %>%
-        xml_text()
+        xml_integer()
     building$GENH1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:energySourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERSCEH1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:informationSourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERDATH1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:revisionDate") %>%
-        xml_text()
+        xml_text() # TODO check if text of int must be extrated
 
     building$GWAERZH2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:heatGeneratorHeating") %>%
-        xml_text()
+        xml_integer()
     building$GENH2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:energySourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERSCEH2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:informationSourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERDATH2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:revisionDate") %>%
-        xml_text()
+        xml_text() # TODO check if text of int must be extrated
 
     building$GWAERZW1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:heatGeneratorHotWater") %>%
-        xml_text()
+        xml_integer()
     building$GENW1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:energySourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERSCEW1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:informationSourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERDATW1 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:revisionDate") %>%
-        xml_text()
+        xml_text() # TODO check if text of int must be extrated
 
     building$GWAERZW2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:heatGeneratorHotWater") %>%
-        xml_text()
+        xml_integer()
     building$GENW2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:energySourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERSCEW2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:informationSourceHeating") %>%
-        xml_text()
+        xml_integer()
     building$GWAERDATW2 <- xml_content %>%
         xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:revisionDate") %>%
-        xml_text()
+        xml_text() # TODO check if text of int must be extrated
 
     # Save reply to a log file
     write_xml(xml_content, paste0("log/", message_id, ".xml"))
