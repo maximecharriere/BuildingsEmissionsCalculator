@@ -19,6 +19,7 @@ A list with the following elements:
 \itemize{
 \item EGID: The unique building identifier
 \item GKAT: The building category
+\item GKLAS: The building class
 \item GBAUJ: The year of construction
 \item GBAUP: The period of construction
 \item GABBJ: The year of demolition
