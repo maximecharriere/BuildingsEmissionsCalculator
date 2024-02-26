@@ -12,5 +12,7 @@ pkg_install(packages = c(
   , "httr2" # HTTP requests
   , "xml2" # XML parsing
   , "ids" # Generate random identifiers
+  , "future" # Asynchronous programming
+  , "future.apply" # Parallel apply functions
 ), repos = "https://stat.ethz.ch/CRAN")
 

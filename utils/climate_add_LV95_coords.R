@@ -1,5 +1,5 @@
 # File to convert WGS84 coordinates to LV95 of the climate stations
-load("data/climate.rda")
+climate <- co2calculatorPACTA2022::climate
 
 # Loop through each station in the climate list
 for (i in seq_along(climate)) {
@@ -18,6 +18,6 @@ for (i in seq_along(climate)) {
 }
 
 # Save the updated climate list to a file
-save(climate, file = "data/climate.rda")
+save(climate, file = "data/climate_LV95.rda")
 
 
