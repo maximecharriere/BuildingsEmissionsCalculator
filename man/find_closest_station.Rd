@@ -8,11 +8,12 @@ find_closest_station(climate, building)
 }
 \arguments{
 \item{climate}{A list of meteorological stations, where each station is an object
-with properties \verb{$latitude}, \verb{$longitude}, and \verb{$code}. Latitude and longitude
-should be numeric values representing the station's location.}
+with properties \verb{$easting}, \verb{$northing}, and \verb{$code}. Easting and northing
+should be numeric values representing the LV95 coordinate of the station.}
 
 \item{building}{An object representing the building, with properties \verb{$DKODE}
-for latitude and \verb{$DKODN} for longitude. Both should be numeric values.}
+for easting and \verb{$DKODN} for northing. Both should be numeric values representing
+the LV95 coordinate of the building.}
 }
 \value{
 A character string representing the \verb{$code} of the closest meteorological
