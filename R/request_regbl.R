@@ -123,7 +123,7 @@ request_regbl <- function(building) {
     stop(paste("Unknown error:", xml_status_code, xml_status_message))
   }
 
-  # Check if a building was found
+  # Check if a unique building was found
   building_found <- xml_content %>%
     xml_find_first(".//d1:objectCount") %>%
     xml_integer()
