@@ -140,7 +140,56 @@ split_addresses <- function(data, col_name = "Addresses") {
 
 add_missing_columns <- function(df) {
   # Identify which of the desired columns are missing from the dataframe
-  desired_columns <- c("DEINR", "STRNAME", "DPLZ4", "EGID", "GKAT", "GKLAS", "GBAUJ", "GBAUP", "GABBJ", "GAREA", "GASTW", "GEBF", "DKODE", "DKODN", "GWAERZH1", "GWAERZH2", "GENH1", "GENH2", "GWAERSCEH1", "GWAERSCEH2", "GWAERDATH1", "GWAERDATH2", "GWAERZW1", "GWAERZW2", "GENW1", "GENW2", "GWAERSCEW1", "GWAERSCEW2", "GWAERDATW1", "GWAERDATW2", "utilisation_key", "climate_code", "energy_carrier", "walls_refurb_year", "roof_refurb_year", "windows_refurb_year", "floor_refurb_year", "heating_install_year", "heatEnergy", "emissionCoefficient", "emissionsPerArea", "emissionsTotal", "error_comments")
+  desired_columns <- c(
+    # Required
+    "DEINR", # numeric The building entrance number.
+    "STRNAME", # character The street name.
+    "DPLZ4", # numeric The postal code.
+    "EGID", # numeric The unique building identifier.
+    "GKLAS", # numeric The building class.
+    "GBAUJ", # numeric The year of construction.
+    "GBAUP", # numeric The period of construction.
+    "GABBJ", # numeric The year of demolition.
+    "GAREA", # numeric The surface area of the building.
+    "GASTW", # numeric The number of floors.
+    "GEBF", # numeric The energy relevant surface of the building.
+    "DKODE", # numeric The building easting coordinate in the LV95 coordinate system.
+    "DKODN", # numeric The building northing coordinate in the LV95 coordinate system.
+    "GENH1", # character The energy source for heating 1.
+    "GWAERDATH1", # Date The revision date for heating 1.
+    "energy_relevant_area", # numeric The energy relevant surface of the building.
+    "floors", # numeric The number of floors.
+    "year", # numeric The year of construction.
+    "utilisation_key", # numeric The utilisation key according to SIA 380/1.
+    "climate_code", # numeric The climate code of the closest climate station.
+    "energy_carrier", # character The energy carrier according to SIA 380/1.
+    "walls_refurb_year", # numeric The year of the last refurbishment of the walls.
+    "roof_refurb_year", # numeric The year of the last refurbishment of the roof.
+    "windows_refurb_year", # numeric The year of the last refurbishment of the windows.
+    "floor_refurb_year", # numeric The year of the last refurbishment of the floor.
+    "heating_install_year", # numeric The year of the installation of the heating system.
+    "heatEnergy", # numeric Annual heat energy required per area, in MJ/m2 per year.
+    "emissionCoefficient", # numeric Applied CO2 emission coefficient according to the given energy carrier, in kg/MJ.
+    "emissionsPerArea", # numeric Annual CO2 emissions per area, in kg/m2 per year.
+    "emissionsTotal", # numeric Total annual CO2 emissions, in kg per year.
+    "error_comments", # character A string containing error messages.
+    # Others
+    "GKAT", # numeric The building category.
+    "GWAERZH1", # character The heat generator for heating 1.
+    "GWAERZH2", # character The heat generator for heating 2.
+    "GENH2", # character The energy source for heating 2.
+    "GWAERSCEH1", # character The information source for heating 1.
+    "GWAERSCEH2", # character The information source for heating 2.
+    "GWAERDATH2", # Date The revision date for heating 2.
+    "GWAERZW1", # character The heat generator for warm water 1.
+    "GWAERZW2", # character The heat generator for warm water 2.
+    "GENW1", # character The energy source for warm water 1.
+    "GENW2", # character The energy source for warm water 2.
+    "GWAERSCEW1", # character The information source for warm water 1.
+    "GWAERSCEW2", # character The information source for warm water 2.
+    "GWAERDATW1", # Date The revision date for warm water 1.
+    "GWAERDATW2" # Date The revision date for warm water 2.
+  )
   missing_columns <- setdiff(desired_columns, names(df))
 
   # For each missing column, add it to the dataframe with NA values

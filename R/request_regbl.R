@@ -101,7 +101,9 @@ request_regbl <- function(building) {
   xml_content <- response %>% resp_body_xml()
 
   # Save reply to a log file
-  write_xml(xml_content, paste0("log/", message_id, ".xml"))
+  if(.constants$saveLogs){
+    write_xml(xml_content, paste0("log/", message_id, ".xml"))
+  }
 
   # Check XML response status. See https://www.housing-stat.ch/files/error_codes_flags.xlsx
   xml_status_code <- xml_content %>%

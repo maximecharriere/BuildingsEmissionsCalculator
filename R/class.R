@@ -1,27 +1,45 @@
+# TEST, NOT USED IN THE PACKAGE
+
 #' Building Class
 #'
 #' An S4 class to represent building information, including various attributes
 #' like street name, year of construction, energy usage, and more.
 #'
-#' x@slot DEINR numeric The building entrance number.
-#' x@slot STRNAME character The street name.
-#' x@slot DPLZ4 numeric The postal code.
-#' x@slot EGID numeric The unique building identifier.
+#' @slot DEINR numeric The building entrance number.
+#' @slot STRNAME character The street name.
+#' @slot DPLZ4 numeric The postal code.
+#' @slot EGID numeric The unique building identifier.
+#' @slot GKLAS numeric The building class.
+#' @slot GBAUJ numeric The year of construction.
+#' @slot GBAUP numeric The period of construction.
+#' @slot GABBJ numeric The year of demolition.
+#' @slot GAREA numeric The surface area of the building.
+#' @slot GASTW numeric The number of floors.
+#' @slot GEBF numeric The energy relevant surface.
+#' @slot DKODE numeric The building easting coordinate in the LV95 coordinate system.
+#' @slot DKODN numeric The building northing coordinate in the LV95 coordinate system.
+#' @slot GENH1 character The energy source for heating 1.
+#' @slot GWAERDATH1 Date The revision date for heating 1.
+#' @slot utilisation_key numeric The utilisation key according to SIA 380/1.
+#' @slot climate_code numeric The climate code of the closest climate station.
+#' @slot energy_carrier character The energy carrier according to SIA 380/1.
+#' @slot walls_refurb_year numeric The year of the last refurbishment of the walls.
+#' @slot roof_refurb_year numeric The year of the last refurbishment of the roof.
+#' @slot windows_refurb_year numeric The year of the last refurbishment of the windows.
+#' @slot floor_refurb_year numeric The year of the last refurbishment of the floor.
+#' @slot heating_install_year numeric The year of the installation of the heating system.
+#' @slot heatEnergy numeric Annual heat energy required per area, in MJ/m2 per year.
+#' @slot emissionCoefficient numeric Applied CO2 emission coefficient according to the given energy carrier, in kg/MJ.
+#' @slot emissionsPerArea numeric Annual CO2 emissions per area, in kg/m2 per year.
+#' @slot emissionsTotal numeric Total annual CO2 emissions, in kg per year.
+#' @slot error_comments character A string containing error messages.
+#' 
 #' @slot GKAT numeric The building category.
-#' x@slot GKLAS numeric The building class.
-#' x@slot GBAUJ numeric The year of construction.
-#' x@slot GBAUP numeric The period of construction.
-#' x@slot GABBJ numeric The year of demolition.
-#' x@slot GAREA numeric The surface area of the building.
-#' x@slot GASTW numeric The number of floors.
-#' x@slot GEBF numeric The energy relevant surface.
 #' @slot GWAERZH1 character The heat generator for heating 1.
 #' @slot GWAERZH2 character The heat generator for heating 2.
-#' x@slot GENH1 character The energy source for heating 1.
 #' @slot GENH2 character The energy source for heating 2.
 #' @slot GWAERSCEH1 character The information source for heating 1.
 #' @slot GWAERSCEH2 character The information source for heating 2.
-#' x@slot GWAERDATH1 Date The revision date for heating 1.
 #' @slot GWAERDATH2 Date The revision date for heating 2.
 #' @slot GWAERZW1 character The heat generator for warm water 1.
 #' @slot GWAERZW2 character The heat generator for warm water 2.
@@ -31,19 +49,6 @@
 #' @slot GWAERSCEW2 character The information source for warm water 2.
 #' @slot GWAERDATW1 Date The revision date for warm water 1.
 #' @slot GWAERDATW2 Date The revision date for warm water 2.
-#' x@slot utilisation_key numeric The utilisation key according to SIA 380/1.
-#' x@slot climate_code numeric The climate code of the closest climate station.
-#' x@slot energy_carrier character The energy carrier according to SIA 380/1.
-#' x@slot walls_refurb_year numeric The year of the last refurbishment of the walls.
-#' x@slot roof_refurb_year numeric The year of the last refurbishment of the roof.
-#' x@slot windows_refurb_year numeric The year of the last refurbishment of the windows.
-#' x@slot floor_refurb_year numeric The year of the last refurbishment of the floor.
-#' x@slot heating_install_year numeric The year of the installation of the heating system.
-#' x@slot heatEnergy numeric Annual heat energy required per area, in MJ/m2 per year.
-#' x@slot emissionCoefficient numeric Applied CO2 emission coefficient according to the given energy carrier, in kg/MJ.
-#' x@slot emissionsPerArea numeric Annual CO2 emissions per area, in kg/m2 per year.
-#' x@slot emissionsTotal numeric Total annual CO2 emissions, in kg per year.
-#' x@slot error_comments character A string containing error messages.
 #' @export
 setClass("Building",
   slots = list(
