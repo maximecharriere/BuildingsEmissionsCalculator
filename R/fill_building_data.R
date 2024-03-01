@@ -1,3 +1,5 @@
+library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
+
 #' Retrieve and Enhance Building Data with RegBl data and CO2 Emissions Calculations
 #'
 #' This function enriches a given building's data record by fetching additional details from the RegBl API,
@@ -31,7 +33,6 @@ fill_building_data <- function(building) {
       # Calculate the CO2 emissions
       tryCatch(
         {
-          library(co2calculatorPACTA2022)
           emissions <- co2calculatorPACTA2022::calculate_emissions(
             area = building$energy_relevant_area,
             floors = building$floors,
@@ -65,7 +66,6 @@ fill_building_data <- function(building) {
   )
 }
 
-
 #' Fill missing data in the buildings dataframe with RegBl data and computed CO2 emissions
 #'
 #' This function processes a dataframe of buildings, applying the `fill_building_data` function to each
@@ -93,7 +93,7 @@ fill_building_data <- function(building) {
 #'
 #' The parallel execution model can be adjusted based on system resources by changing the number of
 #' workers in the `future::plan` call.
-#'
+#' @import co2calculatorPACTA2022
 #' @export
 fill_buildings_df <- function(buildings_df) {
   # Add missing columns to the dataframe, filled with NA values
@@ -101,10 +101,9 @@ fill_buildings_df <- function(buildings_df) {
 
   ## Execute fill_building_data on each row of the dataframe
   # Set up parallelization plan (e.g., multisession to use multiple cores)
-  future::plan(future::multisession, workers = 4) # Adjust the number of workers based on your machine's capabilities
+  future::plan(future::multisession, workers = 1) # Adjust the number of workers based on your machine's capabilities
 
   # Use future_lapply to apply the function to each row of the dataframe
-  # TODO add progress bar
   results <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) fill_building_data(buildings_df[i, ]))
 
   # Combine the results back into the original dataframe
