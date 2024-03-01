@@ -1,6 +1,6 @@
 Package: FinancedEmissionsCalculator
 Title: FinancedEmissionsCalculator
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: 
     person("Maxime", "Charriere", , "contact@maximecharriere.ch", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
