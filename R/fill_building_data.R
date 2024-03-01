@@ -1,5 +1,19 @@
-# TODO 2nd heating and 2nd hot water system not taken into account
-
+#' Retrieve and Enhance Building Data with RegBl data and CO2 Emissions Calculations
+#'
+#' This function enriches a given building's data record by fetching additional details from the RegBl API,
+#' converting the data to the SIA format used by the co2calculatorPACTA2022 package, and computing the building's CO2 emissions. If the building
+#' has been demolished, as indicated by a non-NA `GABBJ` value, the function halts and reports the demolition.
+#' Otherwise, it proceeds to convert the format of the building data and calculate emissions using various
+#' building attributes.
+#'
+#' @param building A list or data frame containing at least minimal identifying information for a building,
+#'                 which is then used to fetch and augment data from the RegBl database.
+#'
+#' @return An enhanced version of the input `building` data, including additional details and computed CO2 emissions.
+#'
+#' @examples
+#' building_data <- list(EGID = "123456")
+#' enriched_building_data <- fill_building_data(building_data)
 fill_building_data <- function(building) {
   tryCatch(
     {
@@ -17,6 +31,7 @@ fill_building_data <- function(building) {
       # Calculate the CO2 emissions
       tryCatch(
         {
+          library(co2calculatorPACTA2022)
           emissions <- co2calculatorPACTA2022::calculate_emissions(
             area = building$energy_relevant_area,
             floors = building$floors,
@@ -34,7 +49,7 @@ fill_building_data <- function(building) {
           building[names(emissions)] <- emissions
         },
         error = function(e) {
-          if(.constants$saveLogs){
+          if (.constants$saveLogs) {
             save(building, file = paste0("log/error_building_", building$EGID, ".RData"))
           }
           stop("from co2calculator: ", e$message)
@@ -48,4 +63,53 @@ fill_building_data <- function(building) {
       return(building)
     }
   )
+}
+
+
+#' Fill missing data in the buildings dataframe with RegBl data and computed CO2 emissions
+#'
+#' This function processes a dataframe of buildings, applying the `fill_building_data` function to each
+#' row/building in parallel. It ensures that the input dataframe contains all necessary columns, filling
+#' any missing ones with NA values, then computes detailed building information and CO2 emissions for each
+#' building. The function leverages parallel computing capabilities to enhance performance and efficiency.
+#'
+#' @param buildings_df A dataframe where each row represents a building and contains minimal data needed
+#'        for enhancement, such as an identifier used to fetch additional data.
+#'
+#' @return A new dataframe with the same structure as `buildings_df` but augmented with detailed building
+#'         data and CO2 emissions computations for each building. If any data cannot be retrieved or calculated,
+#'         the corresponding building will have its `error_comments` field updated with the error message.
+#'
+#' @examples
+#' buildings_df <- data.frame(EGID = c("123456", "789012"))
+#' enhanced_buildings_df <- fill_buildings_df(buildings_df)
+#'
+#' @details
+#' The function first standardizes the input dataframe to ensure it includes all necessary columns,
+#' leveraging the `standardize_buildings_df` function. Then, it uses the `future.apply::future_lapply`
+#' function to apply `fill_building_data` to each building in the dataframe in parallel, improving
+#' processing time on multicore systems. Each building's data is individually retrieved and processed,
+#' with results aggregated into a single dataframe returned at the end.
+#'
+#' The parallel execution model can be adjusted based on system resources by changing the number of
+#' workers in the `future::plan` call.
+#'
+#' @export
+fill_buildings_df <- function(buildings_df) {
+  # Add missing columns to the dataframe, filled with NA values
+  buildings_df <- standardize_buildings_df(buildings_df, names(.constants$buildings_df_columns))
+
+  ## Execute fill_building_data on each row of the dataframe
+  # Set up parallelization plan (e.g., multisession to use multiple cores)
+  future::plan(future::multisession, workers = 4) # Adjust the number of workers based on your machine's capabilities
+
+  # Use future_lapply to apply the function to each row of the dataframe
+  # TODO add progress bar
+  results <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) fill_building_data(buildings_df[i, ]))
+
+  # Combine the results back into the original dataframe
+  # Assuming results are returned as dataframes or named lists that can be rbinded
+  buildings_df_new <- do.call(rbind, results)
+
+  return(buildings_df_new)
 }
