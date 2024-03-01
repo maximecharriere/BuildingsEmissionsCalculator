@@ -6,11 +6,11 @@ fill_dataframe <- function(buildings_df) {
   # Add missing columns to the dataframe, filled with NA values
   buildings_df <- add_missing_columns(buildings_df)
 
+  ## Execute fill_building_data on each row of the dataframe
   # Set up parallelization plan (e.g., multisession to use multiple cores)
   plan(multisession, workers = 1) # Adjust the number of workers based on your machine's capabilities
 
   # Use future_lapply to apply the function to each row of the dataframe
-
   results <- future_lapply(seq_len(nrow(buildings_df)), function(i) fill_building_data(buildings_df[i, ]))
 
   # Combine the results back into the original dataframe

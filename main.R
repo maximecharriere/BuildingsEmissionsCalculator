@@ -1,6 +1,5 @@
 library(readxl)
 library(writexl)
-
 library(FinancedEmissionsCalculator)
 
 # Load the file
