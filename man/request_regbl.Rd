@@ -2,40 +2,50 @@
 % Please edit documentation in R/request_regbl.R
 \name{request_regbl}
 \alias{request_regbl}
-\title{Request building data from the RegBl MADD API}
+\title{Request Building Information from RegBl}
 \usage{
 request_regbl(building)
 }
 \arguments{
-\item{building}{A list with the following elements:
-\itemize{
-\item DEINR: The building entrance number
-\item STRNAME: The street name
-\item DPLZ4: The postal code
-}}
+\item{building}{A list or data frame representing the building, containing at least EGID or address components (DEINR, STRNAME, and DPLZ4).}
 }
 \value{
-A list with the following elements:
-\itemize{
-\item EGID: The unique building identifier
-\item GKAT: The building category
-\item GKLAS: The building class
-\item GBAUJ: The year of construction
-\item GBAUP: The period of construction
-\item GABBJ: The year of demolition
-\item GAREA: The surface area of the building
-\item GASTW: The number of floors
-\item GEBF: The energy relevant surface
-\item GWAERZH1-2: The heat generator for heating (1st and 2nd system)
-\item GENH1-2: The energy source for heating
-\item GWAERSCEH1-2: The information source for heating
-\item GWAERDATH1-2: The revision date for heating
-\item GWAERZW1-2: The heat generator for warm water
-\item GENW1-2: The energy source for warm water
-\item GWAERSCEW1-2: The information source for warm water
-\item GWAERDATW1-2: The revision date for warm water
-}
+A modified version of the input building object, with additional information filled in from the RegBl response.
+If no unique building is found, or if an error occurs during the request, the function stops with an error message.
 }
 \description{
-This function sends a request to the RegBl MADD API to get building data.
+This function sends a request to the RegBl API to retrieve detailed information about a building.
+The request can be made using either the building's unique identifier (EGID) or its address components
+(DEINR, STRNAME, DPLZ4). The function constructs an XML request, sends it to the RegBl API, and processes
+the response to extract and return the building information.
+}
+\details{
+The function first determines the type of request based on available information in the \code{building} object:
+\itemize{
+\item If EGID is available, it constructs a request based on the building's EGID.
+\item If EGID is not available, but address components are, it constructs a request based on the building's address.
+}
+
+The function then assembles the XML request body, including a unique message ID, application details, and
+the appropriate query parameters. After sending the request to the RegBl API endpoint and receiving a response,
+the function checks for errors and, if successful, extracts relevant data from the response XML to fill in
+the building information. It also logs the XML response for record-keeping and further validation.
+
+The function requires that the \code{.constants$buildings_df_columns} object is defined elsewhere in the package
+and contains necessary metadata about the expected building data fields, including their corresponding xpaths
+in the RegBl response XML schema.
+
+For more information about the RegBl MADD API, refer to:
+\url{https://www.housing-stat.ch/fr/madd/restricted/ech-0206.html}
+
+For details on finding XPath and names of a node in the web service request from RegBl, consult the eCH-0206 standard:
+\url{https://www.housing-stat.ch/files/STAN_d_DRA_2020-07-21_eCH-0206_V2.0_GWR-Daten_an_Dritte_Draft-0.99.pdf}
+
+Variable names for RegBl data are taken from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2":
+\url{https://www.bfs.admin.ch/asset/fr/22905271}
+}
+\examples{
+building <- list(EGID = 123456)
+updated_building <- request_regbl(building)
+
 }

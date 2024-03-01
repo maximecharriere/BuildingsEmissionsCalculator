@@ -1,3 +1,23 @@
+#' Convert Building Data from RegBl to SIA Format
+#'
+#' This function converts building data retrieved from the RegBl database into the format
+#' required by the SIA (Swiss Society of Engineers and Architects) standards, specifically
+#' for use with the co2calculatorPACTA2022 package
+#' (see \url{https://maximecharriere.github.io/co2calculatorPACTA2022/}).
+#'
+#' @param building A named list or dataframe containing building data in RegBl format.
+#'
+#' @return The same building data structure but with additional values converted to the SIA format.
+#'
+#' @details
+#' The conversion rules applied by this function include:
+#' - The energy relevant area is taken from `GEBF` if available, or calculated from `GAREA` times `GASTW`.
+#' - The construction year is taken from `GBAUJ` if available, or the earliest year given by `GBAUP`.
+#' - The closest climate station code is determined for the given building location.
+#' - The utilisation key is mapped from the RegBl building class (`GKLAS`) using a lookup table.
+#' - The energy carrier is mapped from the RegBl energy source type (`GENH1`) using a lookup table.
+#' - The number of floors (`floors`) and the year the heating system was installed
+#'   (`heating_install_year`) are directly assigned.
 regbl_2_sia_converter <- function(building) {
   # Convert the building data from the regbl format to the sia format
   # The sia format is used by the co2calculatorPACTA2022 package
