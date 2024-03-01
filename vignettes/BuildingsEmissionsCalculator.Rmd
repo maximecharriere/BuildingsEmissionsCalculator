@@ -1,0 +1,73 @@
+---
+title: "BuildingsEmissionsCalculator"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BuildingsEmissionsCalculator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Getting started
+
+## Install R
+[Download and install R](https://cran.rstudio.com/)
+
+## Install RStudio IDE (optional)
+This step is optional. An other IDE or none at all can be used.  
+[Download and install RStudio](https://posit.co/download/rstudio-desktop/)
+
+## Install packages
+
+### From R command line
+
+```{r, eval=FALSE}
+install.packages("C:/path/to/co2calculatorPACTA2022_1.2.2.tar.gz", repos = NULL, type = "source")
+install.packages("C:/path/to/BuildingsEmissionsCalculator_0.0.1.tar.gz", repos = NULL, type = "source")
+```
+
+### From RStudio
+
+- Click `Tools → Install Packages`
+- Select `Package Archive File (.zip, .tar.gz)` in the `Install from:` slot
+- Find the corresponding file on the local machine, and click `Open`
+- Click `Install`
+
+### Run BuildingsEmissionsCalculator
+
+Run the following R code 
+
+```{r, eval=FALSE}
+library(co2calculatorPACTA2022)
+library(BuildingsEmissionsCalculator)
+
+# Choose if the File Explorer is used to seach Excel file
+INTERACTIVE <- FALSE
+
+# Load the Excel file
+if (INTERACTIVE) {
+  file_in <- file.choose() # Use File Explorer
+} else {
+  file_in <- "path/to/building_data.xlsx"
+}
+buildings_df <- readxl::read_excel(file_in, n_max = 10)
+
+# Call the BuildingsEmissionsCalculator
+buildings_df <- fill_buildings_df(buildings_df)
+
+# Save the data to a Excel file
+if (INTERACTIVE) {
+  file_out <- file.choose() # Use File Explorer
+} else {
+  file_out <- sub("\\.xlsx$", "_filled.xlsx", file_in)
+}
+writexl::write_xlsx(buildings_df, file_out)
+```
+
+
