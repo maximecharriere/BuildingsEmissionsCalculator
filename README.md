@@ -1,5 +1,5 @@
 
-# FinancedEmissionsCalculator
+# BuildingsEmissionsCalculator
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -8,11 +8,11 @@ The goal of FinancedEmissionsCalculator is to ... # TODO
 
 ## Installation
 
-You can install the development version of FinancedEmissionsCalculator from [GitHub](https://github.com/) with:
+You can install the development version of BuildingsEmissionsCalculator from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("maximecharriere/FinancedEmissionsCalculator")
+devtools::install_github("maximecharriere/BuildingsEmissionsCalculator")
 ```
 
 ## Example
@@ -20,7 +20,7 @@ devtools::install_github("maximecharriere/FinancedEmissionsCalculator")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(FinancedEmissionsCalculator)
+library(BuildingsEmissionsCalculator)
 ## TODO basic example code
 ```
 
