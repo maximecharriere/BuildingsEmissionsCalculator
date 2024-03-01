@@ -172,23 +172,23 @@ add_missing_columns <- function(df) {
     "emissionCoefficient", # numeric Applied CO2 emission coefficient according to the given energy carrier, in kg/MJ.
     "emissionsPerArea", # numeric Annual CO2 emissions per area, in kg/m2 per year.
     "emissionsTotal", # numeric Total annual CO2 emissions, in kg per year.
-    "error_comments", # character A string containing error messages.
-    # Others
-    "GKAT", # numeric The building category.
-    "GWAERZH1", # character The heat generator for heating 1.
-    "GWAERZH2", # character The heat generator for heating 2.
-    "GENH2", # character The energy source for heating 2.
-    "GWAERSCEH1", # character The information source for heating 1.
-    "GWAERSCEH2", # character The information source for heating 2.
-    "GWAERDATH2", # Date The revision date for heating 2.
-    "GWAERZW1", # character The heat generator for warm water 1.
-    "GWAERZW2", # character The heat generator for warm water 2.
-    "GENW1", # character The energy source for warm water 1.
-    "GENW2", # character The energy source for warm water 2.
-    "GWAERSCEW1", # character The information source for warm water 1.
-    "GWAERSCEW2", # character The information source for warm water 2.
-    "GWAERDATW1", # Date The revision date for warm water 1.
-    "GWAERDATW2" # Date The revision date for warm water 2.
+    "error_comments" # character A string containing error messages.
+    # Others (removed for claritiy in the output Excel file)
+    #"GKAT", # numeric The building category.
+    #"GWAERZH1", # character The heat generator for heating 1.
+    #"GWAERZH2", # character The heat generator for heating 2.
+    #"GENH2", # character The energy source for heating 2.
+    #"GWAERSCEH1", # character The information source for heating 1.
+    #"GWAERSCEH2", # character The information source for heating 2.
+    #"GWAERDATH2", # Date The revision date for heating 2.
+    #"GWAERZW1", # character The heat generator for warm water 1.
+    #"GWAERZW2", # character The heat generator for warm water 2.
+    #"GENW1", # character The energy source for warm water 1.
+    #"GENW2", # character The energy source for warm water 2.
+    #"GWAERSCEW1", # character The information source for warm water 1.
+    #"GWAERSCEW2", # character The information source for warm water 2.
+    #"GWAERDATW1", # Date The revision date for warm water 1.
+    #"GWAERDATW2" # Date The revision date for warm water 2.
   )
   missing_columns <- setdiff(desired_columns, names(df))
 

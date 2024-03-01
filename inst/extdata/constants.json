@@ -1,6 +1,6 @@
 {
-  "interactive": false,
-  "saveLogs": false,
+  "interactive": true,
+  "saveLogs": true,
   "buildingClass_Regbl2Sia": {
     "1110": 2,
     "1121": 2,

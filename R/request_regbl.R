@@ -135,16 +135,15 @@ request_regbl <- function(building) {
     stop(paste("More than one building found :", building_found))
   }
 
-  # Extract data from the XML response
+  ## Extract data from the XML response
+  # Required data
   building$EGID <- xml_content %>%
     xml_find_first(".//d1:EGID") %>%
-    xml_integer()
-  building$GKAT <- xml_content %>%
-    xml_find_first(".//d1:buildingCategory") %>%
     xml_integer()
   building$GKLAS <- xml_content %>%
     xml_find_first(".//d1:buildingClass") %>%
     xml_integer()
+
   building$GBAUJ <- xml_content %>%
     xml_find_first(".//d1:dateOfConstruction/d1:dateOfConstruction") %>%
     xml_integer()
@@ -154,6 +153,7 @@ request_regbl <- function(building) {
   building$GABBJ <- xml_content %>%
     xml_find_first(".//d1:yearOfDemolition") %>%
     xml_integer()
+
   building$GAREA <- xml_content %>%
     xml_find_first(".//d1:surfaceAreaOfBuilding") %>%
     xml_integer()
@@ -171,57 +171,65 @@ request_regbl <- function(building) {
     xml_find_first(".//d1:coordinates/d1:north ") %>%
     xml_double()
 
-  building$GWAERZH1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:heatGeneratorHeating") %>%
-    xml_integer()
   building$GENH1 <- xml_content %>%
     xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:energySourceHeating") %>%
-    xml_integer()
-  building$GWAERSCEH1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:informationSourceHeating") %>%
     xml_integer()
   building$GWAERDATH1 <- xml_content %>%
     xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:revisionDate") %>%
     xml_text()
 
-  building$GWAERZH2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:heatGeneratorHeating") %>%
-    xml_integer()
-  building$GENH2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:energySourceHeating") %>%
-    xml_integer()
-  building$GWAERSCEH2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:informationSourceHeating") %>%
-    xml_integer()
-  building$GWAERDATH2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:revisionDate") %>%
-    xml_text()
+  
+  # Others (removed for claritiy in the output Excel file)
 
-  building$GWAERZW1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:heatGeneratorHotWater") %>%
-    xml_integer()
-  building$GENW1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:energySourceHeating") %>%
-    xml_integer()
-  building$GWAERSCEW1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:informationSourceHeating") %>%
-    xml_integer()
-  building$GWAERDATW1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:revisionDate") %>%
-    xml_text()
+  # building$GKAT <- xml_content %>%
+  #   xml_find_first(".//d1:buildingCategory") %>%
+  #   xml_integer()
 
-  building$GWAERZW2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:heatGeneratorHotWater") %>%
-    xml_integer()
-  building$GENW2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:energySourceHeating") %>%
-    xml_integer()
-  building$GWAERSCEW2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:informationSourceHeating") %>%
-    xml_integer()
-  building$GWAERDATW2 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:revisionDate") %>%
-    xml_text()
+  # building$GWAERZH1 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:heatGeneratorHeating") %>%
+  #   xml_integer()
+  # building$GWAERSCEH1 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:informationSourceHeating") %>%
+  #   xml_integer()
+
+  # building$GWAERZH2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:heatGeneratorHeating") %>%
+  #   xml_integer()
+  # building$GENH2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:energySourceHeating") %>%
+  #   xml_integer()
+  # building$GWAERSCEH2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:informationSourceHeating") %>%
+  #   xml_integer()
+  # building$GWAERDATH2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:revisionDate") %>%
+  #   xml_text()
+
+  # building$GWAERZW1 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:heatGeneratorHotWater") %>%
+  #   xml_integer()
+  # building$GENW1 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:energySourceHeating") %>%
+  #   xml_integer()
+  # building$GWAERSCEW1 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:informationSourceHeating") %>%
+  #   xml_integer()
+  # building$GWAERDATW1 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:revisionDate") %>%
+  #   xml_text()
+
+  # building$GWAERZW2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:heatGeneratorHotWater") %>%
+  #   xml_integer()
+  # building$GENW2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:energySourceHeating") %>%
+  #   xml_integer()
+  # building$GWAERSCEW2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:informationSourceHeating") %>%
+  #   xml_integer()
+  # building$GWAERDATW2 <- xml_content %>%
+  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:revisionDate") %>%
+  #   xml_text()
 
   return(building)
 }
