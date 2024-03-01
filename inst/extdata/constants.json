@@ -1,6 +1,5 @@
 {
-  "interactive": true,
-  "saveLogs": true,
+  "saveLogs": false,
   "buildingClass_Regbl2Sia": {
     "1110": 2,
     "1121": 2,
@@ -47,5 +46,146 @@
     "8021": 2006,
     "8022": 2011,
     "8023": 2016
+  },
+  "buildings_df_columns": {
+    "DEINR": {
+      "type": "integer",
+      "description": "The building entrance number",
+      "xpath": ".//d1:buildingEntranceNo"
+    },
+    "STRNAME": {
+      "type": "character",
+      "description": "The street name",
+      "xpath": ".//d1:streetNameItem/d1:descriptionLong"
+    },
+    "DPLZ4": {
+      "type": "integer",
+      "description": "The postal code",
+      "xpath": ".//d1:swissZipCode"
+    },
+    "EGID": {
+      "type": "integer",
+      "description": "The unique building identifier",
+      "xpath": ".//d1:EGID"
+    },
+    "GKLAS": {
+      "type": "integer",
+      "description": "The building class",
+      "xpath": ".//d1:buildingClass"
+    },
+    "GBAUJ": {
+      "type": "integer",
+      "description": "The year of construction",
+      "xpath": ".//d1:dateOfConstruction/d1:dateOfConstruction"
+    },
+    "GBAUP": {
+      "type": "integer",
+      "description": "The period of construction",
+      "xpath": ".//d1:dateOfConstruction/d1:periodOfConstruction"
+    },
+    "GABBJ": {
+      "type": "integer",
+      "description": "The year of demolition",
+      "xpath": ".//d1:yearOfDemolition"
+    },
+    "GAREA": {
+      "type": "integer",
+      "description": "The surface area of the building",
+      "xpath": ".//d1:surfaceAreaOfBuilding"
+    },
+    "GASTW": {
+      "type": "integer",
+      "description": "The number of floors",
+      "xpath": ".//d1:numberOfFloors"
+    },
+    "GEBF": {
+      "type": "integer",
+      "description": "The energy relevant surface of the building",
+      "xpath": ".//d1:energyRelevantSurface"
+    },
+    "DKODE": {
+      "type": "double",
+      "description": "The building easting coordinate in the LV95 coordinate system",
+      "xpath": ".//d1:coordinates/d1:east"
+    },
+    "DKODN": {
+      "type": "double",
+      "description": "The building northing coordinate in the LV95 coordinate system",
+      "xpath": ".//d1:coordinates/d1:north"
+    },
+    "GENH1": {
+      "type": "character",
+      "description": "The energy source for heating 1",
+      "xpath": ".//d1:thermotechnicalDeviceForHeating1/d1:energySourceHeating"
+    },
+    "GWAERDATH1": {
+      "type": "date",
+      "description": "The revision date for heating 1",
+      "xpath": ".//d1:thermotechnicalDeviceForHeating1/d1:revisionDate"
+    },
+    "energy_relevant_area": {
+      "type": "integer",
+      "description": "The energy relevant surface of the building"
+    },
+    "floors": {
+      "type": "integer",
+      "description": "The number of floors"
+    },
+    "year": {
+      "type": "integer",
+      "description": "The year of construction"
+    },
+    "utilisation_key": {
+      "type": "integer",
+      "description": "The utilisation key according to SIA 380/1"
+    },
+    "climate_code": {
+      "type": "integer",
+      "description": "The climate code of the closest climate station"
+    },
+    "energy_carrier": {
+      "type": "character",
+      "description": "The energy carrier according to SIA 380/1"
+    },
+    "walls_refurb_year": {
+      "type": "integer",
+      "description": "The year of the last refurbishment of the walls"
+    },
+    "roof_refurb_year": {
+      "type": "integer",
+      "description": "The year of the last refurbishment of the roof"
+    },
+    "windows_refurb_year": {
+      "type": "integer",
+      "description": "The year of the last refurbishment of the windows"
+    },
+    "floor_refurb_year": {
+      "type": "integer",
+      "description": "The year of the last refurbishment of the floor"
+    },
+    "heating_install_year": {
+      "type": "integer",
+      "description": "The year of the installation of the heating system"
+    },
+    "heatEnergy": {
+      "type": "double",
+      "description": "Annual heat energy required per area, in MJ/m2 per year"
+    },
+    "emissionCoefficient": {
+      "type": "double",
+      "description": "Applied CO2 emission coefficient according to the given energy carrier, in kg/MJ"
+    },
+    "emissionsPerArea": {
+      "type": "double",
+      "description": "Annual CO2 emissions per area, in kg/m2 per year"
+    },
+    "emissionsTotal": {
+      "type": "double",
+      "description": "Total annual CO2 emissions, in kg per year"
+    },
+    "error_comments": {
+      "type": "character",
+      "description": "A string containing error messages"
+    }
   }
 }

@@ -1,60 +1,86 @@
-# For more info about the RegBl MADD API see: https://www.housing-stat.ch/fr/madd/restricted/ech-0206.html
-# To found XPath and names of a node in the web service request from RegBl, the eCH-0206 standard is used. See: https://www.housing-stat.ch/files/STAN_d_DRA_2020-07-21_eCH-0206_V2.0_GWR-Daten_an_Dritte_Draft-0.99.pdf
-# Variable names for RegBl data come from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2" https://www.bfs.admin.ch/asset/fr/22905271
-
-# Load necessary libraries
-library(httr2)
-library(xml2)
-library(ids)
-
-
-#' Request building data from the RegBl MADD API
+#' Request Building Information from RegBl
 #'
-#' This function sends a request to the RegBl MADD API to get building data.
+#' This function sends a request to the RegBl API to retrieve detailed information about a building.
+#' The request can be made using either the building's unique identifier (EGID) or its address components
+#' (DEINR, STRNAME, DPLZ4). The function constructs an XML request, sends it to the RegBl API, and processes
+#' the response to extract and return the building information.
 #'
-#' @param building A list with the following elements:
-#' - DEINR: The building entrance number
-#' - STRNAME: The street name
-#' - DPLZ4: The postal code
+#' @param building A list or data frame representing the building, containing at least EGID or address components (DEINR, STRNAME, and DPLZ4).
 #'
-#' @return A list with the following elements:
-#' - EGID: The unique building identifier
-#' - GKAT: The building category
-#' - GKLAS: The building class
-#' - GBAUJ: The year of construction
-#' - GBAUP: The period of construction
-#' - GABBJ: The year of demolition
-#' - GAREA: The surface area of the building
-#' - GASTW: The number of floors
-#' - GEBF: The energy relevant surface
-#' - GWAERZH1-2: The heat generator for heating (1st and 2nd system)
-#' - GENH1-2: The energy source for heating
-#' - GWAERSCEH1-2: The information source for heating
-#' - GWAERDATH1-2: The revision date for heating
-#' - GWAERZW1-2: The heat generator for warm water
-#' - GENW1-2: The energy source for warm water
-#' - GWAERSCEW1-2: The information source for warm water
-#' - GWAERDATW1-2: The revision date for warm water
+#' @return A modified version of the input building object, with additional information filled in from the RegBl response.
+#'         If no unique building is found, or if an error occurs during the request, the function stops with an error message.
 #'
-#' @export
+#' @examples
+#' building <- list(EGID = 123456)
+#' updated_building <- request_regbl(building)
+#'
+#' @details
+#' The function first determines the type of request based on available information in the `building` object:
+#' - If EGID is available, it constructs a request based on the building's EGID.
+#' - If EGID is not available, but address components are, it constructs a request based on the building's address.
+#'
+#' The function then assembles the XML request body, including a unique message ID, application details, and
+#' the appropriate query parameters. After sending the request to the RegBl API endpoint and receiving a response,
+#' the function checks for errors and, if successful, extracts relevant data from the response XML to fill in
+#' the building information. It also logs the XML response for record-keeping and further validation.
+#'
+#' The function requires that the `.constants$buildings_df_columns` object is defined elsewhere in the package
+#' and contains necessary metadata about the expected building data fields, including their corresponding xpaths
+#' in the RegBl response XML schema.
+#'
+#' For more information about the RegBl MADD API, refer to:
+#' \url{https://www.housing-stat.ch/fr/madd/restricted/ech-0206.html}
+#'
+#' For details on finding XPath and names of a node in the web service request from RegBl, consult the eCH-0206 standard:
+#' \url{https://www.housing-stat.ch/files/STAN_d_DRA_2020-07-21_eCH-0206_V2.0_GWR-Daten_an_Dritte_Draft-0.99.pdf}
+#'
+#' Variable names for RegBl data are taken from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2":
+#' \url{https://www.bfs.admin.ch/asset/fr/22905271}
+#'
+#' @importFrom magrittr %>%
 request_regbl <- function(building) {
-  # TODO : If the EGID is already known, use it to get the building data
   # Check if the building data is complete
-  if (is.null(building$DEINR) || is.null(building$STRNAME) || is.null(building$DPLZ4)) {
-    stop("Building data is incomplete")
+  if (!is.na(building$EGID)) {
+    request_type <- "egid"
+  } else if (!is.na(building$DEINR) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
+    request_type <- "address"
+  } else {
+    stop("Building data is incomplete. Need EGID, or DEINR/STRNAME/DPLZ4 to found the building in RegBl.")
   }
 
-  # API request parameters
+  # API request global parameters
   madd_url <- "https://madd.bfs.admin.ch/eCH-0206"
   pkg_name <- "FinancedEmissionsCalculator" # TODO get the package name from the DESCRIPTION file
   pkg_version <- "0.0.0.9000" # TODO get the version from the DESCRIPTION file
-  message_id <- sanitize_filename(gsub(" ", "_", paste(building$DPLZ4, building$STRNAME %>% substr(1, 36 - 14), building$DEINR, uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. The max length is 36 characters. Char such as \/:*?"<>| are removed.
   business_id <- "9876543210" # TODO choose a unique business id
   manufacturer <- "SwissClimateAG"
   request_datetime <- format(Sys.time(), "%Y-%m-%dT%H:%M:%S", tz = "UTC")
 
-  # XML request body
-  request_body <- paste0('<?xml version="1.0" encoding="UTF-8"?>
+  # Create the XML request body
+  if (request_type == "egid") {
+    message_id <- sanitize_filename(gsub(" ", "_", paste(building$EGID, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. Char such as \/:*?"<>| are removed.
+    # XML request body
+    request_body <- paste0('<?xml version="1.0" encoding="UTF-8"?>
+<eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
+     <eCH-0206:requestHeader>
+   	   	<eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
+   	   	<eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
+   	   	<eCH-0206:requestingApplication>
+   	   	   	<eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
+   	   	   	<eCH-0058:product>", pkg_name, "</eCH-0058:product>
+   	   	   	<eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
+   	   	</eCH-0206:requestingApplication>
+   	   	<eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
+   	</eCH-0206:requestHeader>
+   	<eCH-0206:requestContext>building</eCH-0206:requestContext>
+   	<eCH-0206:requestQuery>
+   	   	<eCH-0206:EGID>", building$EGID, "</eCH-0206:EGID>
+   	</eCH-0206:requestQuery>
+</eCH-0206:maddRequest>")
+  } else if (request_type == "address") {
+    message_id <- sanitize_filename(gsub(" ", "_", paste(building$DPLZ4, building$STRNAME %>% substr(1, 36 - 14), building$DEINR, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. The max length is 36 characters. Char such as \/:*?"<>| are removed.
+    # XML request body
+    request_body <- paste0('<?xml version="1.0" encoding="UTF-8"?>
 	<eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
 		<eCH-0206:requestHeader>
 			<eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
@@ -85,12 +111,13 @@ request_regbl <- function(building) {
 				</eCH-0206:condition>
 		</eCH-0206:requestQuery>
 	</eCH-0206:maddRequest>")
+  }
 
   # Send a POST request to the API
-  response <- request(madd_url) %>%
-    req_headers("Content-Type" = "text/xml") %>%
-    req_body_raw(request_body) %>%
-    req_perform()
+  response <- httr2::request(madd_url) %>%
+    httr2::req_headers("Content-Type" = "text/xml") %>%
+    httr2::req_body_raw(request_body) %>%
+    httr2::req_perform()
 
   # Check if the request was successful
   if (response$status_code != 200) {
@@ -98,25 +125,25 @@ request_regbl <- function(building) {
   }
 
   # Parse the XML response
-  xml_content <- response %>% resp_body_xml()
+  xml_content <- response %>% httr2::resp_body_xml()
 
   # Save reply to a log file
-  if(.constants$saveLogs){
-    write_xml(xml_content, paste0("log/", message_id, ".xml"))
+  if (.constants$saveLogs) {
+    xml2::write_xml(xml_content, paste0("log/", message_id, ".xml"))
   }
 
   # Check XML response status. See https://www.housing-stat.ch/files/error_codes_flags.xlsx
   xml_status_code <- xml_content %>%
-    xml_find_first(".//d1:code") %>%
-    xml_text()
+    xml2::xml_find_first(".//d1:code") %>%
+    xml2::xml_text()
   xml_status_message <- xml_content %>%
-    xml_find_first(".//d1:message") %>%
-    xml_text()
+    xml2::xml_find_first(".//d1:message") %>%
+    xml2::xml_text()
   # Code between 100..199 is for positive reply
   # Code between 200..399 is for server errors
   # Code between 400..700 is for client errors
   if (xml_status_code >= 100 && xml_status_code < 200) {
-    message(paste("Request was successful:", xml_status_code, xml_status_message))
+    # message(paste("Request was successful:", xml_status_code, xml_status_message))
   } else if (xml_status_code >= 200 && xml_status_code < 400) {
     stop(paste("Server error:", xml_status_code, xml_status_message))
   } else if (xml_status_code >= 400 && xml_status_code < 701) {
@@ -127,8 +154,8 @@ request_regbl <- function(building) {
 
   # Check if a unique building was found
   building_found <- xml_content %>%
-    xml_find_first(".//d1:objectCount") %>%
-    xml_integer()
+    xml2::xml_find_first(".//d1:objectCount") %>%
+    xml2::xml_integer()
   if (building_found == 0) {
     stop("No building found")
   } else if (building_found > 1) {
@@ -137,99 +164,35 @@ request_regbl <- function(building) {
 
   ## Extract data from the XML response
   # Required data
-  building$EGID <- xml_content %>%
-    xml_find_first(".//d1:EGID") %>%
-    xml_integer()
-  building$GKLAS <- xml_content %>%
-    xml_find_first(".//d1:buildingClass") %>%
-    xml_integer()
 
-  building$GBAUJ <- xml_content %>%
-    xml_find_first(".//d1:dateOfConstruction/d1:dateOfConstruction") %>%
-    xml_integer()
-  building$GBAUP <- xml_content %>%
-    xml_find_first(".//d1:dateOfConstruction/d1:periodOfConstruction") %>%
-    xml_integer()
-  building$GABBJ <- xml_content %>%
-    xml_find_first(".//d1:yearOfDemolition") %>%
-    xml_integer()
+  for (col_name in names(building)) {
+    # Skip if the column is already filled
+    if (is.na(building[[col_name]])) {
+      column_info <- .constants$buildings_df_columns[[col_name]]
 
-  building$GAREA <- xml_content %>%
-    xml_find_first(".//d1:surfaceAreaOfBuilding") %>%
-    xml_integer()
-  building$GASTW <- xml_content %>%
-    xml_find_first(".//d1:numberOfFloors") %>%
-    xml_integer()
-  building$GEBF <- xml_content %>%
-    xml_find_first(".//d1:energyRelevantSurface") %>%
-    xml_integer()
-
-  building$DKODE <- xml_content %>%
-    xml_find_first(".//d1:coordinates/d1:east ") %>%
-    xml_double()
-  building$DKODN <- xml_content %>%
-    xml_find_first(".//d1:coordinates/d1:north ") %>%
-    xml_double()
-
-  building$GENH1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:energySourceHeating") %>%
-    xml_integer()
-  building$GWAERDATH1 <- xml_content %>%
-    xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:revisionDate") %>%
-    xml_text()
-
-  
-  # Others (removed for claritiy in the output Excel file)
-
-  # building$GKAT <- xml_content %>%
-  #   xml_find_first(".//d1:buildingCategory") %>%
-  #   xml_integer()
-
-  # building$GWAERZH1 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:heatGeneratorHeating") %>%
-  #   xml_integer()
-  # building$GWAERSCEH1 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating1/d1:informationSourceHeating") %>%
-  #   xml_integer()
-
-  # building$GWAERZH2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:heatGeneratorHeating") %>%
-  #   xml_integer()
-  # building$GENH2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:energySourceHeating") %>%
-  #   xml_integer()
-  # building$GWAERSCEH2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:informationSourceHeating") %>%
-  #   xml_integer()
-  # building$GWAERDATH2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForHeating2/d1:revisionDate") %>%
-  #   xml_text()
-
-  # building$GWAERZW1 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:heatGeneratorHotWater") %>%
-  #   xml_integer()
-  # building$GENW1 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:energySourceHeating") %>%
-  #   xml_integer()
-  # building$GWAERSCEW1 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:informationSourceHeating") %>%
-  #   xml_integer()
-  # building$GWAERDATW1 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater1/d1:revisionDate") %>%
-  #   xml_text()
-
-  # building$GWAERZW2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:heatGeneratorHotWater") %>%
-  #   xml_integer()
-  # building$GENW2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:energySourceHeating") %>%
-  #   xml_integer()
-  # building$GWAERSCEW2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:informationSourceHeating") %>%
-  #   xml_integer()
-  # building$GWAERDATW2 <- xml_content %>%
-  #   xml_find_first(".//d1:thermotechnicalDeviceForWarmWater2/d1:revisionDate") %>%
-  #   xml_text()
+      # Skip if column_info or xpath is unknown
+      if (!is.null(column_info$xpath)) {
+        # Depending on the type, use the appropriate xml2 extraction function
+        if (column_info$type == "integer") {
+          building[[col_name]] <- xml_content %>%
+            xml2::xml_find_first(column_info$xpath) %>%
+            xml2::xml_integer()
+        } else if (column_info$type == "character") {
+          building[[col_name]] <- xml_content %>%
+            xml2::xml_find_first(column_info$xpath) %>%
+            xml2::xml_text()
+        } else if (column_info$type == "date") {
+          building[[col_name]] <- xml_content %>%
+            xml2::xml_find_first(column_info$xpath) %>%
+            xml2::xml_text() # TODO Additional conversion may be required
+        } else if (column_info$type == "double") {
+          building[[col_name]] <- xml_content %>%
+            xml2::xml_find_first(column_info$xpath) %>%
+            xml2::xml_double()
+        }
+      }
+    }
+  }
 
   return(building)
 }

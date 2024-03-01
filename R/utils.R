@@ -1,27 +1,5 @@
 library(magrittr)
 
-#' pkg_install
-#'
-#' Install one or more package from a given CRAN repository,
-#' is they're not already installed.
-#'
-#' @param packages Vector of packages to install.
-#' @param repos Link to the CRAN repo to get the packages.
-#'
-#' @examples
-#' pkg_install(packages = c("knitr", "readxl"), repos = "https://stat.ethz.ch/CRAN")
-pkg_install <- function(packages, repos = "https://stat.ethz.ch/CRAN") {
-  packagecheck <- match(packages, utils::installed.packages()[, 1])
-  packagestoinstall <- packages[is.na(packagecheck)]
-  if (length(packagestoinstall) > 0L) {
-    utils::install.packages(packagestoinstall,
-      repos = repos
-    )
-  } else {
-    print("All requested packages already installed")
-  }
-}
-
 #' Euclidean Distance
 #'
 #' This function calculates the Euclidean distance between two points in a 2D plane.
@@ -32,8 +10,6 @@ pkg_install <- function(packages, repos = "https://stat.ethz.ch/CRAN") {
 #' @param y2 The y-coordinate of the second point.
 #'
 #' @return The Euclidean distance between the two points.
-#'
-#' @export
 euclidean_distance <- function(x1, y1, x2, y2) {
   sqrt((x2 - x1)^2 + (y2 - y1)^2)
 }
@@ -52,8 +28,6 @@ euclidean_distance <- function(x1, y1, x2, y2) {
 #'
 #' @return A character string representing the `$code` of the closest meteorological
 #'   station to the given building.
-#'
-#' @export
 find_closest_station <- function(climate, building) {
   min_distance <- Inf
   closest_station_code <- NA
@@ -69,137 +43,38 @@ find_closest_station <- function(climate, building) {
   return(closest_station_code)
 }
 
-#' Call Geodesy API to Convert WGS84 to LV95 Coordinates
+#' Standardize the Structure of a Building Data Frame
 #'
-#' This function sends a request to the Geodesy API to convert coordinates from WGS84 to LV95.
+#' This function ensures that a given building data frame contains a specific set of columns.
+#' It checks the data frame against a provided list of column names and adds any that are missing,
+#' initializing them with NA values. This standardization is essential for consistent data handling
+#' and analysis, particularly when integrating multiple building data sets with potentially varying structures.
 #'
-#' @param easting Ellipsoidal longitude in decimal degrees [°] on WGS84.
-#' @param northing Ellipsoidal latitude in decimal degrees [°] on WGS84.
-#' @param altitude Ellipsoidal height in meters [m] on WGS84. If not required, set to `NULL`.
-#' @return A list containing the easting, northing, and altitude in LV95 coordinate system.
-#'         If the altitude is specified, it returns the ellipsoidal height on Bessel.
-#' @references Geodesy API documentation: https://www.swisstopo.admin.ch/en/rest-api-geoservices-reframe-web
+#' @param buildings_df A data frame containing building information that needs to be standardized.
+#' @param buildings_df_columns_names A character vector specifying the desired set of column names
+#' that should be present in the buildings data frame.
 #'
-#' @export
-wgs84_to_lv95 <- function(easting, northing, altitude) {
-  # Base URL of the API
-  base_url <- "https://geodesy.geo.admin.ch/reframe/wgs84tolv95"
-
-  # Make the GET request using httr2
-  response <- httr2::request(base_url) %>%
-    httr2::req_url_query(easting = easting, northing = northing, altitude = altitude, format = "json") %>%
-    httr2::req_perform()
-
-  # Check the status code of the response
-  if (httr2::resp_status(response) == 200) {
-    # Parse the JSON response
-    parsed_response <- response %>%
-      httr2::resp_body_json(simplifyVector = TRUE) %>%
-      lapply(function(x) as.numeric(x))
-    return(parsed_response)
-  } else {
-    # Handle error based on status code
-    stop("Error in API call. HTTP status code: ", httr2::resp_status(response))
-  }
-}
-
-#' Split Address into Street Name and House Number
+#' @return The input data frame augmented with any missing columns from the specified set,
+#' with NA values in these new columns.
 #'
-#' This function takes a single string address and splits it into two components: the street name and the house number. The street is everything before the last sequence of digits which may include letters (e.g., "54A" or "10A").
-#'
-#' @param address A single string containing a street name followed by a house number.
-#' @return A list with two elements: $street containing the street name, and $number containing the house number.
-#' @export
-split_address <- function(address) {
-  # This pattern looks for any sequence of digits (\d+) possibly followed by non-digits (\D*)
-  # at the end of the string ($)
-  pattern <- "^(.*?)(\\d+\\w*)?$$"
-
-  # Use strcapture to extract the parts
-  parts <- utils::strcapture(pattern, address, proto = list(STRNAME = character(), DEINR = character()))
-
-  # Trim leading and trailing spaces from the street name
-  parts$STRNAME <- trimws(parts$STRNAME)
-
-  return(parts)
-}
-
-#' Split Addresses into Street Name and House Number in a Data Frame
-#'
-#' This function takes a data frame with a column containing addresses and splits each address into two components: the street name and the house number. The street is everything before the last sequence of digits which may include letters (e.g., "54A" or "10A").
-#'
-#' @param data A data frame containing a column with addresses.
-#' @param col_name The name of the column containing the addresses.
-#' @return A data frame with the original addresses and two new columns: $street containing the street name, and $number containing the house number.
-#' @export
-split_addresses <- function(data, col_name = "Addresses") {
-  data <- cbind(data, do.call(rbind, lapply(data[[col_name]], split_address)))
-  return(data)
-}
-
-
-add_missing_columns <- function(df) {
+#' @examples
+#' buildings_df <- data.frame(EGID = c(12345, 67890), STRNAME = c("Main St", "Second St"))
+#' desired_columns <- c("EGID", "STRNAME", "DEINR", "DPLZ4")
+#' standardized_df <- standardize_buildings_df(buildings_df, desired_columns)
+#' # standardized_df will now include DEINR and DPLZ4 columns with NA values.
+standardize_buildings_df <- function(buildings_df, buildings_df_columns_names) {
   # Identify which of the desired columns are missing from the dataframe
-  desired_columns <- c(
-    # Required
-    "DEINR", # numeric The building entrance number.
-    "STRNAME", # character The street name.
-    "DPLZ4", # numeric The postal code.
-    "EGID", # numeric The unique building identifier.
-    "GKLAS", # numeric The building class.
-    "GBAUJ", # numeric The year of construction.
-    "GBAUP", # numeric The period of construction.
-    "GABBJ", # numeric The year of demolition.
-    "GAREA", # numeric The surface area of the building.
-    "GASTW", # numeric The number of floors.
-    "GEBF", # numeric The energy relevant surface of the building.
-    "DKODE", # numeric The building easting coordinate in the LV95 coordinate system.
-    "DKODN", # numeric The building northing coordinate in the LV95 coordinate system.
-    "GENH1", # character The energy source for heating 1.
-    "GWAERDATH1", # Date The revision date for heating 1.
-    "energy_relevant_area", # numeric The energy relevant surface of the building.
-    "floors", # numeric The number of floors.
-    "year", # numeric The year of construction.
-    "utilisation_key", # numeric The utilisation key according to SIA 380/1.
-    "climate_code", # numeric The climate code of the closest climate station.
-    "energy_carrier", # character The energy carrier according to SIA 380/1.
-    "walls_refurb_year", # numeric The year of the last refurbishment of the walls.
-    "roof_refurb_year", # numeric The year of the last refurbishment of the roof.
-    "windows_refurb_year", # numeric The year of the last refurbishment of the windows.
-    "floor_refurb_year", # numeric The year of the last refurbishment of the floor.
-    "heating_install_year", # numeric The year of the installation of the heating system.
-    "heatEnergy", # numeric Annual heat energy required per area, in MJ/m2 per year.
-    "emissionCoefficient", # numeric Applied CO2 emission coefficient according to the given energy carrier, in kg/MJ.
-    "emissionsPerArea", # numeric Annual CO2 emissions per area, in kg/m2 per year.
-    "emissionsTotal", # numeric Total annual CO2 emissions, in kg per year.
-    "error_comments" # character A string containing error messages.
-    # Others (removed for claritiy in the output Excel file)
-    #"GKAT", # numeric The building category.
-    #"GWAERZH1", # character The heat generator for heating 1.
-    #"GWAERZH2", # character The heat generator for heating 2.
-    #"GENH2", # character The energy source for heating 2.
-    #"GWAERSCEH1", # character The information source for heating 1.
-    #"GWAERSCEH2", # character The information source for heating 2.
-    #"GWAERDATH2", # Date The revision date for heating 2.
-    #"GWAERZW1", # character The heat generator for warm water 1.
-    #"GWAERZW2", # character The heat generator for warm water 2.
-    #"GENW1", # character The energy source for warm water 1.
-    #"GENW2", # character The energy source for warm water 2.
-    #"GWAERSCEW1", # character The information source for warm water 1.
-    #"GWAERSCEW2", # character The information source for warm water 2.
-    #"GWAERDATW1", # Date The revision date for warm water 1.
-    #"GWAERDATW2" # Date The revision date for warm water 2.
-  )
-  missing_columns <- setdiff(desired_columns, names(df))
+  missing_columns <- setdiff(buildings_df_columns_names, names(buildings_df))
 
   # For each missing column, add it to the dataframe with NA values
   for (col in missing_columns) {
-    df[[col]] <- NA
+    buildings_df[[col]] <- NA
   }
 
-  return(df)
+  return(buildings_df)
 }
 
+# Append a new error message to the existing error comments, if any
 append_error_message <- function(current_errors, new_error) {
   if (is.na(current_errors)) {
     return(new_error)
@@ -208,6 +83,7 @@ append_error_message <- function(current_errors, new_error) {
   }
 }
 
+# Sanitize a string to remove disallowed characters for a filename
 sanitize_filename <- function(input_string) {
   # Define a pattern of disallowed characters
   # This pattern covers common disallowed characters in Windows and Unix/Linux
