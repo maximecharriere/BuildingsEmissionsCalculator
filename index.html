@@ -56,24 +56,27 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="buildingsemissionscalculator">BuildingsEmissionsCalculator<a class="anchor" aria-label="anchor" href="#buildingsemissionscalculator"></a>
 </h1></div>
-<!-- badges: start -->
-<!-- badges: end -->
-<p>The goal of FinancedEmissionsCalculator is to … # TODO</p>
+<p>Le package R <code>BuildingsEmissionsCalculator</code> permet de calculer les émissions de CO2 d’une liste de batiments. A partir d’un tableau comptenant une liste d’EGID ou d’adresses de batiments, il ira chercher les informations manquantes sur des bases de données, comme celle de RegBl, puis utilisera le calculateur <a href="https://maximecharriere.github.io/co2calculatorPACTA2022/" class="external-link"><code>co2calculatorPACTA2022</code></a>, suivant la norme SIA 380/1:2009 “Thermische Energie im Hochbau”, afin de calculer les émissions de chaque batiment.</p>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="installation--utilisation">Installation &amp; Utilisation<a class="anchor" aria-label="anchor" href="#installation--utilisation"></a>
 </h2>
-<p>You can install the development version of BuildingsEmissionsCalculator from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"maximecharriere/BuildingsEmissionsCalculator"</span><span class="op">)</span></span></code></pre></div>
+<p>Pour des explication sur l’installation et l’utilisation de <code>BuildingsEmissionsCalculator</code>, allez voir la page <a href="articles/BuildingsEmissionsCalculator.html"><code>Getting Started</code></a>.</p>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="ressources">Ressources<a class="anchor" aria-label="anchor" href="#ressources"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://maximecharriere.github.io/BuildingsEmissionsCalculator/">BuildingsEmissionsCalculator</a></span><span class="op">)</span></span>
-<span><span class="co">## TODO basic example code</span></span></code></pre></div>
+<ul>
+<li>Doc about the <code>co2calculatorPACTA2022</code> package :<br><a href="https://maximecharriere.github.io/co2calculatorPACTA2022/" class="external-link uri">https://maximecharriere.github.io/co2calculatorPACTA2022/</a>
+</li>
+<li>To see what is included in the RegBl database, and understand the RegBl abbreviations, refer to the document <code>Catalogue des caractères - Version 4.2</code> :<br><a href="https://www.bfs.admin.ch/asset/fr/22905271" class="external-link uri">https://www.bfs.admin.ch/asset/fr/22905271</a>
+</li>
+<li>To understand the codes written in the Excel file, refer to the document <code>Codes du RegBL</code> :<br><a href="https://www.housing-stat.ch/files/GWRCodes.xlsx" class="external-link uri">https://www.housing-stat.ch/files/GWRCodes.xlsx</a>
+</li>
+<li>For information on the data access, using the RegBl MADD API, refer to the <code>eCH-0206</code> norm :<br><a href="https://www.housing-stat.ch/fr/madd/restricted/ech-0206.html" class="external-link uri">https://www.housing-stat.ch/fr/madd/restricted/ech-0206.html</a>
+</li>
+<li>To found the XPath corresponding to a given RegBl abbreviation, take a look at <code>Annexe H</code> of the <code>eCH-0206 – Données RegBL à des tiers</code> document :<br><a href="https://www.housing-stat.ch/files/STAN_f_DEF_2022-06-18_eCH-0206_V2.0.0_Donnees_RegBL_aux_tiers.pdf" class="external-link uri">https://www.housing-stat.ch/files/STAN_f_DEF_2022-06-18_eCH-0206_V2.0.0_Donnees_RegBL_aux_tiers.pdf</a>
+</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="coding-style">Coding style<a class="anchor" aria-label="anchor" href="#coding-style"></a>
