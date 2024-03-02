@@ -32,7 +32,7 @@
 #' \url{https://www.housing-stat.ch/fr/madd/restricted/ech-0206.html}
 #'
 #' For details on finding XPath and names of a node in the web service request from RegBl, consult the eCH-0206 standard:
-#' \url{https://www.housing-stat.ch/files/STAN_d_DRA_2020-07-21_eCH-0206_V2.0_GWR-Daten_an_Dritte_Draft-0.99.pdf}
+#' \url{https://www.housing-stat.ch/files/STAN_f_DEF_2022-06-18_eCH-0206_V2.0.0_Donnees_RegBL_aux_tiers.pdf}
 #'
 #' Variable names for RegBl data are taken from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2":
 #' \url{https://www.bfs.admin.ch/asset/fr/22905271}

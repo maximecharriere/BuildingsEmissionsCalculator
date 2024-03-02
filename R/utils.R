@@ -1,3 +1,7 @@
+# Author: Maxime Charriere, contact@maximecharriere.ch
+# Date: 02.2024
+# This script contain code usefull for the package, with general purpose.
+
 library(magrittr)
 
 #' Euclidean Distance
