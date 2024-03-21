@@ -1,5 +1,3 @@
-library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
-
 #' Retrieve and Enhance Building Data with RegBl data and CO2 Emissions Calculations
 #'
 #' This function enriches a given building's data record by fetching additional details from the RegBl API,
@@ -17,6 +15,7 @@ library(co2calculatorPACTA2022) # TODO found why the script is not working if I 
 #' building_data <- list(EGID = "123456")
 #' enriched_building_data <- fill_building_data(building_data)
 fill_building_data <- function(building) {
+  library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
   tryCatch(
     {
       # Call the regbl API to get the building data
@@ -50,17 +49,16 @@ fill_building_data <- function(building) {
           building[names(emissions)] <- emissions
         },
         error = function(e) {
-          if (.constants$saveLogs) {
-            save(building, file = paste0("log/error_building_", building$EGID, ".RData"))
-          }
-          stop("from co2calculator: ", e$message)
+          stop("error from the co2calculator: ", e$message)
         }
       )
 
+      message("Building ", building$EGID, " filled.")
       return(building)
     },
     error = function(e) {
       building$error_comments <- append_error_message(building$error_comments, e$message)
+      message("Error: ", e$message, " for building ", building$EGID, ".")
       return(building)
     }
   )
@@ -93,18 +91,29 @@ fill_building_data <- function(building) {
 #'
 #' The parallel execution model can be adjusted based on system resources by changing the number of
 #' workers in the `future::plan` call.
-#' @import co2calculatorPACTA2022
 #' @export
-fill_buildings_df <- function(buildings_df) {
+fill_buildings_df <- function(buildings_df, log_file = "log.txt") {
+  progressr::handlers(global = TRUE)
+  progressr::handlers("cli")
+
+  # Open log file for writing
+  cat("Logging parallel function outputs...\n", file = log_file)
+
   # Add missing columns to the dataframe, filled with NA values
   buildings_df <- standardize_buildings_df(buildings_df, names(.constants$buildings_df_columns))
 
-  ## Execute fill_building_data on each row of the dataframe
-  # Set up parallelization plan (e.g., multisession to use multiple cores)
-  future::plan(future::multisession, workers = 1) # Adjust the number of workers based on your machine's capabilities
+  # Initialize a progress bar with the total number of iterations
+  p <- progressr::progressor(nrow(buildings_df))
 
-  # Use future_lapply to apply the function to each row of the dataframe
-  results <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) fill_building_data(buildings_df[i, ]))
+  # Set up parallelization plan (e.g., multisession to use multiple cores)
+  future::plan(future::multisession, workers = 4)
+
+  # Call fill_building_data on each building
+  results <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) {
+    result <- fill_building_data(buildings_df[i, ])
+    p()
+    return(result)
+  })
 
   # Combine the results back into the original dataframe
   # Assuming results are returned as dataframes or named lists that can be rbinded

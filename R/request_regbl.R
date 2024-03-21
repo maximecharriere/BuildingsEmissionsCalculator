@@ -36,8 +36,6 @@
 #'
 #' Variable names for RegBl data are taken from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2":
 #' \url{https://www.bfs.admin.ch/asset/fr/22905271}
-#'
-#' @importFrom magrittr %>%
 request_regbl <- function(building) {
   # Check if the building data is complete
   if (!is.na(building$EGID)) {
@@ -50,8 +48,8 @@ request_regbl <- function(building) {
 
   # API request global parameters
   madd_url <- "https://madd.bfs.admin.ch/eCH-0206"
-  pkg_name <- "FinancedEmissionsCalculator" # TODO get the package name from the DESCRIPTION file
-  pkg_version <- "0.0.0.9000" # TODO get the version from the DESCRIPTION file
+  pkg_name <- "BuildingsEmissionsCalculator"
+  pkg_version <- packageVersion("BuildingsEmissionsCalculator")
   business_id <- "9876543210" # TODO choose a unique business id
   manufacturer <- "SwissClimateAG"
   request_datetime <- format(Sys.time(), "%Y-%m-%dT%H:%M:%S", tz = "UTC")
