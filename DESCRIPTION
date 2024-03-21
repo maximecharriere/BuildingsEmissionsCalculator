@@ -1,6 +1,6 @@
 Package: BuildingsEmissionsCalculator
 Title: BuildingsEmissionsCalculator
-Version: 0.1.10
+Version: 0.1.11
 Authors@R: 
     person("Maxime", "Charriere", , "contact@maximecharriere.ch", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -11,7 +11,6 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
-Remotes: github::maximecharriere/co2calculatorPACTA2022
 Imports:
     jsonlite,
     progressr,
@@ -21,6 +20,6 @@ Imports:
     future,
     future.apply,
     magrittr,
-    co2calculatorPACTA2022,
+    co2calculatorPACTA2022
 Depends: R (>= 3.6.0)
 URL: https://maximecharriere.github.io/BuildingsEmissionsCalculator/
