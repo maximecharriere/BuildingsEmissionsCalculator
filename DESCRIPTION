@@ -1,6 +1,6 @@
 Package: BuildingsEmissionsCalculator
 Title: BuildingsEmissionsCalculator
-Version: 0.1.4
+Version: 0.1.10
 Authors@R: 
     person("Maxime", "Charriere", , "contact@maximecharriere.ch", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
@@ -20,8 +20,7 @@ Imports:
     xml2,
     future,
     future.apply,
-    co2calculatorPACTA2022,
-Depends:
-    R (>= 3.6.0),
     magrittr,
+    co2calculatorPACTA2022,
+Depends: R (>= 3.6.0)
 URL: https://maximecharriere.github.io/BuildingsEmissionsCalculator/

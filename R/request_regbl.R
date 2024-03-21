@@ -36,6 +36,7 @@
 #'
 #' Variable names for RegBl data are taken from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2":
 #' \url{https://www.bfs.admin.ch/asset/fr/22905271}
+#' @importFrom magrittr %>%
 request_regbl <- function(building) {
   # Check if the building data is complete
   if (!is.na(building$EGID)) {
