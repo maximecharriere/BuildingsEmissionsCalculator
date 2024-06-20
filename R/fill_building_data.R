@@ -19,7 +19,7 @@ fill_building_data <- function(building) {
   tryCatch(
     {
       # Call the regbl API to get the building data
-      building <- request_regbl(building)
+      building <- request_regbl_web(building)
 
       # If the building is demolished, stop the process
       if (!is.na(building$GABBJ)) {

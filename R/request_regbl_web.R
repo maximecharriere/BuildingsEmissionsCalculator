@@ -12,7 +12,7 @@
 #'
 #' @examples
 #' building <- list(EGID = 123456)
-#' updated_building <- request_regbl(building)
+#' updated_building <- request_regbl_web(building)
 #'
 #' @details
 #' The function first determines the type of request based on available information in the `building` object:
@@ -37,14 +37,16 @@
 #' Variable names for RegBl data are taken from the "Catalogue des caractères - Registre fédéral des bâtiments et des logements 4.2":
 #' \url{https://www.bfs.admin.ch/asset/fr/22905271}
 #' @importFrom magrittr %>%
-request_regbl <- function(building) {
+request_regbl_web <- function(building) {
   # Check if the building data is complete
   if (!is.na(building$EGID)) {
     request_type <- "egid"
   } else if (!is.na(building$DEINR) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
     request_type <- "address"
+  } else if (!is.na(building$LPARZ) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
+    request_type <- "parcel"
   } else {
-    stop("Building data is incomplete. Need EGID, or DEINR/STRNAME/DPLZ4 to found the building in RegBl.")
+    stop("Building data is incomplete. Need EGID, or DEINR/STRNAME/DPLZ4, or LPARZ/STRNAME/DPLZ4 to found the building in RegBl.")
   }
 
   # API request global parameters
@@ -77,7 +79,7 @@ request_regbl <- function(building) {
    	</eCH-0206:requestQuery>
 </eCH-0206:maddRequest>")
   } else if (request_type == "address") {
-    message_id <- sanitize_filename(gsub(" ", "_", paste(building$DPLZ4, building$STRNAME %>% substr(1, 36 - 14), building$DEINR, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. The max length is 36 characters. Char such as \/:*?"<>| are removed.
+    message_id <- sanitize_filename(gsub(" ", "_", paste(building$DPLZ4, building$STRNAME %>% substr(1, 36 - 15), building$DEINR, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. The max length is 36 characters. Char such as \/:*?"<>| are removed.
     # XML request body
     request_body <- paste0('<?xml version="1.0" encoding="UTF-8"?>
 	<eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
@@ -110,7 +112,42 @@ request_regbl <- function(building) {
 				</eCH-0206:condition>
 		</eCH-0206:requestQuery>
 	</eCH-0206:maddRequest>")
-  }
+  } else if (request_type == "parcel") {
+    message_id <- sanitize_filename(gsub(" ", "_", paste(building$DPLZ4, building$LPARZ, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. The max length is 36 characters. Char such as \/:*?"<>| are removed.
+    # XML request body
+    request_body <- paste0(
+                           '<?xml version="1.0" encoding="UTF-8"?>
+                             <eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
+                               <eCH-0206:requestHeader>
+                                 <eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
+                                 <eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
+                                 <eCH-0206:requestingApplication>
+                                   <eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
+                                   <eCH-0058:product>", pkg_name, "</eCH-0058:product>
+                                   <eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
+                                 </eCH-0206:requestingApplication>
+                                 <eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
+                               </eCH-0206:requestHeader>
+                               <eCH-0206:requestContext>building</eCH-0206:requestContext>
+                               <eCH-0206:requestQuery>
+                                 <eCH-0206:condition>
+                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH0206:realestateIdentificationList/eCH-0206:realestateIdentificationItem/eCH0206:number</eCH-0206:attributePath>
+                                     <eCH-0206:operator>equalTo</eCH-0206:operator>
+                                     <eCH-0206:attributeValue>", building$LPARZ, "</eCH-0206:attributeValue>
+                                   </eCH-0206:condition>
+                                 <eCH-0206:condition>
+                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:street/eCH-0206:streetNameList/eCH-0206:streetNameItem/eCH-0206:descriptionLong</eCH-0206:attributePath>
+                                     <eCH-0206:operator>equalTo</eCH-0206:operator>
+                                     <eCH-0206:attributeValue>", building$STRNAME, "</eCH-0206:attributeValue>
+                                   </eCH-0206:condition>
+                                 <eCH-0206:condition>
+                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:locality/eCH-0206:swissZipCode</eCH-0206:attributePath>
+                                     <eCH-0206:operator>equalTo</eCH-0206:operator>
+                                     <eCH-0206:attributeValue>", building$DPLZ4, "</eCH-0206:attributeValue>
+                                   </eCH-0206:condition>
+                               </eCH-0206:requestQuery>
+                             </eCH-0206:maddRequest>")
+  }    
 
   # Send a POST request to the API
   response <- httr2::request(madd_url) %>%
@@ -125,10 +162,11 @@ request_regbl <- function(building) {
 
   # Parse the XML response
   xml_content <- response %>% httr2::resp_body_xml()
-
+  print(xml_content)
   # Save reply to a log file
   if (.constants$saveLogs) {
     xml2::write_xml(xml_content, paste0("log/", message_id, ".xml"))
+    
   }
 
   # Check XML response status. See https://www.housing-stat.ch/files/error_codes_flags.xlsx
