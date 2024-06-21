@@ -53,6 +53,11 @@
       "description": "The building entrance number",
       "xpath": ".//d1:buildingEntranceNo"
     },
+    "LPARZ": {
+      "type": "integer",
+      "description": "The building number",
+      "xpath": ".//d1:realestateIdentificationItem/d1:number"
+    },
     "STRNAME": {
       "type": "character",
       "description": "The street name",

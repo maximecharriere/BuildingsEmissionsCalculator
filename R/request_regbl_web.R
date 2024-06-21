@@ -131,7 +131,7 @@ request_regbl_web <- function(building) {
                                <eCH-0206:requestContext>building</eCH-0206:requestContext>
                                <eCH-0206:requestQuery>
                                  <eCH-0206:condition>
-                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH0206:realestateIdentificationList/eCH-0206:realestateIdentificationItem/eCH0206:number</eCH-0206:attributePath>
+                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:realestateIdentificationList/eCH-0206:realestateIdentificationItem/eCH-0206:number</eCH-0206:attributePath>
                                      <eCH-0206:operator>equalTo</eCH-0206:operator>
                                      <eCH-0206:attributeValue>", building$LPARZ, "</eCH-0206:attributeValue>
                                    </eCH-0206:condition>
@@ -162,7 +162,6 @@ request_regbl_web <- function(building) {
 
   # Parse the XML response
   xml_content <- response %>% httr2::resp_body_xml()
-  print(xml_content)
   # Save reply to a log file
   if (.constants$saveLogs) {
     xml2::write_xml(xml_content, paste0("log/", message_id, ".xml"))
