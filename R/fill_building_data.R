@@ -8,60 +8,64 @@
 #'
 #' @param building A list or data frame containing at least minimal identifying information for a building,
 #'                 which is then used to fetch and augment data from the RegBl database.
+#' @param data_source A character string specifying the source of the RegBl data, either 'sqlite' or 'web'.
 #'
 #' @return An enhanced version of the input `building` data, including additional details and computed CO2 emissions.
 #'
 #' @examples
 #' building_data <- list(EGID = "123456")
 #' enriched_building_data <- fill_building_data(building_data)
-fill_building_data <- function(building) {
-  library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
-  tryCatch(
-    {
-      # Call the regbl API to get the building data
+fill_building_data <- function(building, data_source="web", sqlite_conn = NULL) {
+  building <- tryCatch({
+    library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
+    # Call the regbl API to get the building data
+    if (data_source == "sqlite") {
+      building <- request_regbl_sqlite(building, sqlite_conn = sqlite_conn)
+    } else if (data_source == "web") {
       building <- request_regbl_web(building)
+    } else {
+      stop("Invalid RegBl data source. Please specify either 'sqlite' or 'web'.")
+    }
 
-      # If the building is demolished, stop the process
-      if (!is.na(building$GABBJ)) {
-        stop("Building was demolished in ", building$GABBJ, ".")
+    # If the building is demolished, stop the process
+    if (!(is.na(building$GABBJ))) {
+      stop("Building was demolished in ", building$GABBJ, ".")
+    }
+
+    # Convert the building data from the regbl format to the sia format
+    building <- regbl_2_sia_converter(building)
+
+    # Calculate the CO2 emissions
+    tryCatch({
+        emissions <- co2calculatorPACTA2022::calculate_emissions(
+          area = building$energy_relevant_area,
+          floors = building$floors,
+          year = building$year,
+          utilisation_key = building$utilisation_key,
+          climate_code = building$climate_code,
+          energy_carrier = building$energy_carrier,
+          walls_refurb_year = building$walls_refurb_year,
+          roof_refurb_year = building$roof_refurb_year,
+          windows_refurb_year = building$windows_refurb_year,
+          floor_refurb_year = building$floor_refurb_year,
+          heating_install_year = building$heating_install_year
+        )
+        # Update the emissions to the building data
+        building[names(emissions)] <- emissions
+      },
+      error = function(e) {
+        stop("Error from co2calculator: ", e$message)
       }
-
-      # Convert the building data from the regbl format to the sia format
-      building <- regbl_2_sia_converter(building)
-
-      # Calculate the CO2 emissions
-      tryCatch(
-        {
-          emissions <- co2calculatorPACTA2022::calculate_emissions(
-            area = building$energy_relevant_area,
-            floors = building$floors,
-            year = building$year,
-            utilisation_key = building$utilisation_key,
-            climate_code = building$climate_code,
-            energy_carrier = building$energy_carrier,
-            walls_refurb_year = building$walls_refurb_year,
-            roof_refurb_year = building$roof_refurb_year,
-            windows_refurb_year = building$windows_refurb_year,
-            floor_refurb_year = building$floor_refurb_year,
-            heating_install_year = building$heating_install_year
-          )
-          # Update the emissions to the building data
-          building[names(emissions)] <- emissions
-        },
-        error = function(e) {
-          stop("error from the co2calculator: ", e$message)
-        }
       )
-
       message("Building ", building$EGID, " filled.")
       return(building)
     },
     error = function(e) {
       building$error_comments <- append_error_message(building$error_comments, e$message)
-      message("Error: ", e$message, " for building ", building$EGID, ".")
+      message("Error on EGID ", building$EGID, ": ", e$message)
       return(building)
-    }
-  )
+    })
+  return(building)
 }
 
 #' Fill missing data in the buildings dataframe with RegBl data and computed CO2 emissions
@@ -92,7 +96,7 @@ fill_building_data <- function(building) {
 #' The parallel execution model can be adjusted based on system resources by changing the number of
 #' workers in the `future::plan` call.
 #' @export
-fill_buildings_df <- function(buildings_df, log_file = "log.txt") {
+fill_buildings_df <- function(buildings_df, data_source = "web", regbl_db_path = NULL, log_file = "log.txt") {
   progressr::handlers(global = TRUE)
   progressr::handlers("cli")
 
@@ -105,19 +109,38 @@ fill_buildings_df <- function(buildings_df, log_file = "log.txt") {
   # Initialize a progress bar with the total number of iterations
   p <- progressr::progressor(nrow(buildings_df))
 
-  # Set up parallelization plan (e.g., multisession to use multiple cores)
-  future::plan(future::multisession, workers = 4)
+  # Open the SQLite database connection if using 'sqlite' as data source
+  sqlite_conn <- NULL
+  if (data_source == "sqlite") {
+    if (is.null(regbl_db_path)) {
+      stop("RegBl Database filepath not provided.")
+    }
+    sqlite_conn <- RSQLite::dbConnect(RSQLite::SQLite(), dbname = regbl_db_path)
+    on.exit(RSQLite::dbDisconnect(sqlite_conn), add = TRUE) # Ensure the connection is closed
+  }
 
   # Call fill_building_data on each building
-  results <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) {
-    result <- fill_building_data(buildings_df[i, ])
-    p()
-    return(result)
-  })
+  multithreading <- FALSE
+  if (multithreading) {
+    # Set up parallelization plan (e.g., multisession to use multiple cores)
+    future::plan(future::multisession, workers = 4)
+    buildings <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) {
+      building <- fill_building_data(buildings_df[i, ], data_source = data_source, sqlite_conn = sqlite_conn)
+      p()
+      return(building)
+    })
+  } else {
+    buildings <- list()
+    for (i in seq_len(nrow(buildings_df))) {
+      building <- fill_building_data(buildings_df[i, ], data_source = data_source, sqlite_conn = sqlite_conn)
+      p()
+      buildings[[i]] <- building
+    }
+  }
 
   # Combine the results back into the original dataframe
   # Assuming results are returned as dataframes or named lists that can be rbinded
-  buildings_df_new <- do.call(rbind, results)
+  buildings_df_new <- do.call(rbind, buildings)
 
   return(buildings_df_new)
 }

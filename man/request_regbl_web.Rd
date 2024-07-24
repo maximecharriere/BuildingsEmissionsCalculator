@@ -2,12 +2,12 @@
 % Please edit documentation in R/request_regbl_web.R
 \name{request_regbl_web}
 \alias{request_regbl_web}
-\title{Request Building Information from RegBl}
+\title{Request Building Information from RegBl Webservice}
 \usage{
 request_regbl_web(building)
 }
 \arguments{
-\item{building}{A list or data frame representing the building, containing at least EGID or address components (DEINR, STRNAME, and DPLZ4).}
+\item{building}{A list or data frame representing the building, containing at least EGID, address components (DEINR, STRNAME, and DPLZ4), or parcel components (LPARZ, and DPLZ4).}
 }
 \value{
 A modified version of the input building object, with additional information filled in from the RegBl response.
@@ -15,8 +15,8 @@ If no unique building is found, or if an error occurs during the request, the fu
 }
 \description{
 This function sends a request to the RegBl API to retrieve detailed information about a building.
-The request can be made using either the building's unique identifier (EGID) or its address components
-(DEINR, STRNAME, DPLZ4). The function constructs an XML request, sends it to the RegBl API, and processes
+The request can be made using either the building's unique identifier (EGID), its address components
+(DEINR, STRNAME, DPLZ4), or its parcel components (LPARZ, DPLZ4). The function constructs an XML request, sends it to the RegBl API, and processes
 the response to extract and return the building information.
 }
 \details{
@@ -24,6 +24,7 @@ The function first determines the type of request based on available information
 \itemize{
 \item If EGID is available, it constructs a request based on the building's EGID.
 \item If EGID is not available, but address components are, it constructs a request based on the building's address.
+\item If neither EGID nor address components are available, but parcel components are, it constructs a request based on the building's parcel.
 }
 
 The function then assembles the XML request body, including a unique message ID, application details, and

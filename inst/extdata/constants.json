@@ -49,13 +49,13 @@
   },
   "buildings_df_columns": {
     "DEINR": {
-      "type": "integer",
+      "type": "character",
       "description": "The building entrance number",
       "xpath": ".//d1:buildingEntranceNo"
     },
     "LPARZ": {
-      "type": "integer",
-      "description": "The building number",
+      "type": "character",
+      "description": "The parcel number",
       "xpath": ".//d1:realestateIdentificationItem/d1:number"
     },
     "STRNAME": {
@@ -108,12 +108,12 @@
       "description": "The energy relevant surface of the building",
       "xpath": ".//d1:energyRelevantSurface"
     },
-    "DKODE": {
+    "GKODE": {
       "type": "double",
       "description": "The building easting coordinate in the LV95 coordinate system",
       "xpath": ".//d1:coordinates/d1:east"
     },
-    "DKODN": {
+    "GKODN": {
       "type": "double",
       "description": "The building northing coordinate in the LV95 coordinate system",
       "xpath": ".//d1:coordinates/d1:north"

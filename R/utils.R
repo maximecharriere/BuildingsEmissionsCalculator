@@ -26,8 +26,8 @@ euclidean_distance <- function(x1, y1, x2, y2) {
 #' @param climate A list of meteorological stations, where each station is an object
 #'   with properties `$easting`, `$northing`, and `$code`. Easting and northing
 #'   should be numeric values representing the LV95 coordinate of the station.
-#' @param building An object representing the building, with properties `$DKODE`
-#'   for easting and `$DKODN` for northing. Both should be numeric values representing
+#' @param building An object representing the building, with properties `$GKODE`
+#'   for easting and `$GKODN` for northing. Both should be numeric values representing
 #'   the LV95 coordinate of the building.
 #'
 #' @return A character string representing the `$code` of the closest meteorological
@@ -38,7 +38,7 @@ find_closest_station <- function(climate, building) {
 
   for (i in seq_along(climate)) {
     station <- climate[[i]]
-    distance <- euclidean_distance(building$DKODE, building$DKODN, station$easting, station$northing)
+    distance <- euclidean_distance(building$GKODE, building$GKODN, station$easting, station$northing)
     if (distance < min_distance) {
       min_distance <- distance
       closest_station_code <- station$code

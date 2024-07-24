@@ -11,8 +11,8 @@ find_closest_station(climate, building)
 with properties \verb{$easting}, \verb{$northing}, and \verb{$code}. Easting and northing
 should be numeric values representing the LV95 coordinate of the station.}
 
-\item{building}{An object representing the building, with properties \verb{$DKODE}
-for easting and \verb{$DKODN} for northing. Both should be numeric values representing
+\item{building}{An object representing the building, with properties \verb{$GKODE}
+for easting and \verb{$GKODN} for northing. Both should be numeric values representing
 the LV95 coordinate of the building.}
 }
 \value{

@@ -1,11 +1,11 @@
-#' Request Building Information from RegBl
+#' Request Building Information from RegBl Webservice
 #'
 #' This function sends a request to the RegBl API to retrieve detailed information about a building.
-#' The request can be made using either the building's unique identifier (EGID) or its address components
-#' (DEINR, STRNAME, DPLZ4). The function constructs an XML request, sends it to the RegBl API, and processes
+#' The request can be made using either the building's unique identifier (EGID), its address components
+#' (DEINR, STRNAME, DPLZ4), or its parcel components (LPARZ, DPLZ4). The function constructs an XML request, sends it to the RegBl API, and processes
 #' the response to extract and return the building information.
 #'
-#' @param building A list or data frame representing the building, containing at least EGID or address components (DEINR, STRNAME, and DPLZ4).
+#' @param building A list or data frame representing the building, containing at least EGID, address components (DEINR, STRNAME, and DPLZ4), or parcel components (LPARZ, and DPLZ4).
 #'
 #' @return A modified version of the input building object, with additional information filled in from the RegBl response.
 #'         If no unique building is found, or if an error occurs during the request, the function stops with an error message.
@@ -18,6 +18,7 @@
 #' The function first determines the type of request based on available information in the `building` object:
 #' - If EGID is available, it constructs a request based on the building's EGID.
 #' - If EGID is not available, but address components are, it constructs a request based on the building's address.
+#' - If neither EGID nor address components are available, but parcel components are, it constructs a request based on the building's parcel.
 #'
 #' The function then assembles the XML request body, including a unique message ID, application details, and
 #' the appropriate query parameters. After sending the request to the RegBl API endpoint and receiving a response,
@@ -43,7 +44,7 @@ request_regbl_web <- function(building) {
     request_type <- "egid"
   } else if (!is.na(building$DEINR) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
     request_type <- "address"
-  } else if (!is.na(building$LPARZ) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
+  } else if (!is.na(building$LPARZ) && !is.na(building$DPLZ4)) {
     request_type <- "parcel"
   } else {
     stop("Building data is incomplete. Need EGID, or DEINR/STRNAME/DPLZ4, or LPARZ/STRNAME/DPLZ4 to found the building in RegBl.")
@@ -61,92 +62,89 @@ request_regbl_web <- function(building) {
   if (request_type == "egid") {
     message_id <- sanitize_filename(gsub(" ", "_", paste(building$EGID, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. Char such as \/:*?"<>| are removed.
     # XML request body
-    request_body <- paste0('<?xml version="1.0" encoding="UTF-8"?>
-<eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
-     <eCH-0206:requestHeader>
-   	   	<eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
-   	   	<eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
-   	   	<eCH-0206:requestingApplication>
-   	   	   	<eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
-   	   	   	<eCH-0058:product>", pkg_name, "</eCH-0058:product>
-   	   	   	<eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
-   	   	</eCH-0206:requestingApplication>
-   	   	<eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
-   	</eCH-0206:requestHeader>
-   	<eCH-0206:requestContext>building</eCH-0206:requestContext>
-   	<eCH-0206:requestQuery>
-   	   	<eCH-0206:EGID>", building$EGID, "</eCH-0206:EGID>
-   	</eCH-0206:requestQuery>
-</eCH-0206:maddRequest>")
+    request_body <- paste0(
+      '<?xml version="1.0" encoding="UTF-8"?>
+        <eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
+            <eCH-0206:requestHeader>
+                <eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
+                <eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
+                <eCH-0206:requestingApplication>
+                    <eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
+                    <eCH-0058:product>", pkg_name, "</eCH-0058:product>
+                    <eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
+                </eCH-0206:requestingApplication>
+                <eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
+            </eCH-0206:requestHeader>
+            <eCH-0206:requestContext>building</eCH-0206:requestContext>
+            <eCH-0206:requestQuery>
+                <eCH-0206:EGID>", building$EGID, "</eCH-0206:EGID>
+            </eCH-0206:requestQuery>
+        </eCH-0206:maddRequest>")
   } else if (request_type == "address") {
     message_id <- sanitize_filename(gsub(" ", "_", paste(building$DPLZ4, building$STRNAME %>% substr(1, 36 - 15), building$DEINR, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. The max length is 36 characters. Char such as \/:*?"<>| are removed.
     # XML request body
-    request_body <- paste0('<?xml version="1.0" encoding="UTF-8"?>
-	<eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
-		<eCH-0206:requestHeader>
-			<eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
-			<eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
-			<eCH-0206:requestingApplication>
-				<eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
-				<eCH-0058:product>", pkg_name, "</eCH-0058:product>
-				<eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
-			</eCH-0206:requestingApplication>
-			<eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
-		</eCH-0206:requestHeader>
-		<eCH-0206:requestContext>building</eCH-0206:requestContext>
-		<eCH-0206:requestQuery>
-			<eCH-0206:condition>
-					<eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:buildingEntranceNo</eCH-0206:attributePath>
-					<eCH-0206:operator>equalTo</eCH-0206:operator>
-					<eCH-0206:attributeValue>", building$DEINR, "</eCH-0206:attributeValue>
-				</eCH-0206:condition>
-			<eCH-0206:condition>
-					<eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:street/eCH-0206:streetNameList/eCH-0206:streetNameItem/eCH-0206:descriptionLong</eCH-0206:attributePath>
-					<eCH-0206:operator>equalTo</eCH-0206:operator>
-					<eCH-0206:attributeValue>", building$STRNAME, "</eCH-0206:attributeValue>
-				</eCH-0206:condition>
-			<eCH-0206:condition>
-					<eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:locality/eCH-0206:swissZipCode</eCH-0206:attributePath>
-					<eCH-0206:operator>equalTo</eCH-0206:operator>
-					<eCH-0206:attributeValue>", building$DPLZ4, "</eCH-0206:attributeValue>
-				</eCH-0206:condition>
-		</eCH-0206:requestQuery>
-	</eCH-0206:maddRequest>")
+    request_body <- paste0(
+      '<?xml version="1.0" encoding="UTF-8"?>
+        <eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
+          <eCH-0206:requestHeader>
+            <eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
+            <eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
+            <eCH-0206:requestingApplication>
+              <eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
+              <eCH-0058:product>", pkg_name, "</eCH-0058:product>
+              <eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
+            </eCH-0206:requestingApplication>
+            <eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
+          </eCH-0206:requestHeader>
+          <eCH-0206:requestContext>building</eCH-0206:requestContext>
+          <eCH-0206:requestQuery>
+            <eCH-0206:condition>
+                <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:buildingEntranceNo</eCH-0206:attributePath>
+                <eCH-0206:operator>equalTo</eCH-0206:operator>
+                <eCH-0206:attributeValue>", building$DEINR, "</eCH-0206:attributeValue>
+              </eCH-0206:condition>
+            <eCH-0206:condition>
+                <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:street/eCH-0206:streetNameList/eCH-0206:streetNameItem/eCH-0206:descriptionLong</eCH-0206:attributePath>
+                <eCH-0206:operator>equalTo</eCH-0206:operator>
+                <eCH-0206:attributeValue>", building$STRNAME, "</eCH-0206:attributeValue>
+              </eCH-0206:condition>
+            <eCH-0206:condition>
+                <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:locality/eCH-0206:swissZipCode</eCH-0206:attributePath>
+                <eCH-0206:operator>equalTo</eCH-0206:operator>
+                <eCH-0206:attributeValue>", building$DPLZ4, "</eCH-0206:attributeValue>
+              </eCH-0206:condition>
+          </eCH-0206:requestQuery>
+        </eCH-0206:maddRequest>")
   } else if (request_type == "parcel") {
     message_id <- sanitize_filename(gsub(" ", "_", paste(building$DPLZ4, building$LPARZ, ids::uuid() %>% substr(1, 4), sep = "_"))) # generate a unique readable message id. The max length is 36 characters. Char such as \/:*?"<>| are removed.
     # XML request body
     request_body <- paste0(
-                           '<?xml version="1.0" encoding="UTF-8"?>
-                             <eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
-                               <eCH-0206:requestHeader>
-                                 <eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
-                                 <eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
-                                 <eCH-0206:requestingApplication>
-                                   <eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
-                                   <eCH-0058:product>", pkg_name, "</eCH-0058:product>
-                                   <eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
-                                 </eCH-0206:requestingApplication>
-                                 <eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
-                               </eCH-0206:requestHeader>
-                               <eCH-0206:requestContext>building</eCH-0206:requestContext>
-                               <eCH-0206:requestQuery>
-                                 <eCH-0206:condition>
-                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:realestateIdentificationList/eCH-0206:realestateIdentificationItem/eCH-0206:number</eCH-0206:attributePath>
-                                     <eCH-0206:operator>equalTo</eCH-0206:operator>
-                                     <eCH-0206:attributeValue>", building$LPARZ, "</eCH-0206:attributeValue>
-                                   </eCH-0206:condition>
-                                 <eCH-0206:condition>
-                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:street/eCH-0206:streetNameList/eCH-0206:streetNameItem/eCH-0206:descriptionLong</eCH-0206:attributePath>
-                                     <eCH-0206:operator>equalTo</eCH-0206:operator>
-                                     <eCH-0206:attributeValue>", building$STRNAME, "</eCH-0206:attributeValue>
-                                   </eCH-0206:condition>
-                                 <eCH-0206:condition>
-                                     <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:locality/eCH-0206:swissZipCode</eCH-0206:attributePath>
-                                     <eCH-0206:operator>equalTo</eCH-0206:operator>
-                                     <eCH-0206:attributeValue>", building$DPLZ4, "</eCH-0206:attributeValue>
-                                   </eCH-0206:condition>
-                               </eCH-0206:requestQuery>
-                             </eCH-0206:maddRequest>")
+      '<?xml version="1.0" encoding="UTF-8"?>
+        <eCH-0206:maddRequest xmlns:eCH-0058="http://www.ech.ch/xmlns/eCH-0058/5" xmlns:eCH-0206="http://www.ech.ch/xmlns/eCH-0206/2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ech.ch/xmlns/eCH-0206/2 eCH-0206-2-0.xsd">
+          <eCH-0206:requestHeader>
+            <eCH-0206:messageId>', message_id, "</eCH-0206:messageId>
+            <eCH-0206:businessReferenceId>", business_id, "</eCH-0206:businessReferenceId>
+            <eCH-0206:requestingApplication>
+              <eCH-0058:manufacturer>", manufacturer, "</eCH-0058:manufacturer>
+              <eCH-0058:product>", pkg_name, "</eCH-0058:product>
+              <eCH-0058:productVersion>", pkg_version, "</eCH-0058:productVersion>
+            </eCH-0206:requestingApplication>
+            <eCH-0206:requestDate>", request_datetime, "</eCH-0206:requestDate>
+          </eCH-0206:requestHeader>
+          <eCH-0206:requestContext>building</eCH-0206:requestContext>
+          <eCH-0206:requestQuery>
+            <eCH-0206:condition>
+                <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:realestateIdentificationList/eCH-0206:realestateIdentificationItem/eCH-0206:number</eCH-0206:attributePath>
+                <eCH-0206:operator>equalTo</eCH-0206:operator>
+                <eCH-0206:attributeValue>", building$LPARZ, "</eCH-0206:attributeValue>
+              </eCH-0206:condition>
+            <eCH-0206:condition>
+                <eCH-0206:attributePath>/eCH-0206:maddResponse/eCH-0206:buildingList/eCH-0206:buildingItem/eCH-0206:buildingEntranceList/eCH-0206:buildingEntranceItem/eCH-0206:buildingEntrance/eCH-0206:locality/eCH-0206:swissZipCode</eCH-0206:attributePath>
+                <eCH-0206:operator>equalTo</eCH-0206:operator>
+                <eCH-0206:attributeValue>", building$DPLZ4, "</eCH-0206:attributeValue>
+              </eCH-0206:condition>
+          </eCH-0206:requestQuery>
+        </eCH-0206:maddRequest>")
   }    
 
   # Send a POST request to the API

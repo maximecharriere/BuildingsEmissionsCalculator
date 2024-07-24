@@ -4,11 +4,13 @@
 \alias{fill_building_data}
 \title{Retrieve and Enhance Building Data with RegBl data and CO2 Emissions Calculations}
 \usage{
-fill_building_data(building)
+fill_building_data(building, data_source = "web", sqlite_conn = NULL)
 }
 \arguments{
 \item{building}{A list or data frame containing at least minimal identifying information for a building,
 which is then used to fetch and augment data from the RegBl database.}
+
+\item{data_source}{A character string specifying the source of the RegBl data, either 'sqlite' or 'web'.}
 }
 \value{
 An enhanced version of the input \code{building} data, including additional details and computed CO2 emissions.
