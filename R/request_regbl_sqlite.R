@@ -43,9 +43,9 @@ request_regbl_sqlite <- function(building, sqlite_conn = NULL) {
     if (!is.na(building$DEINR) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
       # Search by address
       query <- paste(
-        "SELECT EGID FROM entrance WHERE DEINR =", shQuote(building$DEINR),
+        "SELECT EGID FROM entrance WHERE DPLZ4 =", shQuote(building$DPLZ4),
         "AND STRNAME =", shQuote(building$STRNAME),
-        "AND DPLZ4 =", shQuote(building$DPLZ4)
+        "AND DEINR =", shQuote(building$DEINR)
       )
       result <- RSQLite::dbGetQuery(sqlite_conn, query)
     } else if (!is.na(building$LPARZ) && !is.na(building$DPLZ4)) {

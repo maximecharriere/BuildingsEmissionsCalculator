@@ -15,7 +15,7 @@
 #' @examples
 #' building_data <- list(EGID = "123456")
 #' enriched_building_data <- fill_building_data(building_data)
-fill_building_data <- function(building, data_source="web", sqlite_conn = NULL) {
+fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL) {
   building <- tryCatch({
     library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
     # Call the regbl API to get the building data
@@ -57,7 +57,7 @@ fill_building_data <- function(building, data_source="web", sqlite_conn = NULL) 
         stop("Error from co2calculator: ", e$message)
       }
       )
-      message("Building ", building$EGID, " filled.")
+      # message("Building ", building$EGID, " filled.")
       return(building)
     },
     error = function(e) {
@@ -117,6 +117,12 @@ fill_buildings_df <- function(buildings_df, data_source = "web", regbl_db_path =
     }
     sqlite_conn <- RSQLite::dbConnect(RSQLite::SQLite(), dbname = regbl_db_path)
     on.exit(RSQLite::dbDisconnect(sqlite_conn), add = TRUE) # Ensure the connection is closed
+
+    # Set SQLite database parameters for performance optimization
+    RSQLite::dbExecute(sqlite_conn, "PRAGMA synchronous = OFF;")
+    RSQLite::dbExecute(sqlite_conn, "PRAGMA journal_mode = WAL;")
+    RSQLite::dbExecute(sqlite_conn, "PRAGMA cache_size = -1000000;") #1GB of memory used for cache
+    RSQLite::dbExecute(sqlite_conn, "PRAGMA temp_store = MEMORY;")
   }
 
   # Call fill_building_data on each building
