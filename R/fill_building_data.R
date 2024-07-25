@@ -18,7 +18,13 @@
 fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL) {
   building <- tryCatch({
     library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
-    # Call the regbl API to get the building data
+    
+    # Request GeoAdmin to get the EGID
+    if (is.na(building$EGID)) {
+      building <- egid_search(building)
+    }
+
+    # Request regbl to get the building data
     if (data_source == "sqlite") {
       building <- request_regbl_sqlite(building, sqlite_conn = sqlite_conn)
     } else if (data_source == "web") {

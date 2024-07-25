@@ -1,6 +1,6 @@
 Package: BuildingsEmissionsCalculator
 Title: BuildingsEmissionsCalculator
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: 
     person("Maxime", "Charriere", , "contact@maximecharriere.ch", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
