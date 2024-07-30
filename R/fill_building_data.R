@@ -20,10 +20,8 @@ fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL
     {
       library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
 
-      # Request GeoAdmin to get the EGID
-      # if (is.na(building$EGID)) {
-      #   building <- egid_search(building)
-      # }
+      # identify the building 
+      building <- egid_search(building, sqlite_conn)
 
       # Request regbl to get the building data
       if (data_source == "sqlite") {
@@ -45,7 +43,7 @@ fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL
       # Calculate the CO2 emissions
       tryCatch(
         {
-          emissions <- co2calculatorPACTA2022::calculate_emissions(
+          result <- co2calculatorPACTA2022::calculate_emissions(
             area = building$energy_relevant_area,
             floors = building$floors,
             year = building$year,
@@ -59,7 +57,10 @@ fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL
             heating_install_year = building$heating_install_year
           )
           # Update the emissions to the building data
-          building[names(emissions)] <- emissions
+          building$heat_energy <- result$heatEnergy
+          building$emission_coefficient <- result$emissionCoefficient
+          building$emissions_per_area <- result$emissionsPerArea
+          building$asset_emissions <- result$emissionsTotal
         },
         error = function(e) {
           stop("Error from co2calculator: ", e$message)

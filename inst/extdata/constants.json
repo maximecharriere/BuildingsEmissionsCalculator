@@ -48,6 +48,10 @@
     "8023": 2016
   },
   "buildings_df_columns": {
+    "ADDRESS": {
+      "type": "character",
+      "description": "The one-line address of the building"
+    },
     "DEINR": {
       "type": "character",
       "description": "The building entrance number",
@@ -172,19 +176,19 @@
       "type": "integer",
       "description": "The year of the installation of the heating system"
     },
-    "heatEnergy": {
+    "heat_energy": {
       "type": "double",
       "description": "Annual heat energy required per area, in MJ/m2 per year"
     },
-    "emissionCoefficient": {
+    "emission_coefficient": {
       "type": "double",
       "description": "Applied CO2 emission coefficient according to the given energy carrier, in kg/MJ"
     },
-    "emissionsPerArea": {
+    "emissions_per_area": {
       "type": "double",
       "description": "Annual CO2 emissions per area, in kg/m2 per year"
     },
-    "emissionsTotal": {
+    "asset_emissions": {
       "type": "double",
       "description": "Total annual CO2 emissions, in kg per year"
     },
