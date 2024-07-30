@@ -23,3 +23,6 @@ Imports:
     co2calculatorPACTA2022
 Depends: R (>= 3.6.0)
 URL: https://maximecharriere.github.io/BuildingsEmissionsCalculator/
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

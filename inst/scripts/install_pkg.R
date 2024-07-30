@@ -74,5 +74,6 @@ pkg_install(packages = c(
   "knitr", # Dynamic report generation in R
   "htmltools", # Tools for HTML generation and rendering
   "progressr", # Progress updates in the R console
-  "openxlsx2" # Read and write Excel files
+  "openxlsx2", # Read and write Excel files
+  "testthat" # Unit testing framework
 ), repos = "https://stat.ethz.ch/CRAN", force_update = TRUE)
