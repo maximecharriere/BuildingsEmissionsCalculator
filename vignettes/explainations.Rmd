@@ -1,0 +1,53 @@
+---
+title: "Explications du script"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Explications du script}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Surface énergétique du bien foncier
+
+Afin de connaître les émissions de CO2 d'un bien foncier, il est nécessaire de déterminer la surface énergétique de celui-ci, ainsi que ses émissions par m2.  
+Les émissions de CO2 par m2 sont développées dans la documentation du `co2calculatorPACTA2022`.  
+Pour la surface énergétique, il est possible de la déterminer de plusieurs manière différentes, en fonction des données disponibles. Le calcule de la surface énergétique du bien foncier suit une chaîne d'équations. Si une information nécessaire à une équation n'est pas fournie par l'utilisateur ou RegBl, elle est calculée à partir des autres informations disponibles.  
+Le schéma [area_calculation.svg](img/area_calculation.svg) présenté ci-dessous illustre l'ordre des calcules pour déterminer la surface énergétique du bien foncier, et l'importance des données utilisées. Si une information est manquante et ne permet pas d'effectuer un calcule, nous allons plus profondément dans la chaîne d'équations.  
+La Description des symboles est disponibles [ici](#description-des-symboles), et les explications des équations sont disponibles [ici](#explications).  
+
+![Figure 1 : Ordre des calcules pour déterminer la surface énergétique du bien foncier](img/area_calculation.svg)
+
+### Description des symboles
+
+| **Symbol**              | **Description**                                     |
+|-------------------------|-----------------------------------------------------|
+| $EA_{asset}$            | Energetic area of the real estate asset             |
+| $EA_{building}$         | Energetic area of the building                      |
+| $A_{asset}$             | Area of the real estate asset                       |
+| $A_{building}$          | Area of the building                                |
+| $A_{ground}$            | Ground area                                         |
+| $n_{floors}$            | Number of floors                                    |
+| $p_{energeticArea}$     | Energetic area factor                               |
+| $p_{building}$          | Proportion of the building in the real estate asset |
+| $EWID_{building}$       | Number of EWID in the building                      |
+| $EWID_{asset}$          | Number of EWID in the real estate asset             |
+
+### Explications
+
+1. Si la surface du bien foncier est donnée par l'utilisateur, la surface énergétique du bien foncier est calculée en multipliant la surface du bien foncier par le facteur de surface énergétique. Ce facteur est pour l'instant fixé à 1.0.  
+   $$ EA_{asset} = A_{asset} \times p_{energeticArea} $$
+2. Si non, et si la surface énergétique du bâtiment est donnée par RegBl, la surface énergétique du bien foncier est calculée en multipliant la surface énergétique du bâtiment par la proportion du bâtiment dans le bien foncier.  
+   $$ EA_{asset} = EA_{building} \times p_{building} $$
+   La proportion du bâtiment compris dans le bien foncier est calculée en divisant le nombre d'EWID dans le bien foncier, donné par le client, par le nombre d'EWID dans le bâtiment, donné par RegBl. Si une de ces informations n'est pas disponible, il est considéré que tout le bâtiment fait parti du bien foncier ($p_{building}=1.0$).
+   $$ p_{building} = \frac{EWID_{asset}}{EWID_{building}} $$
+3. Si non, et si la surface du bâtiment est donnée par RegBl, la surface du bien foncier est calculée en multipliant la surface du bâtiment par la proportion du bâtiment dans le bien foncier. Ce dernier est calculé comme vu au point 2.  
+    $$ A_{asset} = A_{building} \times p_{building} $$
+4. Si non, et si la surface du sol et le nombre d'étages sont donnés par RegBl, la surface du bien foncier est calculée en multipliant la surface du sol par le nombre d'étages. Si une de ces informations n'est pas disponible, une erreur est retournée.  
+    $$ A_{building} = A_{ground} \times n_{floors} $$
