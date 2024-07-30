@@ -4,12 +4,7 @@ egid_search <- function(building, sqlite_conn = NULL) {
   }
 
   if (!is.na(building$EGID)) {
-    return(building$EGID)
-  }
-
-  # Split the address into components if the address is not already split
-  if (is.na(building$STRNAME) && is.na(building$DEINR && !is.na(building$ADDRESS))) {
-    building <- split_address(building$ADDRESS)
+    return(building)
   }
 
   # Search for the EGID in the SQLite database by street name, number, and postal code
@@ -36,6 +31,10 @@ egid_search <- function(building, sqlite_conn = NULL) {
   # If no unique EGID is found with one of the methods, we count the occurrences of each unique EGID. The one with the highest count is selected.
   combined_egids <- c(search1_egids, search2_egids, search3_egids)
 
+  if (length(combined_egids) == 0) {
+    stop("No EGID found.")
+  }
+
   egids_counts <- table(combined_egids)
   max_count <- max(egids_counts)
   most_common_egids <- names(egids_counts[egids_counts == max_count])
@@ -45,22 +44,27 @@ egid_search <- function(building, sqlite_conn = NULL) {
   } else if (length(most_common_egids) > 1) {
     stop("Multiple EGIDs found.")
   } else {
-    stop("No EGID found.")
+    stop("Unreachable exception.")
   }
 }
 
-split_address <- function(building) {
-  # Extract street name, remove numbers at the end and extra spaces
-  strname <- stringr::str_trim(stringr::str_remove(building$ADDRESS, "\\b\\d+[A-Za-z]?(,\\s*\\d+[A-Za-z]?)*$"))
-  if (strname == "") strname <- NA # Return NA if no street name is found
-  building$STRNAME <- strname
 
-  # Extract numbers, considering variations like "8A", "16, 16a"
-  strnum <- stringr::str_extract_all(building$ADDRESS, "\\b\\d+[A-Za-z]?\\b")
-  # save the list in a comma separated string
-  strnum <- paste(unlist(strnum), collapse = ", ")
-  if (strnum == "") strnum <- NA # Return NA if no street number is found
+split_address <- function(building) {
+  # trim whitespace
+  building$ADDRESS <- stringr::str_trim(building$ADDRESS)
+  # Extract numbers at the end of the address, which are likely to be address numbers
+  numbers <- stringr::str_extract_all(building$ADDRESS, "\\d+[A-Za-z]?(?=(\\s*,\\s*\\d+[A-Za-z]?)*$)")
+  # Join the numbers into a single string
+  strnum <- paste(unlist(numbers), collapse = ", ")
+  if (is.na(strnum) || strnum == "") strnum <- NA # Return NA if no street number is found
   building$DEINR <- strnum
+
+  # Remove the address numbers from the original address to get the street name
+  strname <- stringr::str_extract(building$ADDRESS, ".+?(?=(\\s+\\d+[A-Za-z]?)?(\\s*,\\s*\\d+[A-Za-z]?)*\\s*$)")
+  # Trim whitespace
+  strname <- stringr::str_trim(strname)
+  if (is.na(strname) || strname == "") strname <- NA # Return NA if no street name is found
+  building$STRNAME <- strname
 
   return(building)
 }

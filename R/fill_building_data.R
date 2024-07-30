@@ -20,6 +20,11 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
     {
       library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
 
+      # Split the address into components if the address is not already split
+      if (is.na(building$STRNAME) && is.na(building$DEINR) && !is.na(building$ADDRESS)) {
+        building <- split_address(building)
+      }
+
       # identify the building 
       building <- egid_search(building, sqlite_conn)
 
