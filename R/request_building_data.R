@@ -32,51 +32,17 @@
 #' The function assumes that `.constants$buildings_df_columns` is defined and contains metadata about the expected building data fields, including their types.
 #' 
 #' To download the SQLite database file, please visit https://www.housing-stat.ch/fr/madd/public.html
-request_regbl_sqlite <- function(building, sqlite_conn = NULL) {
+request_building_data <- function(building, sqlite_conn = NULL) {
   # Connect to the SQLite database
   if (is.null(sqlite_conn)) {
     stop("Database connection not provided.")
   }
 
-  # Step 1: Determine EGID if not provided
   if (is.na(building$EGID)) {
-    if (!is.na(building$DEINR) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
-      # Search by address
-      query <- paste(
-        "SELECT EGID FROM entrance WHERE DPLZ4 =", shQuote(building$DPLZ4),
-        "AND STRNAME =", shQuote(building$STRNAME),
-        "AND DEINR =", shQuote(building$DEINR)
-      )
-      result <- RSQLite::dbGetQuery(sqlite_conn, query)
-    } else if (!is.na(building$LPARZ) && !is.na(building$DPLZ4)) {
-      # Search by parcel
-      query_building <- paste("SELECT EGID FROM building WHERE LPARZ =", shQuote(building$LPARZ))
-      result_building <- RSQLite::dbGetQuery(sqlite_conn, query_building)
-
-      if (nrow(result_building) == 0) {
-        stop("No building found with the provided LPARZ.")
-      }
-
-      egids <- paste(result_building$EGID, collapse = ", ")
-      query_entrance <- paste(
-        "SELECT EGID FROM entrance WHERE EGID IN (", egids, ")",
-        "AND DPLZ4 =", shQuote(building$DPLZ4)
-      )
-      result <- RSQLite::dbGetQuery(sqlite_conn, query_entrance)
-    } else {
-      stop("Building data is incomplete. Need EGID, or DEINR/STRNAME/DPLZ4, or LPARZ to find the building in the database.")
-    }
-
-    if (nrow(result) == 0) {
-      stop("No building found with the provided information.")
-    } else if (nrow(result) > 1) {
-      stop("Multiple buildings found; please refine your search criteria.")
-    }
-
-    building$EGID <- result$EGID[1]
+    stop("EGID not provided. Please search for the building ID using the egid_search() function.")
   }
 
-  # Step 2: Query data from both tables using EGID
+  # Query building data using EGID
   building_query <- paste("SELECT * FROM building WHERE EGID =", building$EGID)
 
   building_data <- RSQLite::dbGetQuery(sqlite_conn, building_query)
@@ -87,7 +53,7 @@ request_regbl_sqlite <- function(building, sqlite_conn = NULL) {
     stop("Multiple buildings found with the provided EGID.")
   }
 
-  # Step 3: Populate the building object with data
+  # Populate the building object with data
   for (col in colnames(building_data)) {
     if (col %in% names(building) && is.na(building[[col]])) {
       col_type <- .constants$buildings_df_columns[[col]]$type

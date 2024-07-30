@@ -15,7 +15,7 @@
 #' @examples
 #' building_data <- list(EGID = "123456")
 #' enriched_building_data <- fill_building_data(building_data)
-fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL) {
+fill_building_data <- function(building, sqlite_conn = NULL) {
   building <- tryCatch(
     {
       library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
@@ -24,13 +24,7 @@ fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL
       building <- egid_search(building, sqlite_conn)
 
       # Request regbl to get the building data
-      if (data_source == "sqlite") {
-        building <- request_regbl_sqlite(building, sqlite_conn = sqlite_conn)
-      } else if (data_source == "web") {
-        building <- request_regbl_web(building)
-      } else {
-        stop("Invalid RegBl data source. Please specify either 'sqlite' or 'web'.")
-      }
+      building <- request_building_data(building, sqlite_conn = sqlite_conn)
 
       # If the building is demolished, stop the process
       if (!(is.na(building$GABBJ))) {
@@ -66,7 +60,6 @@ fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL
           stop("Error from co2calculator: ", e$message)
         }
       )
-      # message("Building ", building$EGID, " filled.")
       return(building)
     },
     error = function(e) {
@@ -106,7 +99,7 @@ fill_building_data <- function(building, data_source = "web", sqlite_conn = NULL
 #' The parallel execution model can be adjusted based on system resources by changing the number of
 #' workers in the `future::plan` call.
 #' @export
-fill_buildings_df <- function(buildings_df, data_source = "web", regbl_db_path = NULL, log_file = "log/log.txt") {
+fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, log_file = "log/log.txt") {
   progressr::handlers(global = TRUE)
   progressr::handlers("cli")
 
@@ -119,36 +112,36 @@ fill_buildings_df <- function(buildings_df, data_source = "web", regbl_db_path =
   # Initialize a progress bar with the total number of iterations
   p <- progressr::progressor(nrow(buildings_df))
 
-  # Open the SQLite database connection if using 'sqlite' as data source
+  # Open the SQLite database connection
   sqlite_conn <- NULL
-  if (data_source == "sqlite") {
-    if (is.null(regbl_db_path)) {
-      stop("RegBl Database filepath not provided.")
-    }
-    sqlite_conn <- RSQLite::dbConnect(RSQLite::SQLite(), dbname = regbl_db_path)
-    on.exit(RSQLite::dbDisconnect(sqlite_conn), add = TRUE) # Ensure the connection is closed
-
-    # Set SQLite database parameters for performance optimization
-    RSQLite::dbExecute(sqlite_conn, "PRAGMA synchronous = OFF;")
-    RSQLite::dbExecute(sqlite_conn, "PRAGMA journal_mode = WAL;")
-    RSQLite::dbExecute(sqlite_conn, "PRAGMA cache_size = -1000000;") # 1GB of memory used for cache
-    RSQLite::dbExecute(sqlite_conn, "PRAGMA temp_store = MEMORY;")
+  if (is.null(regbl_db_path)) {
+    stop("RegBl Database filepath not provided.")
   }
+  sqlite_conn <- RSQLite::dbConnect(RSQLite::SQLite(), dbname = regbl_db_path)
+  on.exit(RSQLite::dbDisconnect(sqlite_conn), add = TRUE) # Ensure the connection is closed
+
+  # Set SQLite database parameters for performance optimization
+  RSQLite::dbExecute(sqlite_conn, "PRAGMA synchronous = OFF;")
+  RSQLite::dbExecute(sqlite_conn, "PRAGMA journal_mode = WAL;")
+  RSQLite::dbExecute(sqlite_conn, "PRAGMA cache_size = -1000000;") # 1GB of memory used for cache
+  RSQLite::dbExecute(sqlite_conn, "PRAGMA temp_store = MEMORY;")
+
 
   # Call fill_building_data on each building
   multithreading <- FALSE
   if (multithreading) {
+    stop("Multithreading is not yet tested")
     # Set up parallelization plan (e.g., multisession to use multiple cores)
     future::plan(future::multisession, workers = 4)
     buildings <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) {
-      building <- fill_building_data(buildings_df[i, ], data_source = data_source, sqlite_conn = sqlite_conn)
+      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn)
       p()
       return(building)
     })
   } else {
     buildings <- list()
     for (i in seq_len(nrow(buildings_df))) {
-      building <- fill_building_data(buildings_df[i, ], data_source = data_source, sqlite_conn = sqlite_conn)
+      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn)
       p()
       buildings[[i]] <- building
     }
