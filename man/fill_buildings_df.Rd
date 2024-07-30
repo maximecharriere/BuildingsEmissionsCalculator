@@ -4,12 +4,7 @@
 \alias{fill_buildings_df}
 \title{Fill missing data in the buildings dataframe with RegBl data and computed CO2 emissions}
 \usage{
-fill_buildings_df(
-  buildings_df,
-  data_source = "web",
-  regbl_db_path = NULL,
-  log_file = "log.txt"
-)
+fill_buildings_df(buildings_df, regbl_db_path = NULL, log_file = "log/log.txt")
 }
 \arguments{
 \item{buildings_df}{A dataframe where each row represents a building and contains minimal data needed

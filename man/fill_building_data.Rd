@@ -4,7 +4,7 @@
 \alias{fill_building_data}
 \title{Retrieve and Enhance Building Data with RegBl data and CO2 Emissions Calculations}
 \usage{
-fill_building_data(building, data_source = "web", sqlite_conn = NULL)
+fill_building_data(building, sqlite_conn = NULL)
 }
 \arguments{
 \item{building}{A list or data frame containing at least minimal identifying information for a building,

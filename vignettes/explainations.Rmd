@@ -14,6 +14,24 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Identification du bâtiment
+
+Afin de pouvoir déterminer les émissions de CO2 d'un bien foncier, il est nécessaire d'identifier le ou les bâtiments qui le composent. Plusieurs méthodes d'identification sont utilisées, en fonction des informations fournies par l'utilisateur. Le but est d'identifier le plus souvent possible le bâtiment, en faisant le moins d'erreur possible. Pour se faire, plusieurs méthodes d'identification sont appelé à la suite, jusqu'à ce qu'une identification unqiue soit possible. Si à la fin de multiples bâtiments ont été identifiés par ces méthodes, celui étant ressorti le plus souvent est retenu.  
+
+Il est important de noter que la recherche dans la base de données de RegBl a besoin d'une correspondance exacte. Cela signifie que si un nom de rue est donné, celui-ci doit correspondre exactement à celui enregistrée dans la base de données de RegBl. Des améliorations pourraient être apportées pour permettre une recherche local plus flexible. L'API de recherche d'adresse Swiss GeoAdmin est plus flexible, et permet de trouver des adresses mal orthographiées ou ne corresondant pas exactement. Cependant cette méthode est utilisé en dernier recours, car elle est plus lente, a besoin d'internet, et ne prend pas en compte des données comme le numéro de parcelle.  
+
+Les étapes d'identification sont disponible dans le schéma [egid_search_steps.svg](img/egid_search_steps.svg) ci-dessous.
+
+![Figure 2 : Ordre des étapes d'identification du bâtiment](img/egid_search_steps.svg)
+
+### Description des étapes
+
+1. Si un numéro EGID est fourni, celui-ci est directement utilisé. Si non, nous passons à l'étape suivante.
+1. Si une adresse avec NPA, nom et numéro de rue est donnée, une recherche dans la base de données de RegBl est effectuée pour trouver l'EGID correspondant. Si un EGID unique est trouvé, celui-ci est utilisé. Si plusieurs ou aucun EGID n'est trouvé, nous passons à l'étape suivante.
+1. Si un NPA et un numéro de parcelle est donné, une recherche dans la base de données de RegBl est effectuée pour trouver l'EGID correspondant. Si un EGID unique est trouvé, celui-ci est utilisé. Si plusieurs ou aucun EGID n'est trouvé, nous passons à l'étape suivante.
+1. Finalement, une recherche est effectuée via l'API de recherche d'adresse Swiss GeoAdmin, en lui fournissant les infos d'adresse connues. Si un EGID unique est trouvé, celui-ci est utilisé. Si aucun EGID n'est trouvé, une erreur est retournée. Si plusieurs EGID sont trouvés, nous passons à l'étape suivante.
+1. Si plusieurs EGID ont été trouvés à une des étapes, mais que aucun unique n'a pas être déterminé, l'EGID étant ressorti le plus souvent dans les différentes méthodes d'identification est retenu. Si tout de même plusieurs EGID sont ressortis le même nombre de fois, une erreur est retournée.
+
 ## Surface énergétique du bien foncier
 
 Afin de connaître les émissions de CO2 d'un bien foncier, il est nécessaire de déterminer la surface énergétique de celui-ci, ainsi que ses émissions par m2.  
@@ -51,3 +69,4 @@ La Description des symboles est disponibles [ici](#description-des-symboles), et
     $$ A_{asset} = A_{building} \times p_{building} $$
 4. Si non, et si la surface du sol et le nombre d'étages sont donnés par RegBl, la surface du bien foncier est calculée en multipliant la surface du sol par le nombre d'étages. Si une de ces informations n'est pas disponible, une erreur est retournée.  
     $$ A_{building} = A_{ground} \times n_{floors} $$
+

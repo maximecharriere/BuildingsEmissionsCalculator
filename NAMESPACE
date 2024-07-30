@@ -2,4 +2,3 @@
 
 export(fill_buildings_df)
 export(update_regbl_db)
-importFrom(magrittr,"%>%")
