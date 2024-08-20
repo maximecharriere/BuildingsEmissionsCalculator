@@ -3,8 +3,8 @@ pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
   BuildingsEmissionsCalculator: BuildingsEmissionsCalculator.html
-  explainations: explainations.html
-last_built: 2024-08-20T15:23Z
+  explanations: explanations.html
+last_built: 2024-08-20T15:29Z
 urls:
   reference: https://maximecharriere.github.io/BuildingsEmissionsCalculator/reference
   article: https://maximecharriere.github.io/BuildingsEmissionsCalculator/articles
