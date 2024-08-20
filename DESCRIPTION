@@ -20,9 +20,10 @@ Imports:
     future,
     future.apply,
     magrittr,
-    co2calculatorPACTA2022,
     RSQLite,
     stringr
+Remotes: 
+    maximecharriere/co2calculatorPACTA2022
 Depends: R (>= 3.6.0)
 URL: https://maximecharriere.github.io/BuildingsEmissionsCalculator/
 Suggests: 
