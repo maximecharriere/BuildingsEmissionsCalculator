@@ -4,13 +4,18 @@
 #' It extracts the database file, moves it to a specified file path, and creates an index on the 'entrance' table.
 #'
 #' @param db_filepath A character string specifying the file path where the SQLite database should be saved.
+#' @param overwrite A logical value indicating whether to overwrite the existing database file if it already exists.
 #' @export
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' update_regbl_db("path/to/your/database.sqlite")
+#' download_regbl_db("path/to/your/database.sqlite")
 #' }
-update_regbl_db <- function(db_filepath) {
+download_regbl_db <- function(db_filepath, overwrite = FALSE) {
+  # Check if the database file already exists
+  if (file.exists(db_filepath) && !overwrite) {
+    stop("Database file already exists. Set 'overwrite = TRUE' to overwrite the existing file.")
+  }
   # Define the temporary directory and file paths
   temp_dir <- tempfile()
   temp_zip <- file.path(temp_dir, "ch.zip")
