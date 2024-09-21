@@ -1,6 +1,7 @@
 url: https://maximecharriere.github.io/BuildingsEmissionsCalculator/
 template:
   bootstrap: 5
+  light-switch: true
 navbar:
   structure:
     left:
