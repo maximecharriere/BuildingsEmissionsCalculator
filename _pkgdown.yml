@@ -1,17 +1,15 @@
 url: https://maximecharriere.github.io/BuildingsEmissionsCalculator/
 template:
   bootstrap: 5
-  light-switch: true
+  lightswitch: true
+  params:
+    noindex: true
 navbar:
   structure:
-    left:
-    - intro
-    - explanations
-    - reference
-    right:
-    - search
-    - github
+    left:  [intro, explanations, reference]
+    right: [search, github, lightswitch]
   components:
     explanations:
       text: Explanations
       href: articles/explanations.html
+
