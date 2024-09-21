@@ -14,23 +14,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Installation pour Utilisateurs
+# Installation pour les utilisateurs
 
 ## 1. Installer R
-Télécharger et Installer R pour votre système d'exploitation en suivant les instructions officielles.  
-[Download and Install R](https://cran.rstudio.com/)
+Téléchargez et installez R pour votre système d'exploitation en suivant les instructions officielles.  
+[Télécharger et installer R](https://cran.rstudio.com/)
 
 ## 2. Installer RStudio IDE
-Télécharger et Installer Rstudio pour votre systèmes d'exploitation en suicant les instructions officielles.  
-[Download and Install RStudio](https://posit.co/download/rstudio-desktop/)
+Téléchargez et installez RStudio pour votre système d'exploitation en suivant les instructions officielles.  
+[Télécharger et installer RStudio](https://posit.co/download/rstudio-desktop/)
 
 ## 3. Copier le projet localement
-Télécharger et copier localement le dossier du projet `FinancedEmissionsCalculator`. Pour y accéder, veuillez contacter une des personnes de contact.  
-Il est préférable de travailler sur une copie local du dossier, afin de ne pas corompre le projet partagé sur le Sharepoint.
+Téléchargez et copiez localement le dossier du projet `FinancedEmissionsCalculator`. Pour obtenir l'accès, veuillez contacter une personne de référence.  
+Il est recommandé de travailler sur une copie locale du dossier afin de ne pas corrompre le projet partagé sur SharePoint.
 
 ## 4. Ouvrir le projet R
-Ouvrer le Projet R `FinancedEmissionsCalculator.Rproj` avec R Studio (double clic sur le fichier).
-Vous devrier voir ceci dans la console de RStudio:
+Ouvrez le projet R `FinancedEmissionsCalculator.Rproj` avec RStudio (double-cliquez sur le fichier).  
+Vous devriez voir le message suivant dans la console de RStudio :
 ```
 - Downloading renv ... OK
 - Installing renv  ... OK
@@ -40,31 +40,31 @@ Vous devrier voir ceci dans la console de RStudio:
 ```
 
 ## 5. Installer les packages
-Dans la `Console` de R Studio, lancer la commande `renv::restore()`. Ceci va installer tous les packages et peut prendre plusieurs minutes.  
-S'il vous est demandé `The following package(s) will be updated:... Do you want to proceed? [Y/n]:`, répondre `Y`.
+Dans la `Console` de RStudio, exécutez la commande `renv::restore()`. Cela installera tous les packages nécessaires et peut prendre plusieurs minutes.  
+Si un message s'affiche du type `The following package(s) will be updated:... Do you want to proceed? [Y/n]:`, répondez `Y`.
 
-## 6. Télécharger la base de donnée du RegBL
-Si vous n'avez pas déjà la base de donnée du RegBL sous `./data/regbl_db.sqlite`, lancer la commande `BuildingsEmissionsCalculator::download_regbl_db("./data/regbl_db.sqlite")`. Ceci peut prendre plusieurs minutes.
+## 6. Télécharger la base de données du RegBL
+Si vous n'avez pas déjà la base de données du RegBL sous `./data/regbl_db.sqlite`, exécutez la commande suivante :  
+`BuildingsEmissionsCalculator::download_regbl_db("./data/regbl_db.sqlite")`. Le téléchargement peut prendre plusieurs minutes.
 
+# Installation pour les développeurs
 
-# Installation pour Développeurs
+> Le projet Git est privé. Pour y accéder, veuillez contacter une personne de référence.
 
-> Le projet git est privé. Pour y accéder, veuillez contacter une des personnes de contact. 
+## 1. Installer git
+[Télécharger et installer Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
-## 1. Installer git:  
-[Download and Install git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-
-## 2. Cloner le projet co2calculatorPACTA2022
-Télécharger le calculateur basé sur la norme SIA `co2calculatorPACTA2022` sur Github dans le dossier que vous désirez en utilisant la command:  
+## 2. Cloner le projet `co2calculatorPACTA2022`
+Clonez le calculateur basé sur la norme SIA `co2calculatorPACTA2022` à l'emplacement souhaité en utilisant la commande suivante :  
 `git clone https://github.com/maximecharriere/co2calculatorPACTA2022`
 
-## 3. Cloner le projet BuildingsEmissionsCalculator
-Télécharger notre calculateur `BuildingsEmissionsCalculator` sur Github dans le dossier que vous désirez en utilisant la command:  
+## 3. Cloner le projet `BuildingsEmissionsCalculator`
+Clonez notre calculateur `BuildingsEmissionsCalculator` à l'emplacement souhaité en utilisant la commande suivante :  
 `git clone https://github.com/maximecharriere/BuildingsEmissionsCalculator`
 
 ## 4. Utiliser les packages en développement
-Afin de ne pas devoir build et installer les packages à chaque modification, vous pouvez les charger directement depuis les dossiers locaux avec:  
+Pour éviter de devoir recompiler et réinstaller les packages après chaque modification, vous pouvez les charger directement depuis les dossiers locaux avec :  
 ```R
 devtools::load_all("./path/to/co2calculatorPACTA2022", reset = TRUE)
 devtools::load_all("./path/to/BuildingsEmissionsCalculator", reset = TRUE)
-```	
+```
