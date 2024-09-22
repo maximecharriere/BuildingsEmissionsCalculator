@@ -12,6 +12,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+# Load variables used in the vignette
+library(BuildingsEmissionsCalculator)
+energeticAreaFactor <- get(".constants", asNamespace("BuildingsEmissionsCalculator"))$energeticAreaFactor
 ```
 
 ## Identification du bâtiment
@@ -59,7 +63,7 @@ La Description des symboles est disponibles [ici](#description-des-symboles), et
 
 ### Explications
 
-1. Si la surface du bien foncier est donnée par l'utilisateur, la surface énergétique du bien foncier est calculée en multipliant la surface du bien foncier par le facteur de surface énergétique. Ce facteur est pour l'instant fixé à 1.0.  
+1. Si la surface du bien foncier est donnée par l'utilisateur, la surface énergétique du bien foncier est calculée en multipliant la surface du bien foncier par le facteur de surface énergétique. Ce facteur est fixé à `r energeticAreaFactor`.  
    $$ EA_{asset} = A_{asset} \times p_{energeticArea} $$
 2. Si non, et si la surface énergétique du bâtiment est donnée par RegBl, la surface énergétique du bien foncier est calculée en multipliant la surface énergétique du bâtiment par la proportion du bâtiment dans le bien foncier.  
    $$ EA_{asset} = EA_{building} \times p_{building} $$
