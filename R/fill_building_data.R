@@ -36,6 +36,9 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
         stop("Building was demolished in ", building$GABBJ, ".")
       }
 
+      # Compute the energetic area of the asset
+      building$asset_energetic_area <- get_asset_energetic_area(building)
+
       # Convert the building data from the regbl format to the sia format
       building <- regbl_2_sia_converter(building)
 
@@ -43,7 +46,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
       tryCatch(
         {
           result <- co2calculatorPACTA2022::calculate_emissions(
-            area = building$energy_relevant_area,
+            area = building$asset_energetic_area,
             floors = building$floors,
             year = building$year,
             utilisation_key = building$utilisation_key,
@@ -157,4 +160,30 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, log_file = "lo
   buildings_df_new <- do.call(rbind, buildings)
 
   return(buildings_df_new)
+}
+
+get_financed_share <- function(building) {
+  # check that the total number of dwellings is available in RegBl, and that the bank gave a number of financed dwellings
+  if (is.na(building$GANZWHG) || is.na(building$ewid_count)){
+    return(1.0) # if the number of financed dwellings is not available, assume that the bank financed the whole building
+  }
+  return(min(building$ewid_count / building$GANZWHG, 1.0)) # return the share of financed dwellings, capped at 100%
+}
+
+get_building_area <- function(building) {
+  if (is.na(building$GAREA) || is.na(building$GASTW)) {
+    stop("The Building cannot be processed because the ground area or the number of floors is missing in RegBl.")
+  }
+  return(building$GAREA * building$GASTW)
+}
+
+get_asset_energetic_area <- function(building) {
+  if (!is.na(building$financed_area)) {
+    return(building$financed_area * .constants$energeticAreaFactor)
+  } else if (!is.na(building$GEBF)) {
+    return(building$GEBF * get_financed_share(building))
+  } else {
+    financed_area <- get_building_area(building) * get_financed_share(building)
+    return(financed_area * .constants$energeticAreaFactor)
+  }
 }

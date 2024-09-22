@@ -22,12 +22,6 @@ regbl_2_sia_converter <- function(building) {
   # Convert the building data from the regbl format to the sia format
   # The sia format is used by the co2calculatorPACTA2022 package
 
-  # If the energy reference surface is not available, calculate it from the gross area times the number of floors.
-  if (!is.na(building$GEBF)) {
-    building$energy_relevant_area <- building$GEBF
-  } else {
-    building$energy_relevant_area <- building$GAREA * building$GASTW
-  }
   # If the year of construction is not available in RegBl,
   # use the smallest year of the period of construction given by RegBl.
   # If the period of construction is not available in RegBl, use 1900.

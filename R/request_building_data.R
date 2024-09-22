@@ -20,18 +20,13 @@
 #' }
 #'
 #' @details
-#' The function first determines the type of query based on available information in the `building` object:
-#' - If EGID is available, it retrieves information based on the building's EGID.
-#' - If EGID is not available, but address components are, it retrieves information based on the building's address.
-#' - If neither EGID nor address components are available, but parcel components are, it retrieves information based on the building's parcel.
-#'
 #' The function constructs SQL queries to fetch data from the relevant tables in the SQLite database. After retrieving
 #' the data, it processes the results to populate the building object with the appropriate types for each field, based
 #' on metadata provided in `.constants$buildings_df_columns`.
 #'
 #' The function assumes that `.constants$buildings_df_columns` is defined and contains metadata about the expected building data fields, including their types.
 #' 
-#' To download the SQLite database file, please visit https://www.housing-stat.ch/fr/madd/public.html
+#' To download the SQLite database file, please visit https://www.housing-stat.ch/fr/madd/public.html, or run the `download_regbl_db()` function.
 request_building_data <- function(building, sqlite_conn = NULL) {
   # Connect to the SQLite database
   if (is.null(sqlite_conn)) {

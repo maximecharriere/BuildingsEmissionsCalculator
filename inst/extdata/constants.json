@@ -1,5 +1,6 @@
 {
   "saveLogs": false,
+  "energeticAreaFactor": 1.3,
   "buildingClass_Regbl2Sia": {
     "1110": 2,
     "1121": 2,
@@ -107,6 +108,10 @@
       "description": "The number of floors",
       "xpath": ".//d1:numberOfFloors"
     },
+    "GANZWHG": {
+      "type": "integer",
+      "description": "Number of dwellings"
+    },
     "GEBF": {
       "type": "integer",
       "description": "The energy relevant surface of the building",
@@ -131,10 +136,6 @@
       "type": "date",
       "description": "The revision date for heating 1",
       "xpath": ".//d1:thermotechnicalDeviceForHeating1/d1:revisionDate"
-    },
-    "energy_relevant_area": {
-      "type": "integer",
-      "description": "The energy relevant surface of the building"
     },
     "floors": {
       "type": "integer",
