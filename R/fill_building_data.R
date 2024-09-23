@@ -68,6 +68,12 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
           stop("Error from co2calculator: ", e$message)
         }
       )
+
+      # Calculate the financial data
+      # TODO
+      building$bank_share <- get_bank_share(building)
+
+
       return(building)
     },
     error = function(e) {
@@ -160,6 +166,20 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, log_file = "lo
   buildings_df_new <- do.call(rbind, buildings)
 
   return(buildings_df_new)
+}
+
+get_bank_share <- function(building)  {
+  if (is.na(building$mortgage_share) || is.na(building$asset_value)) {
+    return(NA)
+  } else if (building$mortgage_share <= 0) {
+    return(0.0)
+  } else if (building$asset_value <= 0) {
+    return(1.0)
+  } else if (building$mortgage_share > building$asset_value) {
+    return(1.0)
+  } else {
+    return(building$mortgage_share / building$asset_value)
+  }
 }
 
 get_financed_share <- function(building) {
