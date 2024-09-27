@@ -26,18 +26,18 @@ regbl_2_sia_converter <- function(building) {
   # use the smallest year of the period of construction given by RegBl.
   # If the period of construction is not available in RegBl, use 1900.
   if (!is.na(building$GBAUJ)) {
-    building$year <- building$GBAUJ
+    building$sia_year <- building$GBAUJ
   } else {
-    building$year <- .constants$constructionYear_RegblPeriod2Year[[as.character(building$GBAUP)]]
-    if (is.na(building$year)) {
-      building$year <- 1900
+    building$sia_year <- .constants$constructionYear_RegblPeriod2Year[[as.character(building$GBAUP)]]
+    if (is.na(building$sia_year)) {
+      building$sia_year <- 1900
     }
   }
   # Find the closest climate station in the 40 listed in SIA 2028:2010 https://www.sia.ch/fileadmin/content/download/sia-norm/korrigenda_sn/2028-C1_2015_d.pdf
-  building$climate_code <- find_closest_station(co2calculatorPACTA2022::climate, building)
+  building$sia_climate_code <- find_closest_station(co2calculatorPACTA2022::climate, building)
   # Convert the building class from RegBl to the SIA 380/1 standard
   if (building$GKLAS %in% names(.constants$buildingClass_Regbl2Sia)) {
-    building$utilisation_key <- .constants$buildingClass_Regbl2Sia[[as.character(building$GKLAS)]]
+    building$sia_utilisation_key <- .constants$buildingClass_Regbl2Sia[[as.character(building$GKLAS)]]
   } else if (is.na(building$GKLAS)) {
     stop("No Building class (GKLAS) found on RegBl database.")
   } else {
@@ -45,16 +45,16 @@ regbl_2_sia_converter <- function(building) {
   }
   # Convert the energy carrier type from RegBl to the SIA 380/1 standard
   if (building$GENH1 %in% names(.constants$energyCarrier_Regbl2Sia)) {
-    building$energy_carrier <- .constants$energyCarrier_Regbl2Sia[[as.character(building$GENH1)]]
+    building$sia_energy_carrier <- .constants$energyCarrier_Regbl2Sia[[as.character(building$GENH1)]]
   } else {
-    building$energy_carrier <- "other"
+    building$sia_energy_carrier <- "other"
   }
   # Energy relevant area
-  building$surface <- building$asset_energetic_area
+  building$sia_area <- building$GEBF
   # Number of floors
-  building$floors <- building$GASTW
+  building$sia_floors <- building$GASTW
   # The year of the installation of the heating system
-  building$heating_install_year <- as.numeric(substr(building$GWAERDATH1, 1, 4))
+  building$sia_heating_install_year <- as.numeric(substr(building$GWAERDATH1, 1, 4))
 
   return(building)
 }

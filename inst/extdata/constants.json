@@ -137,43 +137,47 @@
       "description": "The revision date for heating 1",
       "xpath": ".//d1:thermotechnicalDeviceForHeating1/d1:revisionDate"
     },
-    "floors": {
+    "sia_area": {
+      "type": "integer",
+      "description": "The area of construction"
+    },
+    "sia_floors": {
       "type": "integer",
       "description": "The number of floors"
     },
-    "year": {
+    "sia_year": {
       "type": "integer",
       "description": "The year of construction"
     },
-    "utilisation_key": {
+    "sia_utilisation_key": {
       "type": "integer",
       "description": "The utilisation key according to SIA 380/1"
     },
-    "climate_code": {
+    "sia_climate_code": {
       "type": "integer",
       "description": "The climate code of the closest climate station"
     },
-    "energy_carrier": {
+    "sia_energy_carrier": {
       "type": "character",
       "description": "The energy carrier according to SIA 380/1"
     },
-    "walls_refurb_year": {
+    "sia_walls_refurb_year": {
       "type": "integer",
       "description": "The year of the last refurbishment of the walls"
     },
-    "roof_refurb_year": {
+    "sia_roof_refurb_year": {
       "type": "integer",
       "description": "The year of the last refurbishment of the roof"
     },
-    "windows_refurb_year": {
+    "sia_windows_refurb_year": {
       "type": "integer",
       "description": "The year of the last refurbishment of the windows"
     },
-    "floor_refurb_year": {
+    "sia_floor_refurb_year": {
       "type": "integer",
       "description": "The year of the last refurbishment of the floor"
     },
-    "heating_install_year": {
+    "sia_heating_install_year": {
       "type": "integer",
       "description": "The year of the installation of the heating system"
     },

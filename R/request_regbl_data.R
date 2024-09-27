@@ -27,7 +27,7 @@
 #' The function assumes that `.constants$buildings_df_columns` is defined and contains metadata about the expected building data fields, including their types.
 #' 
 #' To download the SQLite database file, please visit https://www.housing-stat.ch/fr/madd/public.html, or run the `download_regbl_db()` function.
-request_building_data <- function(building, sqlite_conn = NULL) {
+request_regbl_data <- function(building, sqlite_conn = NULL) {
   # Connect to the SQLite database
   if (is.null(sqlite_conn)) {
     stop("Database connection not provided.")

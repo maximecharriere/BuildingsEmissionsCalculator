@@ -7,6 +7,11 @@ egid_search <- function(building, sqlite_conn = NULL) {
     return(building)
   }
 
+  # Split the address into components if the address is not already split
+  if (is.na(building$STRNAME) && is.na(building$DEINR) && !is.na(building$ADDRESS)) {
+    building <- split_address(building)
+  }
+  
   # Search for the EGID in the SQLite database by street name, number, and postal code
   search1_egids <- splitted_address_search(building, sqlite_conn)
   if (length(search1_egids) == 1) {

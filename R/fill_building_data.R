@@ -20,58 +20,67 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
     {
       library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
 
-      # Split the address into components if the address is not already split
-      if (is.na(building$STRNAME) && is.na(building$DEINR) && !is.na(building$ADDRESS)) {
-        building <- split_address(building)
-      }
-
-      # identify the building 
+      #############
+      # Identify the building
+      #############
       building <- egid_search(building, sqlite_conn)
 
+      #############
+      # Building data
+      #############
+
       # Request regbl to get the building data
-      building <- request_building_data(building, sqlite_conn = sqlite_conn)
+      building <- request_regbl_data(building, sqlite_conn = sqlite_conn)
 
       # If the building is demolished, stop the process
       if (!(is.na(building$GABBJ))) {
         stop("Building was demolished in ", building$GABBJ, ".")
       }
 
-      # Compute the energetic area of the asset
-      building <- fill_asset_energetic_area(building)
+      # Compute the energetic area of the building
+      building$GEBF <- get_building_energetic_area(building)
 
       # Convert the building data from the regbl format to the sia format
       building <- regbl_2_sia_converter(building)
 
-      # Calculate the CO2 emissions
+      # Calculate the CO2 emissions of the building
       tryCatch(
         {
           result <- co2calculatorPACTA2022::calculate_emissions(
-            area = building$surface,
-            floors = building$floors,
-            year = building$year,
-            utilisation_key = building$utilisation_key,
-            climate_code = building$climate_code,
-            energy_carrier = building$energy_carrier,
-            walls_refurb_year = building$walls_refurb_year,
-            roof_refurb_year = building$roof_refurb_year,
-            windows_refurb_year = building$windows_refurb_year,
-            floor_refurb_year = building$floor_refurb_year,
-            heating_install_year = building$heating_install_year
+            area = building$sia_area,
+            floors = building$sia_floors,
+            year = building$sia_year,
+            utilisation_key = building$sia_utilisation_key,
+            climate_code = building$sia_climate_code,
+            energy_carrier = building$sia_energy_carrier,
+            walls_refurb_year = building$sia_walls_refurb_year,
+            roof_refurb_year = building$sia_roof_refurb_year,
+            windows_refurb_year = building$sia_windows_refurb_year,
+            floor_refurb_year = building$sia_floor_refurb_year,
+            heating_install_year = building$sia_heating_install_year
           )
           # Update the emissions to the building data
           building$heat_energy <- result$heatEnergy
           building$emission_coefficient <- result$emissionCoefficient
           building$emissions_per_area <- result$emissionsPerArea
-          building$asset_emissions <- result$emissionsTotal
+          building$building_emissions <- result$emissionsTotal
         },
         error = function(e) {
           stop("Error from co2calculator: ", e$message)
         }
       )
 
-      # Calculate the financial data
-      # TODO
+      #############
+      # Asset data
+      #############
+      building <- fill_asset_energetic_area(building)
+      building$asset_emissions <- get_asset_emissions(building)
+
+      #############
+      # Mortgage data
+      #############
       building$asset_bank_share <- get_asset_bank_share(building)
+      building$mortgage_emissions <- get_mortgage_emissions(building)
 
 
       return(building)
@@ -170,7 +179,7 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, log_file = "lo
 
 get_asset_bank_share <- function(building)  {
   if (is.na(building$mortgage_value) || is.na(building$asset_value)) {
-    return(NA)
+    return(1.0) # if the mortgage value or the asset value is not available, assume that the whole asset is financed
   } else if (building$mortgage_value <= 0) {
     return(0.0)
   } else if (building$asset_value <= 0) {
@@ -185,7 +194,7 @@ get_asset_bank_share <- function(building)  {
 get_asset_building_share <- function(building) {
   # check that the total number of dwellings is available in RegBl, and that the bank gave a number of financed dwellings
   if (is.na(building$GANZWHG) || is.na(building$asset_ewid_count)){
-    return(1.0) # if the number of financed dwellings is not available, assume that the bank financed the whole building
+    return(1.0) # if the number of financed dwellings is not available, assume that the whole building is financed
   }
   return(min(building$asset_ewid_count / building$GANZWHG, 1.0)) # return the share of financed dwellings, capped at 100%
 }
@@ -197,20 +206,42 @@ get_building_area <- function(building) {
   return(building$GAREA * building$GASTW)
 }
 
+get_building_energetic_area <- function(building) {
+  if (!is.na(building$GEBF)) {
+    return(building$GEBF)
+  } else {
+    return(get_building_area(building) * .constants$energeticAreaFactor)
+  }
+}
+
 fill_asset_energetic_area <- function(building) {
   if (!is.na(building$asset_energetic_area)) {
     return(building)
   } else if (!is.na(building$asset_living_area)) {
     building$asset_energetic_area <- building$asset_living_area * .constants$energeticAreaFactor
     return(building)
-  } else if (!is.na(building$GEBF)) {
-    building$asset_building_share <- get_asset_building_share(building)
-    building$asset_energetic_area <- building$GEBF * building$asset_building_share
-    return(building)
   } else {
     building$asset_building_share <- get_asset_building_share(building)
-    building$asset_living_area <- get_building_area(building) * building$asset_building_share
-    building$asset_energetic_area <- building$asset_living_area * .constants$energeticAreaFactor
+    building$GEBF <- get_building_energetic_area(building)
+    building$asset_energetic_area <- building$GEBF * building$asset_building_share
     return(building)
   }
+}
+
+get_asset_emissions <- function(building) {
+  if (!is.na(building$asset_emissions)) {
+    return(building$asset_emissions)
+  } else if (is.na(building$asset_energetic_area) || is.na(building$emissions_per_area)) {
+    stop("The Asset Emissions cannot be processed because the asset energetic area or the emissions per area is missing. Please compute these values first.")
+  }
+  return(building$asset_energetic_area * building$emissions_per_area)
+}
+
+get_mortgage_emissions <- function(building){
+  if (!is.na(building$mortgage_emissions)) {
+    return(building$mortgage_emissions)
+  } else if (is.na(building$asset_emissions) || is.na(building$asset_bank_share)) {
+    stop("The Mortgage Emissions cannot be processed because the asset emissions or the bank share in the asset is missing. Please compute these values first.")
+  }
+  return(building$asset_emissions * building$asset_bank_share)
 }
