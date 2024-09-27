@@ -37,7 +37,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
       }
 
       # Compute the energetic area of the asset
-      building$asset_energetic_area <- get_asset_energetic_area(building)
+      building <- fill_asset_energetic_area(building)
 
       # Convert the building data from the regbl format to the sia format
       building <- regbl_2_sia_converter(building)
@@ -46,7 +46,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
       tryCatch(
         {
           result <- co2calculatorPACTA2022::calculate_emissions(
-            area = building$asset_energetic_area,
+            area = building$surface,
             floors = building$floors,
             year = building$year,
             utilisation_key = building$utilisation_key,
@@ -71,7 +71,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
 
       # Calculate the financial data
       # TODO
-      building$bank_share <- get_bank_share(building)
+      building$asset_bank_share <- get_asset_bank_share(building)
 
 
       return(building)
@@ -168,26 +168,26 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, log_file = "lo
   return(buildings_df_new)
 }
 
-get_bank_share <- function(building)  {
-  if (is.na(building$mortgage_share) || is.na(building$asset_value)) {
+get_asset_bank_share <- function(building)  {
+  if (is.na(building$mortgage_value) || is.na(building$asset_value)) {
     return(NA)
-  } else if (building$mortgage_share <= 0) {
+  } else if (building$mortgage_value <= 0) {
     return(0.0)
   } else if (building$asset_value <= 0) {
     return(1.0)
-  } else if (building$mortgage_share > building$asset_value) {
+  } else if (building$mortgage_value > building$asset_value) {
     return(1.0)
   } else {
-    return(building$mortgage_share / building$asset_value)
+    return(building$mortgage_value / building$asset_value)
   }
 }
 
-get_financed_share <- function(building) {
+get_asset_building_share <- function(building) {
   # check that the total number of dwellings is available in RegBl, and that the bank gave a number of financed dwellings
-  if (is.na(building$GANZWHG) || is.na(building$ewid_count)){
+  if (is.na(building$GANZWHG) || is.na(building$asset_ewid_count)){
     return(1.0) # if the number of financed dwellings is not available, assume that the bank financed the whole building
   }
-  return(min(building$ewid_count / building$GANZWHG, 1.0)) # return the share of financed dwellings, capped at 100%
+  return(min(building$asset_ewid_count / building$GANZWHG, 1.0)) # return the share of financed dwellings, capped at 100%
 }
 
 get_building_area <- function(building) {
@@ -197,13 +197,20 @@ get_building_area <- function(building) {
   return(building$GAREA * building$GASTW)
 }
 
-get_asset_energetic_area <- function(building) {
-  if (!is.na(building$financed_area)) {
-    return(building$financed_area * .constants$energeticAreaFactor)
+fill_asset_energetic_area <- function(building) {
+  if (!is.na(building$asset_energetic_area)) {
+    return(building)
+  } else if (!is.na(building$asset_living_area)) {
+    building$asset_energetic_area <- building$asset_living_area * .constants$energeticAreaFactor
+    return(building)
   } else if (!is.na(building$GEBF)) {
-    return(building$GEBF * get_financed_share(building))
+    building$asset_building_share <- get_asset_building_share(building)
+    building$asset_energetic_area <- building$GEBF * building$asset_building_share
+    return(building)
   } else {
-    financed_area <- get_building_area(building) * get_financed_share(building)
-    return(financed_area * .constants$energeticAreaFactor)
+    building$asset_building_share <- get_asset_building_share(building)
+    building$asset_living_area <- get_building_area(building) * building$asset_building_share
+    building$asset_energetic_area <- building$asset_living_area * .constants$energeticAreaFactor
+    return(building)
   }
 }

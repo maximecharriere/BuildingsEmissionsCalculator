@@ -49,6 +49,8 @@ regbl_2_sia_converter <- function(building) {
   } else {
     building$energy_carrier <- "other"
   }
+  # Energy relevant area
+  building$surface <- building$asset_energetic_area
   # Number of floors
   building$floors <- building$GASTW
   # The year of the installation of the heating system
