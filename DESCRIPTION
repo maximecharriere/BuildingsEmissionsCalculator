@@ -1,6 +1,6 @@
 Package: BuildingsEmissionsCalculator
 Title: BuildingsEmissionsCalculator
-Version: 0.2.13
+Version: 0.3.0
 Authors@R: c(
     person("Maxime", "Charriere", , "contact@maximecharriere.ch", role = c("aut", "cre", "ctr")),
     person("Eloïse", "Azzola", , "eloise.azzola@swissclimate.ch", role = c("aut")),
