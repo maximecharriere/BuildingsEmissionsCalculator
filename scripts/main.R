@@ -9,8 +9,8 @@
 ## You can load directly the source code of the following packages for deguging.
 ## Uncomment the following two lines
 # devtools::load_all("./path/to/co2calculatorPACTA2022")
-library('co2calculatorPACTA2022')
-packageVersion('co2calculatorPACTA2022')
+# library('co2calculatorPACTA2022')
+# packageVersion('co2calculatorPACTA2022')
 devtools::load_all(".")
 packageVersion('BuildingsEmissionsCalculator')
 
@@ -21,7 +21,7 @@ packageVersion('BuildingsEmissionsCalculator')
 # Choose if the File Explorer is used to search Excel file, or if the file path is directly written in the R script.
 # The Excel file must follow the "05_Templates/template_final.xlsx" template
 INTERACTIVE <- FALSE # FALSE / TRUE
-excel_filepath <- "tests/tests_0.3.0.xlsx" #R ne comprend pas les backslash --> remplacer le filepath par double backslash ou slash normal
+excel_filepath <- "tests/testdata/tests_0.3.0.xlsx" #R ne comprend pas les backslash --> remplacer le filepath par double backslash ou slash normal
 regbl_database_path <- "data/regbl_db.sqlite"
 max_rows = -1 # The number of row to fill. Put -1 to fill the entire table.
 

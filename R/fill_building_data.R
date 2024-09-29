@@ -18,7 +18,7 @@
 fill_building_data <- function(building, sqlite_conn = NULL) {
   building <- tryCatch(
     {
-      library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
+      # library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
 
       #############
       # Identify the building
@@ -46,7 +46,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
       # Calculate the CO2 emissions of the building
       tryCatch(
         {
-          result <- co2calculatorPACTA2022::calculate_emissions(
+          result <- calculate_emissions(
             area = building$sia_area,
             floors = building$sia_floors,
             year = building$sia_year,

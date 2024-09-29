@@ -46,9 +46,6 @@ wgs84_to_lv95 <- function(easting, northing, altitude) {
 # ------- MAIN -------- #
 # --------------------- #
 
-# Get the dataset from co2calculatorPACTA2022::climate
-climate <- co2calculatorPACTA2022::climate
-
 # Loop through each station in the climate list
 for (i in seq_along(climate)) {
   # Extract WGS84 coordinates for the current station

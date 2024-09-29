@@ -2,9 +2,14 @@ Package: BuildingsEmissionsCalculator
 Title: BuildingsEmissionsCalculator
 Version: 0.3.1
 Authors@R: c(
-    person("Maxime", "Charriere", , "contact@maximecharriere.ch", role = c("aut", "cre", "ctr")),
-    person("Eloïse", "Azzola", , "eloise.azzola@swissclimate.ch", role = c("aut")),
-    person("Swiss Climate AG", role = c("cph", "fnd"))
+    person("Maxime", "Charriere", email = "contact@maximecharriere.ch", role = c("aut", "cre", "ctr")),
+    person("Eloïse", "Azzola", email = "eloise.azzola@swissclimate.ch", role = c("aut")),
+    person("Swiss Climate AG", role = c("cph", "fnd")),
+    person("Thomas", "Wider", email = "thomas.wider@wuestpartner.com", role = "ctb", comment = "co2calculatorPACTA2022 Author"),
+    person("Marius", "Zumwald", email = "marius.zumwald@wuestpartner.com", role = "ctb", comment = "co2calculatorPACTA2022 Author"),
+    person("Diego", "Sandoval", email = "sandoval@bs2.ch", role = "ctb", comment = "co2calculatorPACTA2022 Author"),
+    person("Wüest Partner", role = "cph", comment = "co2calculatorPACTA2022 Copyright holder"),
+    person("BS2", role = "cph", comment = "co2calculatorPACTA2022 Copyright holder")
     )
 Description: What the package does (one paragraph).
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
@@ -14,6 +19,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
+    utils,
     jsonlite,
     progressr,
     ids,
@@ -24,8 +30,6 @@ Imports:
     magrittr,
     RSQLite,
     stringr
-Remotes: 
-    maximecharriere/co2calculatorPACTA2022
 Depends: R (>= 3.6.0)
 URL: https://maximecharriere.github.io/BuildingsEmissionsCalculator/
 Suggests: 

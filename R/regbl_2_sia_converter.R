@@ -34,7 +34,7 @@ regbl_2_sia_converter <- function(building) {
     }
   }
   # Find the closest climate station in the 40 listed in SIA 2028:2010 https://www.sia.ch/fileadmin/content/download/sia-norm/korrigenda_sn/2028-C1_2015_d.pdf
-  building$sia_climate_code <- find_closest_station(co2calculatorPACTA2022::climate, building)
+  building$sia_climate_code <- find_closest_station(climate, building)
   # Convert the building class from RegBl to the SIA 380/1 standard
   if (building$GKLAS %in% names(.constants$buildingClass_Regbl2Sia)) {
     building$sia_utilisation_key <- .constants$buildingClass_Regbl2Sia[[as.character(building$GKLAS)]]

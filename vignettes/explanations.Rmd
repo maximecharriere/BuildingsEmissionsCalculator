@@ -39,7 +39,7 @@ Les étapes d'identification sont disponible dans le schéma [egid_search_steps.
 ## Surface énergétique du bien foncier
 
 Afin de connaître les émissions de CO2 d'un bien foncier, il est nécessaire de déterminer la surface énergétique de celui-ci, ainsi que ses émissions par m2.  
-Le calcul des émissions de CO2 par m2 d'un bien foncier est développé dans la documentation du [`co2calculatorPACTA2022`](https://maximecharriere.github.io/co2calculatorPACTA2022/articles/explanations.html).  
+Le calcul des émissions de CO2 par m2 d'un bien foncier est développé dans la documentation du [`co2calculatorPACTA2022`](sia_calculator.html).  
 Concernant le calcul de la surface énergétique, il est possible de la déterminer de plusieurs manières différentes, en fonction des données fournies. Le calcule de la surface énergétique du bien foncier suit une chaîne d'équations. Si une information nécessaire à une équation n'est pas fournie par l'utilisateur ou RegBl, celle-ci est calculée à partir des autres informations disponibles, et si celles-ci ne sont à leur tour pas disponibles, elles sont calculées à partir d'autres informations, et ainsi de suite.  
 Le schéma [`area_calculation.svg`](img/area_calculation.svg) présenté ci-dessous illustre l'ordre des calcules pour déterminer la surface énergétique du bien foncier, et l'importance des données utilisées. Si une information est manquante et ne permet pas d'effectuer un calcule, nous allons plus profondément dans la chaîne d'équations.  
 La Description des symboles est disponibles [ici](#description-des-symboles), et les explications des équations sont disponibles [ici](#explications).  
