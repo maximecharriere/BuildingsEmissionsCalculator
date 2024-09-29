@@ -4,7 +4,8 @@ pkgdown_sha: ~
 articles:
   BuildingsEmissionsCalculator: BuildingsEmissionsCalculator.html
   explanations: explanations.html
-last_built: 2024-09-27T23:06Z
+  sia_calculator: sia_calculator.html
+last_built: 2024-09-29T20:23Z
 urls:
   reference: https://maximecharriere.github.io/BuildingsEmissionsCalculator/reference
   article: https://maximecharriere.github.io/BuildingsEmissionsCalculator/articles
