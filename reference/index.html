@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">BuildingsEmissionsCalculator</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,10 +16,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/BuildingsEmissionsCalculator.html">Get started</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/explanations.html">Explanations</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-explications" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Explications</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-explications"><li><a class="dropdown-item" href="../articles/building_identification.html">Identification d'un bâtiment</a></li>
+    <li><a class="dropdown-item" href="../articles/asset_energetic_area_calculation.html">Calcul de la surface énergétique</a></li>
+    <li><a class="dropdown-item" href="../articles/sia_co2_calculator.html">Calculateur de CO2 SIA 380/1</a></li>
+  </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/maximecharriere/BuildingsEmissionsCalculator/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -43,6 +49,90 @@
 
 
       <dl><dt>
+
+          <code><a href="Heat_Transfer_Coefficient.html">Heat_Transfer_Coefficient()</a></code>
+
+        </dt>
+        <dd>Calculate Building's Heat Transfer Coefficient</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_DHW_Demand.html">Q_DHW_Demand()</a></code>
+
+        </dt>
+        <dd>Calculate Monthly DHW Energy Demand per Square Meter</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Gains_BodyHeat.html">Q_Gains_BodyHeat()</a></code>
+
+        </dt>
+        <dd>Calculate Monthly Body Heat Gains</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Gains_Electricity.html">Q_Gains_Electricity()</a></code>
+
+        </dt>
+        <dd>Calculate Monthly Electrical Heat Gains</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Gains_Solar.html">Q_Gains_Solar()</a></code>
+
+        </dt>
+        <dd>Calculate Monthly Solar Heat Gains</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Gains_Total.html">Q_Gains_Total()</a></code>
+
+        </dt>
+        <dd>Calculate Total Monthly Heat Gains</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Gains_Used.html">Q_Gains_Used()</a></code>
+
+        </dt>
+        <dd>Calculate Utilized Monthly Heat Gains</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Heating_Demand.html">Q_Heating_Demand()</a></code>
+
+        </dt>
+        <dd>Calculate Monthly Heating Energy Demand</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Losses_Total.html">Q_Losses_Total()</a></code>
+
+        </dt>
+        <dd>Calculate Total Monthly Heat Losses</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Losses_Transmission.html">Q_Losses_Transmission()</a></code>
+
+        </dt>
+        <dd>Calculate Monthly Transmission Heat Losses in MJ/m2</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Losses_Ventilation.html">Q_Losses_Ventilation()</a></code>
+
+        </dt>
+        <dd>Calculate Monthly Ventilation Heat Losses in MJ/m2</dd>
+      </dl><dl><dt>
+
+          <code><a href="Q_Total.html">Q_Total()</a></code>
+
+        </dt>
+        <dd>Calculate Total Monthly Heat Demand</dd>
+      </dl><dl><dt>
+
+          <code><a href="calculateTransmissionLosses.html">calculateTransmissionLosses()</a></code>
+
+        </dt>
+        <dd>Calculate Transmission Losses for Building Elements</dd>
+      </dl><dl><dt>
+
+          <code><a href="calculate_emissions.html">calculate_emissions()</a></code>
+
+        </dt>
+        <dd>Calculate CO2 emissions</dd>
+      </dl><dl><dt>
 
           <code><a href="download_regbl_db.html">download_regbl_db()</a></code>
 
@@ -74,6 +164,18 @@
         <dd>Find the Closest Meteorological Station</dd>
       </dl><dl><dt>
 
+          <code><a href="getEmissions.html">getEmissions()</a></code>
+
+        </dt>
+        <dd>Calculate GHG Emissions from Energy Use</dd>
+      </dl><dl><dt>
+
+          <code><a href="get_parameters.html">get_parameters()</a></code>
+
+        </dt>
+        <dd>Gather and Validate Parameters for CO2 Emission Calculations</dd>
+      </dl><dl><dt>
+
           <code><a href="oneline_address_search.html">oneline_address_search()</a></code>
 
         </dt>
@@ -90,6 +192,18 @@
 
         </dt>
         <dd>Request Building Information from Local SQLite Database</dd>
+      </dl><dl><dt>
+
+          <code><a href="simpleOpaqueElements.html">simpleOpaqueElements()</a></code>
+
+        </dt>
+        <dd>Generate Simple Opaque Building Elements</dd>
+      </dl><dl><dt>
+
+          <code><a href="simpleWindowElements.html">simpleWindowElements()</a></code>
+
+        </dt>
+        <dd>Generate Simple Window Elements for a Building</dd>
       </dl><dl><dt>
 
           <code><a href="standardize_buildings_df.html">standardize_buildings_df()</a></code>

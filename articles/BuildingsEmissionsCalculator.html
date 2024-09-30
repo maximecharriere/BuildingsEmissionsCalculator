@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">BuildingsEmissionsCalculator</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,13 +31,21 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="active nav-item"><a class="nav-link" href="../articles/BuildingsEmissionsCalculator.html">Get started</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/explanations.html">Explanations</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-explications" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Explications</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-explications">
+<li><a class="dropdown-item" href="../articles/building_identification.html">Identification d'un bâtiment</a></li>
+    <li><a class="dropdown-item" href="../articles/asset_energetic_area_calculation.html">Calcul de la surface énergétique</a></li>
+    <li><a class="dropdown-item" href="../articles/sia_co2_calculator.html">Calculateur de CO2 SIA 380/1</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/maximecharriere/BuildingsEmissionsCalculator/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -54,48 +62,77 @@
       <h1>Getting started</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/maximecharriere/BuildingsEmissionsCalculator/blob/main/vignettes/BuildingsEmissionsCalculator.Rmd" class="external-link"><code>vignettes/BuildingsEmissionsCalculator.Rmd</code></a></small>
       <div class="d-none name"><code>BuildingsEmissionsCalculator.Rmd</code></div>
     </div>
 
     
     
 <div class="section level2">
-<h2 id="installation-pour-les-utilisateurs">Installation pour les utilisateurs<a class="anchor" aria-label="anchor" href="#installation-pour-les-utilisateurs"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="section level3">
 <h3 id="installer-r">1. Installer R<a class="anchor" aria-label="anchor" href="#installer-r"></a>
 </h3>
-<p>Téléchargez et installez R pour votre système d’exploitation en
-suivant les instructions officielles.<br><a href="https://cran.rstudio.com/" class="external-link">Télécharger et installer R</a></p>
+<p>R est le langage de programmation utilisé pour ce projet. Il est
+nécessaire d’installer R pour pouvoir exécuter le code.<br>
+Téléchargez et installez R pour votre système d’exploitation en suivant
+les instructions officielles.<br><a href="https://cran.rstudio.com/" class="external-link">Télécharger et installer R</a></p>
 </div>
 <div class="section level3">
 <h3 id="installer-rstudio-ide">2. Installer RStudio IDE<a class="anchor" aria-label="anchor" href="#installer-rstudio-ide"></a>
 </h3>
-<p>Téléchargez et installez RStudio pour votre système d’exploitation en
+<p>RStudio est un environnement de développement intégré (IDE) pour R.
+Il est recommandé d’utiliser RStudio pour travailler sur ce projet, mais
+un autre IDE peut être utilisé.<br>
+Téléchargez et installez RStudio pour votre système d’exploitation en
 suivant les instructions officielles.<br><a href="https://posit.co/download/rstudio-desktop/" class="external-link">Télécharger et
 installer RStudio</a></p>
 </div>
 <div class="section level3">
-<h3 id="copier-le-projet-localement">3. Copier le projet localement<a class="anchor" aria-label="anchor" href="#copier-le-projet-localement"></a>
+<h3 id="installer-git">3. Installer Git<a class="anchor" aria-label="anchor" href="#installer-git"></a>
 </h3>
-<p>Téléchargez et copiez localement le dossier du projet
-<code>FinancedEmissionsCalculator</code>. Pour obtenir l’accès, veuillez
-contacter une personne de référence.<br>
-Il est recommandé de travailler sur une copie locale du dossier afin de
-ne pas corrompre le projet partagé sur SharePoint.</p>
+<p>Git est un système de contrôle de version et de travail en parallèle
+pour les projets informatiques. Grâce à cet outil, il est possible de
+recevoir les mises à jours du code, suivre l’historique des
+modifications, effectuer des modifications sans risque de modifier le
+code original, créer des sous-projets paralèlle pour chaque banque,
+etc.<br>
+Télécharger et installer Git pour votre système d’exploitation en
+suivant les instructions officielles.<br><a href="https://git-scm.com/downloads" class="external-link">Télécharger et installer
+Git</a></p>
+<blockquote>
+<p>[!INFO]<br>
+Pour Windows, téléchargez le <code>64-bit Git for Windows Setup</code>.
+Durant l’installation, toutes les étapes de personnalisation peuvent
+être passées et laissées par défaut.</p>
+</blockquote>
 </div>
 <div class="section level3">
-<h3 id="ouvrir-le-projet-r">4. Ouvrir le projet R<a class="anchor" aria-label="anchor" href="#ouvrir-le-projet-r"></a>
+<h3 id="télécharger-le-projet-localement">4. Télécharger le projet localement<a class="anchor" aria-label="anchor" href="#t%C3%A9l%C3%A9charger-le-projet-localement"></a>
 </h3>
-<p>Ouvrez le projet R <code>FinancedEmissionsCalculator.Rproj</code>
-avec RStudio (double-cliquez sur le fichier).<br>
-Vous devriez voir le message suivant dans la console de RStudio :</p>
-<pre><code>- Downloading renv ... OK
-- Installing renv  ... OK
-
-- Project '.../FinancedEmissionsCalculator' loaded. [renv 1.0.8]
-- One or more packages recorded in the lockfile are not installed.</code></pre>
+<ol style="list-style-type: decimal">
+<li>Ouvrez RStudio</li>
+<li>Dans la barre de menu, cliquez sur <code>File</code> &gt;
+<code>New Project...</code> &gt; <code>Version Control</code> &gt;
+<code>Git</code>
+</li>
+<li>Entrez l’URL du projet Git :
+<code>https://github.com/maximecharriere/BuildingsEmissionsCalculator.git</code>
+et l’emplacelement local où vous souhaitez enregistrer le projet</li>
+<li>Cliquez sur <code>Create Project</code>. Afin de garantir la
+sécurité du projet, il vous sera demandé de vous connecter à GitHub.
+Choisisez l’option <code>Sign in with your browser</code>, et connectez
+vous. Si vous n’avez pas de compte, créez-en un, et demandez à un auteur
+du projet de vous ajouter en tant que collaborateur.</li>
+<li>Le projet est maintenant téléchargé localement. Vous pouvez le
+retrouver dans l’onglet <code>Files</code> de RStudio. Vous devriez voir
+l’info suivante dans la console:<br>
+</li>
+</ol>
+<pre><code>- Project '~/BuildingsEmissionsCalculator' loaded. [renv 1.0.9]
+- One or more packages recorded in the lockfile are not installed.
+- Use `renv::status()` for more details.</code></pre>
 </div>
 <div class="section level3">
 <h3 id="installer-les-packages">5. Installer les packages<a class="anchor" aria-label="anchor" href="#installer-les-packages"></a>
@@ -111,47 +148,49 @@ répondez <code>Y</code>.</p>
 <h3 id="télécharger-la-base-de-données-du-regbl">6. Télécharger la base de données du RegBL<a class="anchor" aria-label="anchor" href="#t%C3%A9l%C3%A9charger-la-base-de-donn%C3%A9es-du-regbl"></a>
 </h3>
 <p>Si vous n’avez pas déjà la base de données du RegBL sous
-<code>./data/regbl_db.sqlite</code>, exécutez la commande suivante
-:<br><code>BuildingsEmissionsCalculator::download_regbl_db("./data/regbl_db.sqlite")</code>.
-Le téléchargement peut prendre plusieurs minutes.</p>
+<code>./data/regbl_db.sqlite</code>, exécutez les commandes suivantes
+dans la <code>Console</code> de RStudio. Le téléchargement et
+l’extraction peut prendre plusieurs minutes (2-10min):</p>
+<pre><code><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">load_all</span><span class="op">(</span><span class="st">"."</span><span class="op">)</span></span>
+<span><span class="fu">BuildingsEmissionsCalculator</span><span class="fu">::</span><span class="fu"><a href="../reference/download_regbl_db.html">download_regbl_db</a></span><span class="op">(</span><span class="st">"./data/regbl_db.sqlite"</span><span class="op">)</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
-<h2 id="installation-pour-les-développeurs">Installation pour les développeurs<a class="anchor" aria-label="anchor" href="#installation-pour-les-d%C3%A9veloppeurs"></a>
+<h2 id="utilisation">Utilisation<a class="anchor" aria-label="anchor" href="#utilisation"></a>
 </h2>
-<blockquote>
-<p>Le projet Git est privé. Pour y accéder, veuillez contacter une
-personne de référence.</p>
-</blockquote>
-<div class="section level3">
-<h3 id="installer-git">1. Installer git<a class="anchor" aria-label="anchor" href="#installer-git"></a>
-</h3>
-<p><a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" class="external-link">Télécharger
-et installer Git</a></p>
+<ol style="list-style-type: decimal">
+<li>Ouvrer le projet R <code>BuildingsEmissionsCalculator.Rproj</code>
+dans RStudio (double clic sur le fichier depuis Windows Explorer).</li>
+<li>Dans la fenêtre <code>File</code> (en bas à droite), un script
+d’utilisation est disponible dans le fichier
+<code>./scripts/main.R</code>.</li>
+<li>Copier le template avec la dernière version présent sous
+<code>template/template_&lt;version&gt;.xlsx</code> dans votre dossier
+de travail.</li>
+<li>Remplissez le fichier Excel avec les données de votre banque.</li>
+<li>Dans la section <code>Parameters</code> du code, ajustez les
+paramètres selon vos besoins. Vous pouvez soit mettre
+<code>INTERACTIVE &lt;- FALSE</code> et écrire la chemin de votre
+fichier Excel directement dans le code, soit mettre
+<code>INTERACTIVE &lt;- TRUE</code>, ce qui vous permettra de choisir le
+fichier Excel à traiter à chaque exécution via un explorateur de
+fichiers. Il est aussi conseillé de mettre une petite valeur de
+<code>max_rows</code> pour tester le code dans un premier temps, puis de
+mettre à <code>-1</code> pour traiter l’ensemble des données, uniquement
+lorsque vous êtes sûr que le code fonctionne correctement.</li>
+<li>Pressez le bouton <code>Source</code> en haut à droite de la fenêtre
+du script pour exécuter le code. Le fichier rempli sera enregistré au
+même emplacement que le fichier Excel original, avec le suffixe
+<code>_filled</code> ajouté au nom du fichier.</li>
+</ol>
 </div>
-<div class="section level3">
-<h3 id="cloner-le-projet-co2calculatorpacta2022">2. Cloner le projet <code>co2calculatorPACTA2022</code><a class="anchor" aria-label="anchor" href="#cloner-le-projet-co2calculatorpacta2022"></a>
-</h3>
-<p>Clonez le calculateur basé sur la norme SIA
-<code>co2calculatorPACTA2022</code> à l’emplacement souhaité en
-utilisant la commande suivante :<br><code>git clone https://github.com/maximecharriere/co2calculatorPACTA2022</code></p>
-</div>
-<div class="section level3">
-<h3 id="cloner-le-projet-buildingsemissionscalculator">3. Cloner le projet <code>BuildingsEmissionsCalculator</code><a class="anchor" aria-label="anchor" href="#cloner-le-projet-buildingsemissionscalculator"></a>
-</h3>
-<p>Clonez notre calculateur <code>BuildingsEmissionsCalculator</code> à
-l’emplacement souhaité en utilisant la commande suivante :<br><code>git clone https://github.com/maximecharriere/BuildingsEmissionsCalculator</code></p>
-</div>
-<div class="section level3">
-<h3 id="utiliser-les-packages-en-développement">4. Utiliser les packages en développement<a class="anchor" aria-label="anchor" href="#utiliser-les-packages-en-d%C3%A9veloppement"></a>
-</h3>
-<p>Pour éviter de devoir recompiler et réinstaller les packages après
-chaque modification, vous pouvez les charger directement depuis les
-dossiers locaux avec :</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">load_all</span><span class="op">(</span><span class="st">"./path/to/co2calculatorPACTA2022"</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">load_all</span><span class="op">(</span><span class="st">"./path/to/BuildingsEmissionsCalculator"</span>, reset <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-</div>
+<div class="section level2">
+<h2 id="modification-du-code">Modification du code<a class="anchor" aria-label="anchor" href="#modification-du-code"></a>
+</h2>
+<p>Il est recommendé d’utiliser Git pour gérer les modifications du
+code.<br>
+TODO: Ajouter des instructions pour Git et les modifications du
+code.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
