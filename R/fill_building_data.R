@@ -126,9 +126,6 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, log_file = "lo
   progressr::handlers(global = TRUE)
   progressr::handlers("cli")
 
-  # Open log file for writing
-  cat("Logging parallel function outputs...\n", file = log_file)
-
   # Add missing columns to the dataframe, filled with NA values
   buildings_df <- standardize_buildings_df(buildings_df, names(.constants$buildings_df_columns)) #TODO with the new handling of Excel tables, this function does not work anymore. If extra columns are added, it's not possible to past the table in the Excel sheet.
 
