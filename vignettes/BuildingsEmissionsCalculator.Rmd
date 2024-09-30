@@ -40,7 +40,7 @@ Pour Windows, téléchargez le `64-bit Git for Windows Setup`. Durant l'installa
 1. Ouvrez RStudio
 2. Dans la barre de menu, cliquez sur `File` > `New Project...` > `Version Control` > `Git`
 3. Entrez l'URL du projet Git : `https://github.com/maximecharriere/BuildingsEmissionsCalculator.git` et l'emplacelement local où vous souhaitez enregistrer le projet
-4. Cliquez sur `Create Project`. Afin de garantir la sécurité du projet, il vous sera demandé de vous connecter à GitHub. Choisisez l'option `Sign in with your browser`, et connectez vous. Si vous n'avez pas de compte, créez-en un, et demandez à un auteur du projet de vous ajouter en tant que collaborateur.
+4. Cliquez sur `Create Project`. <!-- Afin de garantir la sécurité du projet, il vous sera demandé de vous connecter à GitHub. Choisisez l'option `Sign in with your browser`, et connectez vous. Si vous n'avez pas de compte, créez-en un, et demandez à un auteur du projet de vous ajouter en tant que collaborateur. -->
 5. Le projet est maintenant téléchargé localement. Vous pouvez le retrouver dans l'onglet `Files` de RStudio. Vous devriez voir l'info suivante dans la console:  
   ```
   - Project '~/BuildingsEmissionsCalculator' loaded. [renv 1.0.9]
