@@ -19,7 +19,7 @@ In the norm SIA 380/1:2009 "Thermische Energie im Hochbau", the calculation of t
 Cette page revient sur les différentes étapes menant au calcul des émissions de CO2 totales. L'explication part de la formule final, et remonte jusqu'aux données brutes.  
 
 
-::: {#hello .alert .alert-primary}
+::: {.alert .alert-primary}
 **NOTE**  
 La norme SIA 380/1, utilisée comme base pour les calculs, n'était pas disponible lors de la creation de cette documentation. Les explications proviennent donc d'analyses de reverse engeneering se basant sur les noms des fonctions et des variables, ainsi que sur les commentaires dans le code. Les formules, unités, explications des variables et de la logique peut donc être erronées.  
 :::

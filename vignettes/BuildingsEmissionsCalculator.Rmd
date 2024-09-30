@@ -31,8 +31,10 @@ Git est un système de contrôle de version et de travail en parallèle pour les
 Télécharger et installer Git pour votre système d'exploitation en suivant les instructions officielles.  
 [Télécharger et installer Git](https://git-scm.com/downloads)  
 
-> [!INFO]  
-> Pour Windows, téléchargez le `64-bit Git for Windows Setup`. Durant l'installation, toutes les étapes de personnalisation peuvent être passées et laissées par défaut.
+::: {.alert .alert-primary}
+**NOTE**  
+Pour Windows, téléchargez le `64-bit Git for Windows Setup`. Durant l'installation, toutes les étapes de personnalisation peuvent être passées et laissées par défaut.
+::: 
 
 ## 4. Télécharger le projet localement
 1. Ouvrez RStudio
