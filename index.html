@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">BuildingsEmissionsCalculator</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,21 +33,13 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="articles/BuildingsEmissionsCalculator.html">Get started</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-explications" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Explications</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-explications">
-<li><a class="dropdown-item" href="articles/building_identification.html">Identification d'un bâtiment</a></li>
-    <li><a class="dropdown-item" href="articles/asset_energetic_area_calculation.html">Calcul de la surface énergétique</a></li>
-    <li><a class="dropdown-item" href="articles/sia_co2_calculator.html">Calculateur de CO2 SIA 380/1</a></li>
-  </ul>
-</li>
+<li class="nav-item"><a class="nav-link" href="articles/explanations.html">Explanations</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/maximecharriere/BuildingsEmissionsCalculator/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -58,16 +50,18 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="buildingsemissionscalculator">BuildingsEmissionsCalculator<a class="anchor" aria-label="anchor" href="#buildingsemissionscalculator"></a>
 </h1></div>
-<p>Le package R <code>BuildingsEmissionsCalculator</code> permet de calculer les émissions de CO2 d’une liste de batiments. A partir d’un tableau comptenant une liste d’adresses de batiments, il ira chercher les informations manquantes sur des bases de données, comme celle de RegBl, puis utilisera le calculateur un calculateur suivant la norme SIA 380/1:2009 “Thermische Energie im Hochbau”, afin de calculer les émissions de chaque batiment. Finalement, des calules financiers sont fait afin de savoir l’impacte des hypotèques d’une banque.</p>
+<p>Le package R <code>BuildingsEmissionsCalculator</code> permet de calculer les émissions de CO2 d’une liste de batiments. A partir d’un tableau comptenant une liste d’EGID ou d’adresses de batiments, il ira chercher les informations manquantes sur des bases de données, comme celle de RegBl, puis utilisera le calculateur <a href="https://maximecharriere.github.io/co2calculatorPACTA2022/" class="external-link"><code>co2calculatorPACTA2022</code></a>, suivant la norme SIA 380/1:2009 “Thermische Energie im Hochbau”, afin de calculer les émissions de chaque batiment.</p>
 <div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+<h2 id="installation--utilisation">Installation &amp; Utilisation<a class="anchor" aria-label="anchor" href="#installation--utilisation"></a>
 </h2>
-<p>La documentation du projet R se trouve en ligne :<br><a href="https://maximecharriere.github.io/BuildingsEmissionsCalculator/" class="uri">https://maximecharriere.github.io/BuildingsEmissionsCalculator/</a></p>
+<p>Pour des explication sur l’installation et l’utilisation de <code>BuildingsEmissionsCalculator</code>, allez voir la page <a href="articles/BuildingsEmissionsCalculator.html"><code>Getting Started</code></a>.</p>
 </div>
 <div class="section level2">
 <h2 id="ressources">Ressources<a class="anchor" aria-label="anchor" href="#ressources"></a>
 </h2>
 <ul>
+<li>Doc about the <code>co2calculatorPACTA2022</code> package :<br><a href="https://maximecharriere.github.io/co2calculatorPACTA2022/" class="external-link uri">https://maximecharriere.github.io/co2calculatorPACTA2022/</a>
+</li>
 <li>To see what is included in the RegBl database, and understand the RegBl abbreviations, refer to the document <code>Catalogue des caractères - Version 4.2</code> :<br><a href="https://www.bfs.admin.ch/asset/fr/22905271" class="external-link uri">https://www.bfs.admin.ch/asset/fr/22905271</a>
 </li>
 <li>To understand the codes written in the Excel file, refer to the document <code>Codes du RegBL</code> :<br><a href="https://www.housing-stat.ch/files/GWRCodes.xlsx" class="external-link uri">https://www.housing-stat.ch/files/GWRCodes.xlsx</a>
@@ -84,14 +78,7 @@
 <p>The Tidyverse style is used -&gt; <a href="https://style.tidyverse.org/" class="external-link">style.tidyverse.org</a>.</p>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="links">
-<h2 data-toc-skip>Links</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/maximecharriere/BuildingsEmissionsCalculator/" class="external-link">Browse source code</a></li>
-</ul>
-</div>
-
-<div class="license">
+  </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>`use_mit_license()`, `use_gpl3_license()` or friends to pick a license</li>
@@ -112,7 +99,6 @@
 <li>Maxime Charriere <br><small class="roles"> Author, maintainer, contractor </small>  </li>
 <li>Eloïse Azzola <br><small class="roles"> Author </small>  </li>
 <li>Swiss Climate AG <br><small class="roles"> Copyright holder, funder </small>  </li>
-<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
