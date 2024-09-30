@@ -34,7 +34,7 @@
 #'   applying fixed ratios for window areas and roof angles. It is intended for preliminary
 #'   assessments and may not substitute detailed thermal modeling.
 #'
-#' @export
+#' 
 simpleOpaqueElements <- function(params) {
   uvalues <- params$uValuesBefore
   areaPerFloor <- params$area / params$floors * .constants$buildingGenerator$areaEbfRatio
@@ -98,7 +98,7 @@ simpleOpaqueElements <- function(params) {
 #' and roof angles and standard factors for windows properties. It is designed for preliminary assessments and may not substitute detailed thermal or
 #' lighting modeling.
 #'
-#' @export
+#' 
 simpleWindowElements <- function(params) {
   uvalues <- params$uValuesBefore
   areaPerFloor <- params$area / params$floors * .constants$buildingGenerator$areaEbfRatio
@@ -212,7 +212,7 @@ getParams <- function(Inputs) {
 #' @return A list containing all validated and formatted input parameters, including any
 #'   refurbishment details.
 #'
-#' @export
+#' 
 get_parameters <- function(area, floors, year, utilisation_key, climate_code, energy_carrier, walls_refurb_year = NULL, roof_refurb_year = NULL, windows_refurb_year = NULL, floor_refurb_year = NULL, heating_install_year = NULL) {
   input_args <- list()
   input_args_refurbishments <- list()

@@ -147,6 +147,12 @@
       ],
       "Hash": "d91263322a58af798f6cf3b13fd56dde"
     },
+    "devtools": {
+      "Package": "devtools",
+      "Version": "2.4.5",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "digest": {
       "Package": "digest",
       "Version": "0.6.37",
@@ -336,6 +342,12 @@
         "askpass"
       ],
       "Hash": "d413e0fef796c9401a4419485f709ca1"
+    },
+    "openxlsx2": {
+      "Package": "openxlsx2",
+      "Version": "1.9",
+      "Source": "Repository",
+      "Repository": "CRAN"
     },
     "parallelly": {
       "Package": "parallelly",

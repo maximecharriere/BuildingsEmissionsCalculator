@@ -1,6 +1,6 @@
 Package: BuildingsEmissionsCalculator
 Title: BuildingsEmissionsCalculator
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(
     person("Maxime", "Charriere", email = "contact@maximecharriere.ch", role = c("aut", "cre", "ctr")),
     person("Eloïse", "Azzola", email = "eloise.azzola@swissclimate.ch", role = c("aut")),
@@ -31,7 +31,7 @@ Imports:
     RSQLite,
     stringr
 Depends: R (>= 3.6.0)
-URL: https://maximecharriere.github.io/BuildingsEmissionsCalculator/
+URL: https://maximecharriere.github.io/BuildingsEmissionsCalculator/, https://github.com/maximecharriere/BuildingsEmissionsCalculator
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

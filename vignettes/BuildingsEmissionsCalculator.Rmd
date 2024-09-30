@@ -14,57 +14,58 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Installation pour les utilisateurs
+# Installation
 
 ## 1. Installer R
+R est le langage de programmation utilisé pour ce projet. Il est nécessaire d'installer R pour pouvoir exécuter le code.  
 Téléchargez et installez R pour votre système d'exploitation en suivant les instructions officielles.  
 [Télécharger et installer R](https://cran.rstudio.com/)
 
 ## 2. Installer RStudio IDE
+RStudio est un environnement de développement intégré (IDE) pour R. Il est recommandé d'utiliser RStudio pour travailler sur ce projet, mais un autre IDE peut être utilisé.  
 Téléchargez et installez RStudio pour votre système d'exploitation en suivant les instructions officielles.  
 [Télécharger et installer RStudio](https://posit.co/download/rstudio-desktop/)
 
-## 3. Copier le projet localement
-Téléchargez et copiez localement le dossier du projet `FinancedEmissionsCalculator`. Pour obtenir l'accès, veuillez contacter une personne de référence.  
-Il est recommandé de travailler sur une copie locale du dossier afin de ne pas corrompre le projet partagé sur SharePoint.
+## 3. Installer Git 
+Git est un système de contrôle de version et de travail en parallèle pour les projets informatiques. Grâce à cet outil, il est possible de recevoir les mises à jours du code, suivre l'historique des modifications, effectuer des modifications sans risque de modifier le code original, créer des sous-projets paralèlle pour chaque banque, etc.  
+Télécharger et installer Git pour votre système d'exploitation en suivant les instructions officielles.  
+[Télécharger et installer Git](https://git-scm.com/downloads)  
 
-## 4. Ouvrir le projet R
-Ouvrez le projet R `FinancedEmissionsCalculator.Rproj` avec RStudio (double-cliquez sur le fichier).  
-Vous devriez voir le message suivant dans la console de RStudio :
-```
-- Downloading renv ... OK
-- Installing renv  ... OK
+> [!INFO]  
+> Pour Windows, téléchargez le `64-bit Git for Windows Setup`. Durant l'installation, toutes les étapes de personnalisation peuvent être passées et laissées par défaut.
 
-- Project '.../FinancedEmissionsCalculator' loaded. [renv 1.0.8]
-- One or more packages recorded in the lockfile are not installed.
-```
+## 4. Télécharger le projet localement
+1. Ouvrez RStudio
+2. Dans la barre de menu, cliquez sur `File` > `New Project...` > `Version Control` > `Git`
+3. Entrez l'URL du projet Git : `https://github.com/maximecharriere/BuildingsEmissionsCalculator.git` et l'emplacelement local où vous souhaitez enregistrer le projet
+4. Cliquez sur `Create Project`. Afin de garantir la sécurité du projet, il vous sera demandé de vous connecter à GitHub. Choisisez l'option `Sign in with your browser`, et connectez vous. Si vous n'avez pas de compte, créez-en un, et demandez à un auteur du projet de vous ajouter en tant que collaborateur.
+5. Le projet est maintenant téléchargé localement. Vous pouvez le retrouver dans l'onglet `Files` de RStudio. Vous devriez voir l'info suivante dans la console:  
+  ```
+  - Project '~/BuildingsEmissionsCalculator' loaded. [renv 1.0.9]
+  - One or more packages recorded in the lockfile are not installed.
+  - Use `renv::status()` for more details.
+  ```
 
 ## 5. Installer les packages
 Dans la `Console` de RStudio, exécutez la commande `renv::restore()`. Cela installera tous les packages nécessaires et peut prendre plusieurs minutes.  
 Si un message s'affiche du type `The following package(s) will be updated:... Do you want to proceed? [Y/n]:`, répondez `Y`.
 
 ## 6. Télécharger la base de données du RegBL
-Si vous n'avez pas déjà la base de données du RegBL sous `./data/regbl_db.sqlite`, exécutez la commande suivante :  
-`BuildingsEmissionsCalculator::download_regbl_db("./data/regbl_db.sqlite")`. Le téléchargement peut prendre plusieurs minutes.
-
-# Installation pour les développeurs
-
-> Le projet Git est privé. Pour y accéder, veuillez contacter une personne de référence.
-
-## 1. Installer git
-[Télécharger et installer Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-
-## 2. Cloner le projet `co2calculatorPACTA2022`
-Clonez le calculateur basé sur la norme SIA `co2calculatorPACTA2022` à l'emplacement souhaité en utilisant la commande suivante :  
-`git clone https://github.com/maximecharriere/co2calculatorPACTA2022`
-
-## 3. Cloner le projet `BuildingsEmissionsCalculator`
-Clonez notre calculateur `BuildingsEmissionsCalculator` à l'emplacement souhaité en utilisant la commande suivante :  
-`git clone https://github.com/maximecharriere/BuildingsEmissionsCalculator`
-
-## 4. Utiliser les packages en développement
-Pour éviter de devoir recompiler et réinstaller les packages après chaque modification, vous pouvez les charger directement depuis les dossiers locaux avec :  
-```R
-devtools::load_all("./path/to/co2calculatorPACTA2022", reset = TRUE)
-devtools::load_all("./path/to/BuildingsEmissionsCalculator", reset = TRUE)
+Si vous n'avez pas déjà la base de données du RegBL sous `./data/regbl_db.sqlite`, exécutez les commandes suivantes dans la `Console` de RStudio. Le téléchargement et l'extraction peut prendre plusieurs minutes (2-10min):   
 ```
+devtools::load_all(".")
+BuildingsEmissionsCalculator::download_regbl_db("./data/regbl_db.sqlite")
+```
+
+# Utilisation
+
+1. Ouvrer le projet R `BuildingsEmissionsCalculator.Rproj` dans RStudio (double clic sur le fichier depuis Windows Explorer).
+2. Dans la fenêtre `File` (en bas à droite), un script d'utilisation est disponible dans le fichier `./scripts/main.R`.
+3. Copier le template avec la dernière version présent sous `template/template_<version>.xlsx` dans votre dossier de travail.
+4. Remplissez le fichier Excel avec les données de votre banque.
+5. Dans la section `Parameters` du code, ajustez les paramètres selon vos besoins. Vous pouvez soit mettre `INTERACTIVE <- FALSE` et écrire la chemin de votre fichier Excel directement dans le code, soit mettre `INTERACTIVE <- TRUE`, ce qui vous permettra de choisir le fichier Excel à traiter à chaque exécution via un explorateur de fichiers. Il est aussi conseillé de mettre une petite valeur de `max_rows` pour tester le code dans un premier temps, puis de mettre à `-1` pour traiter l'ensemble des données, uniquement lorsque vous êtes sûr que le code fonctionne correctement.
+6. Pressez le bouton `Source` en haut à droite de la fenêtre du script pour exécuter le code. Le fichier rempli sera enregistré au même emplacement que le fichier Excel original, avec le suffixe `_filled` ajouté au nom du fichier.
+
+# Modification du code
+Il est recommendé d'utiliser Git pour gérer les modifications du code.  
+TODO: Ajouter des instructions pour Git et les modifications du code.

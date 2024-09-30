@@ -10,6 +10,12 @@ navbar:
     right: [search, github, lightswitch]
   components:
     explanations:
-      text: Explanations
-      href: articles/explanations.html
+      text: Explications
+      menu:
+        - text: Identification d'un bâtiment
+          href: articles/building_identification.html
+        - text: Calcul de la surface énergétique
+          href: articles/asset_energetic_area_calculation.html
+        - text: Calculateur de CO2 SIA 380/1
+          href: articles/sia_co2_calculator.html
 

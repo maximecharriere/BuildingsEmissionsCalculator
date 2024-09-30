@@ -19,7 +19,7 @@
 #'   \item{absFeuchtigkeit}
 #' }
 #' @source SIA Klimadaten deutsch (kompakt) - Ausgabe 2015, \url{https://www.energytools.ch/index.php/de/downloads/datenbanken}
-"climate"
+#"climate"
 
 #' Utilisation.
 #'
@@ -42,7 +42,7 @@
 #'   \item{heatgainsTime}
 #' }
 #' @source Thermische Energie im Hochbau, SIA 380/1:2009, \url{http://www.sia.ch/}
-"utilisation"
+#"utilisation"
 
 #' Constants and coefficients.
 #'
@@ -64,4 +64,4 @@
 #' }
 #' @source BS2, \url{https://www.bs2.ch/}
 #' @source Wüest Partner, \url{https://www.wuestpartner.com/}
-"constants"
+#"constants"

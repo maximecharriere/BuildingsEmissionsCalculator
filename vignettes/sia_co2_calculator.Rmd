@@ -1,8 +1,8 @@
 ---
-title: "Explications du script"
+title: "Calculateur de CO2 SIA 380/1"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Explications du script}
+  %\VignetteIndexEntry{Calculateur de CO2 SIA 380/1}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,15 +23,6 @@ Cette page revient sur les différentes étapes menant au calcul des émissions 
 **NOTE**  
 La norme SIA 380/1, utilisée comme base pour les calculs, n'était pas disponible lors de la creation de cette documentation. Les explications proviennent donc d'analyses de reverse engeneering se basant sur les noms des fonctions et des variables, ainsi que sur les commentaires dans le code. Les formules, unités, explications des variables et de la logique peut donc être erronées.  
 :::
-
-## Data
-
-`co2calculatorPACTA2022` includes three datasets. Check their help pages for further details:
-
-- `climate`: `help("climate")`
-- `utilisation`: `help("utilisation")`
-- `constants`: `help("constants")`
-
 
 ## Architecture de l'algorithme
 

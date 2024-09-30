@@ -7,18 +7,17 @@
 ################
 
 devtools::load_all(".")
-packageVersion('BuildingsEmissionsCalculator')
+packageDescription('BuildingsEmissionsCalculator', fields=c("Title", "Version"))
 
 ##############
 # Parameters #
 ##############
 
-# Choose if the File Explorer is used to search Excel file, or if the file path is directly written in the R script.
-# The Excel file must follow the "05_Templates/template_final.xlsx" template
-INTERACTIVE <- FALSE # FALSE / TRUE
+# The Excel file must follow the "05_Templates/template_<version>.xlsx" template
+INTERACTIVE <- FALSE # FALSE / TRUE # Choose if the File Explorer is used to search Excel file, or if the file path is directly written in the R script.
 excel_filepath <- "tests/testdata/tests_0.3.0.xlsx" #R ne comprend pas les backslash --> remplacer le filepath par double backslash ou slash normal
 regbl_database_path <- "data/regbl_db.sqlite"
-max_rows = -1 # The number of row to fill. Put -1 to fill the entire table.
+max_rows = 20 # The number of row to fill. Put -1 to fill the entire table.
 
 #######################
 # Load the Excel data #

@@ -51,7 +51,7 @@ Q_Total_Sum <- function(params) {
 #' analysis of buildings. It differentiates between opaque and window elements, allowing for a
 #' comprehensive assessment of the building's thermal envelope.
 #'
-#' @export
+#' 
 calculateTransmissionLosses <- function(outsideTemp, params) {
   result <- list()
   roomTemp <- params$utilisation$temperature + params$utilisation$temperatureAddition
@@ -89,7 +89,7 @@ calculateTransmissionLosses <- function(outsideTemp, params) {
 #'   megajoules per square meter (MJ/m²). The result reflects the sum of space heating demand and DHW
 #'   demand for each month, accounting for seasonal variations in energy requirements.
 #'
-#' @export
+#' 
 Q_Total <- function(params) {
   dhwDemand <- Q_DHW_Demand(params) # vector
   heatingDemand <- Q_Heating_Demand(params) # vector
@@ -109,7 +109,7 @@ Q_Total <- function(params) {
 #'   for DHW per square meter, measured in megajoules (MJ). Each element of the
 #'   vector corresponds to one month of the year.
 #'
-#' @export
+#' 
 Q_DHW_Demand <- function(params) {
   # returns 12-month vector
   result <- (params$utilisation$dhwDemand / 365) * DAYSINMONTH
@@ -129,7 +129,7 @@ Q_DHW_Demand <- function(params) {
 #' @return A numeric vector of length 12, representing the total transmission heat losses for each month,
 #'   expressed in MJ/m2. Negative loss values are set to 0 to ensure that all output values represent actual heat losses.
 #'
-#' @export
+#' 
 Q_Losses_Transmission <- function(params) {
   ## Calculate array of months containing losses for each element in MJ/m2
   transmissionlosses_elements <- list()
@@ -174,7 +174,7 @@ Q_Losses_Transmission <- function(params) {
 #'   expressed in MJ/m2. Negative loss values are automatically set to 0 to ensure that all output values
 #'   represent actual heat losses.
 #'
-#' @export
+#' 
 Q_Losses_Ventilation <- function(params) {
   ## Calculate ventilation losses in MJ/m2
   roomTemp <- params$utilisation$temperature + params$utilisation$temperatureAddition
@@ -203,7 +203,7 @@ Q_Losses_Ventilation <- function(params) {
 #'   measured in megajoules (MJ) per square meter. Each element corresponds to one month of the year,
 #'   illustrating the seasonal fluctuation in heat losses.
 #'
-#' @export
+#' 
 Q_Losses_Total <- function(params) {
   transmissionlosses <- Q_Losses_Transmission(params)
   ventilationlosses <- Q_Losses_Ventilation(params)
@@ -224,7 +224,7 @@ Q_Losses_Total <- function(params) {
 #'   The gains are normalized to the building's area and adjusted for the number of days in each month,
 #'   providing a monthly breakdown of heat gains from electrical sources.
 #'
-#' @export
+#' 
 Q_Gains_Electricity <- function(params) {
   # Electric gains in MJ/m2
   result <- params$utilisation$electricityUse * params$utilisation$electricityUseFactor * DAYSINMONTH / 365
@@ -246,7 +246,7 @@ Q_Gains_Electricity <- function(params) {
 #'   occupied area. The gains are normalized to the building's area and adjusted for the number of days
 #'   in each month, providing a monthly breakdown of body heat contributions to the building's internal gains.
 #'
-#' @export
+#' 
 Q_Gains_BodyHeat <- function(params) {
   result <- params$utilisation$personHeat * params$utilisation$personPresence * DAYSINMONTH * 60 * 60 / params$utilisation$personArea / (1000000)
   return(result)
@@ -267,7 +267,7 @@ Q_Gains_BodyHeat <- function(params) {
 #'   calculated for the entire building and normalized per square meter. Each element of the vector
 #'   corresponds to one month, reflecting the impact of solar irradiation variability throughout the year.
 #'
-#' @export
+#' 
 Q_Gains_Solar <- function(params) {
   solargains_el <- list()
   i <- 1
@@ -308,7 +308,7 @@ Q_Gains_Solar <- function(params) {
 #' @return A numeric vector of length 12, representing the total heat gains for each month,
 #'   measured in megajoules per square meter (MJ/m²).
 #'
-#' @export
+#' 
 Q_Gains_Total <- function(params) {
   electricgains <- Q_Gains_Electricity(params)
   bodygains <- Q_Gains_BodyHeat(params)
@@ -334,7 +334,7 @@ Q_Gains_Total <- function(params) {
 #'   Celsius (W/°C). This value provides a comprehensive measure of the building's thermal
 #'   transmittance, incorporating both conduction through the envelope and convection via ventilation.
 #'
-#' @export
+#' 
 Heat_Transfer_Coefficient <- function(params) {
   result <- 0
   for (el in params$opaqueElements) {
@@ -365,7 +365,7 @@ Heat_Transfer_Coefficient <- function(params) {
 #'   to reducing the heating demand. Each element corresponds to one month of the year,
 #'   reflecting the variability of heat gains utilization across different seasons.
 #'
-#' @export
+#' 
 Q_Gains_Used <- function(params) {
   result <- c()
   # Formula (112)
@@ -407,7 +407,7 @@ Q_Gains_Used <- function(params) {
 #'   the vector corresponds to one month of the year, providing a detailed view of
 #'   the heating demand's seasonal variation.
 #'
-#' @export
+#' 
 Q_Heating_Demand <- function(params) {
   totalLosses <- Q_Losses_Total(params)
   usedGains <- Q_Gains_Used(params)
@@ -433,7 +433,7 @@ Q_Heating_Demand <- function(params) {
 #'     \item{r$emissionsTotal:  }
 #'   }
 #'
-#' @export
+#' 
 getEmissions <- function(params) {
   energyCarrier <- .constants[[params$energy_carrier]]
 
