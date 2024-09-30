@@ -3,7 +3,7 @@
 #  Implementation of SIA formulas
 
 ##################################################
-# Calculated parameters 
+# Calculated parameters
 ##################################################
 
 #' Generate Simple Opaque Building Elements
@@ -37,13 +37,13 @@
 #' @export
 simpleOpaqueElements <- function(params) {
   uvalues <- params$uValuesBefore
-  areaPerFloor <- params$area / params$floors * constants$buildingGenerator$areaEbfRatio
-  buildingWidth <- min(sqrt(areaPerFloor), constants$buildingGenerator$maxBuildingWidth)
+  areaPerFloor <- params$area / params$floors * .constants$buildingGenerator$areaEbfRatio
+  buildingWidth <- min(sqrt(areaPerFloor), .constants$buildingGenerator$maxBuildingWidth)
   buildingLength <- areaPerFloor / buildingWidth
-  buildingHeight <- constants$buildingGenerator$floorHeight * params$floors
+  buildingHeight <- .constants$buildingGenerator$floorHeight * params$floors
 
-  roofArea <- buildingWidth * buildingLength / cos(constants$buildingGenerator$roofAngle * pi / 180)
-  roofAreaOpaque <- roofArea * (1 - constants$buildingGenerator$roofWindowRatio)
+  roofArea <- buildingWidth * buildingLength / cos(.constants$buildingGenerator$roofAngle * pi / 180)
+  roofAreaOpaque <- roofArea * (1 - .constants$buildingGenerator$roofWindowRatio)
   roof <- list()
   roof$name <- "Dach"
   roof$uValue <- uvalues$roof
@@ -58,7 +58,7 @@ simpleOpaqueElements <- function(params) {
   floor$factor <- 1
 
   wallsArea <- 2 * buildingWidth * buildingHeight + 2 * buildingLength * buildingHeight
-  wallsAreaOpaque <- wallsArea * (1 - constants$buildingGenerator$windowRatio)
+  wallsAreaOpaque <- wallsArea * (1 - .constants$buildingGenerator$windowRatio)
   walls <- list()
   walls$name <- "Fassade"
   walls$uValue <- uvalues$walls
@@ -101,13 +101,13 @@ simpleOpaqueElements <- function(params) {
 #' @export
 simpleWindowElements <- function(params) {
   uvalues <- params$uValuesBefore
-  areaPerFloor <- params$area / params$floors * constants$buildingGenerator$areaEbfRatio
-  buildingWidth <- min(sqrt(areaPerFloor), constants$buildingGenerator$maxBuildingWidth)
+  areaPerFloor <- params$area / params$floors * .constants$buildingGenerator$areaEbfRatio
+  buildingWidth <- min(sqrt(areaPerFloor), .constants$buildingGenerator$maxBuildingWidth)
   buildingLength <- areaPerFloor / buildingWidth
-  buildingHeight <- constants$buildingGenerator$floorHeight * params$floors
+  buildingHeight <- .constants$buildingGenerator$floorHeight * params$floors
 
-  roofArea <- buildingWidth * buildingLength / cos(constants$buildingGenerator$roofAngle * pi / 180)
-  roofWindowArea <- roofArea * constants$buildingGenerator$roofWindowRatio
+  roofArea <- buildingWidth * buildingLength / cos(.constants$buildingGenerator$roofAngle * pi / 180)
+  roofWindowArea <- roofArea * .constants$buildingGenerator$roofWindowRatio
   roofwindow <- list()
   roofwindow$name <- "Dachfenster"
   roofwindow$orientation <- "H"
@@ -122,7 +122,7 @@ simpleWindowElements <- function(params) {
   i <- 2
 
   wallsArea <- 2 * buildingWidth * buildingHeight + 2 * buildingLength * buildingHeight
-  windowArea <- wallsArea * constants$buildingGenerator$windowRatio
+  windowArea <- wallsArea * .constants$buildingGenerator$windowRatio
   for (orientation in c("S", "W", "N", "E")) {
     result <- list()
     result$name <- paste("Fenster ", orientation)
@@ -140,7 +140,6 @@ simpleWindowElements <- function(params) {
 
 getParams <- function(Inputs) {
   params <- Inputs
-
   get_key <- function(year) {
     # Given a year, this function returns the corresponding key.
     # See insulation_historical in constants.json
@@ -162,11 +161,11 @@ getParams <- function(Inputs) {
     }
     return(key)
   }
-  insulation_key <- get_key(params$year)
-  condition <- sapply(utilisation, function(x) x$key == insulation_key)
-  uvalue_index <- which(condition)
-  params$uValuesBefore <- constants$insulation_historical[uvalue_index][[1]]
 
+  insulation_key <- get_key(params$year)
+  condition <- sapply(.utilisation, function(x) x$key == insulation_key)
+  uvalue_index <- which(condition)
+  params$uValuesBefore <- .constants$insulation_historical[uvalue_index][[1]]
 
   ### Refurbishments
   ### update u-values with refurbishments
@@ -174,9 +173,9 @@ getParams <- function(Inputs) {
     if (m$measure %in% c("roof", "walls", "floor", "windows")) {
       key <- get_key(m$year)
       if (key < insulation_key) { # only if the renovation is more recent than the construction year
-        condition <- sapply(utilisation, function(x) x$key == key)
+        condition <- sapply(.utilisation, function(x) x$key == key)
         uvalue_index <- which(condition)
-        temp_uvalues <- constants$insulation_historical[uvalue_index][[1]]
+        temp_uvalues <- .constants$insulation_historical[uvalue_index][[1]]
         buildingPart <- m$measure
         params$uValuesBefore[[buildingPart]] <- temp_uvalues[[buildingPart]]
       }
@@ -184,14 +183,14 @@ getParams <- function(Inputs) {
   }
 
   ## utilisation
-  condition <- sapply(utilisation, function(x) x$key == params$utilisation_key)
+  condition <- sapply(.utilisation, function(x) x$key == params$utilisation_key)
   utilisation_index <- which(condition)
-  params$utilisation <- utilisation[utilisation_index][[1]]
+  params$utilisation <- .utilisation[utilisation_index][[1]]
 
   ## climate
-  condition <- sapply(climate, function(x) x$code == params$climate_code)
+  condition <- sapply(.climate, function(x) x$code == params$climate_code)
   climate_index <- which(condition)
-  params$climate <- climate[climate_index][[1]]
+  params$climate <- .climate[climate_index][[1]]
 
   ### Elements -> uvalues
   params$opaqueElements <- simpleOpaqueElements(params)
@@ -261,7 +260,7 @@ get_parameters <- function(area, floors, year, utilisation_key, climate_code, en
     stop("Mandatory parameter 'utilisation_key' is NULL")
   } else if (is.na(utilisation_key)) {
     stop("Mandatory parameter 'utilisation_key' is NA")
-  } else if (is.numeric(utilisation_key) & utilisation_key %in% unlist(lapply(utilisation, "[[", "key"))) {
+  } else if (is.numeric(utilisation_key) & utilisation_key %in% unlist(lapply(.utilisation, "[[", "key"))) {
     input_args$utilisation_key <- utilisation_key
   } else {
     stop(paste("Invalid parameter 'utilisation_key' -->", utilisation_key))
@@ -273,7 +272,7 @@ get_parameters <- function(area, floors, year, utilisation_key, climate_code, en
     stop("Mandatory parameter 'climate_code' is NULL")
   } else if (is.na(climate_code)) {
     stop("Mandatory parameter 'climate_code' is NA")
-  } else if (is.character(climate_code) & climate_code %in% unlist(lapply(climate, "[[", "code"))) {
+  } else if (is.character(climate_code) & climate_code %in% unlist(lapply(.climate, "[[", "code"))) {
     input_args$climate_code <- climate_code
   } else {
     stop(paste("Invalid parameter 'climate_code' -->", climate_code))

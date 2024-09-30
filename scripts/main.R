@@ -3,19 +3,14 @@
 
 
 ################
-# Debuging #
+# Load BuildingsEmissionsCalculator package #
 ################
 
-## You can load directly the source code of the following packages for deguging.
-## Uncomment the following two lines
-# devtools::load_all("./path/to/co2calculatorPACTA2022")
-# library('co2calculatorPACTA2022')
-# packageVersion('co2calculatorPACTA2022')
 devtools::load_all(".")
 packageVersion('BuildingsEmissionsCalculator')
 
 ##############
-# Parameters
+# Parameters #
 ##############
 
 # Choose if the File Explorer is used to search Excel file, or if the file path is directly written in the R script.
@@ -73,7 +68,6 @@ execution_time <- system.time({
 })
 print(execution_time)
 
-
 #######################
 # Save the Excel data #
 #######################
@@ -90,6 +84,6 @@ wb <- openxlsx2::wb_add_data_table(wb, x = buildings_df, dims = buildings_table_
 # Save the workbook
 openxlsx2::wb_save(wb, file_out)
 
-#Open the excel file
-shell(file_out, wait = FALSE)
+# Open the Excel file
+shell(file.path(getwd(), file_out), wait = FALSE)
 

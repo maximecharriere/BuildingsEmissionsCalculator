@@ -46,6 +46,13 @@ wgs84_to_lv95 <- function(easting, northing, altitude) {
 # ------- MAIN -------- #
 # --------------------- #
 
+climate_path <- system.file("extdata", "climate.json", package = "BuildingsEmissionsCalculator")
+climate_backup_path <- sub("\\.json$", "_backup.json", climate_path)
+# # backup the climate file
+file.copy(climate_path, climate_backup_path)
+# # Load the JSON file using jsonlite
+climate <- jsonlite::read_json(climate_path)
+
 # Loop through each station in the climate list
 for (i in seq_along(climate)) {
   # Extract WGS84 coordinates for the current station
@@ -62,7 +69,6 @@ for (i in seq_along(climate)) {
   climate[[i]]$altitudeBessel <- converted_coords$altitude
 }
 
-# Save the updated climate list to a file
-save(climate, file = "data/climate_LV95.rda")
+# Save the updated climate list the same file
+jsonlite::write_json(climate, climate_path, auto_unbox = TRUE)
 
-# This file is then moved to the "data" folder of the co2calculatorPACTA2022 package.

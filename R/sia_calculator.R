@@ -435,7 +435,7 @@ Q_Heating_Demand <- function(params) {
 #'
 #' @export
 getEmissions <- function(params) {
-  energyCarrier <- constants[[params$energy_carrier]]
+  energyCarrier <- .constants[[params$energy_carrier]]
 
   # if yearInstalledHeating is NULL or NA, derive from building construction year
   if (is.null(params$yearInstalledHeating) || is.na(params$yearInstalledHeating)) {

@@ -3,16 +3,20 @@
 # This script contain the code to execute at the loading or unloading of the package.
 
 .onLoad <- function(libname, pkgname) {
-  ## Store constant from the extdata/constants.json file in the .constants local environment
-
-  # Create a new environment to store the constants
-  .constants <- new.env(parent = emptyenv())
-  # Path to the constants.json file within the package
+  # Path to the json file within the package
   constants_path <- system.file("extdata", "constants.json", package = pkgname)
   # Load the JSON file using jsonlite
-  constants <- jsonlite::fromJSON(constants_path)
-  # Assign the loaded constants to the .Constants environment
-  list2env(constants, envir = .constants)
-  # Assign the .Constants environment to the package namespace
-  assign(".constants", .constants, envir = asNamespace(pkgname))
+  constants <- jsonlite::read_json(constants_path)
+  # Path to the json file within the package
+  utilisation_path <- system.file("extdata", "utilisation.json", package = pkgname)
+  # Load the JSON file using jsonlite
+  utilisation <- jsonlite::read_json(utilisation_path)
+  # Path to the json file within the package
+  # climate_path <- system.file("extdata", "climate.json", package = pkgname)
+  # # Load the JSON file using jsonlite
+  # climate <- jsonlite::read_json(climate_path)
+
+  list2env(list(".constants" = constants, ".utilisation" = utilisation), envir = asNamespace(pkgname))
 }
+
+
