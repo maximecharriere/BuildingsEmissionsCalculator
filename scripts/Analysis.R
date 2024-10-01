@@ -1,16 +1,13 @@
 # Author:   Annika Schmidt
 # Content: Financed emissions mortgages BCJ
 
-# Set working directory
-setwd("C:/Users/AnnikaSchmidtSwissCl/Swiss Climate AG/Projet Hypothèques - Dokumente/General/11_Results/data/BCJ")
-
 
 # LOAD PACKAGES ############################################
 install.packages("pacman")
 install.packages("openxlsx")
 install.packages("knitr")
-pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
-               ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, 
+pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
+               ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny,
                stringr, tidyr)
 library(datasets)
 library(openxlsx)
@@ -67,7 +64,7 @@ ggplot(data_subset, aes(y = emissions_per_area)) +
 #print(outliers)
 
 # Filter out outliers
-#data_subset <- data_subset %>% 
+#data_subset <- data_subset %>%
  # filter(emissions_per_area >= lower_bound & emissions_per_area <= upper_bound)
 
 ### OR
@@ -119,7 +116,7 @@ mortgage_type_summary <- data_subset %>%
     max_emissions = max(emissions_per_area, na.rm = TRUE),
     sum_financed_emissions = sum(financed_emissions, na.rm = TRUE),
     sum_financed_area = sum(financed_area, na.rm = TRUE),
-    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value), 
+    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
     count = n()
   )
 print(mortgage_type_summary)
@@ -135,7 +132,7 @@ emission_summary <- data_subset %>%
     max_emissions = max(emissions_per_area, na.rm = TRUE),
     sum_financed_emissions = sum(financed_emissions, na.rm = TRUE),
     sum_financed_area = sum(financed_area, na.rm = TRUE),
-    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value), 
+    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
     count = n()
   )
 print(emission_summary)
@@ -158,7 +155,7 @@ print(coverage_EGID)
 coverage_emissions_per_area <- sum(!is.na(data_subset$emissions_per_area)) / total_rows
 print(coverage_emissions_per_area)
 
-# Coverage ratio for financed emissions 
+# Coverage ratio for financed emissions
 coverage_financed_emissions <- sum(!is.na(data_subset$financed_emissions)) / total_rows
 print(coverage_financed_emissions)
 
@@ -188,8 +185,8 @@ print(coverage_ratio_area)
 # PLOTS ############################################
 ggplot(data = data_subset, aes(x = year)) +
   geom_histogram(binwidth = 10, fill = "skyblue", color = "black") +
-  labs(title = "Distribution of Year Buildings Were Built", 
-       x = "Year Built", 
+  labs(title = "Distribution of Year Buildings Were Built",
+       x = "Year Built",
        y = "Count of Buildings") +
   scale_x_continuous(breaks = seq(1700, 2030, by = 20)) +
   scale_y_continuous(breaks = seq(0, 400, by = 50)) + # Adjust breaks as needed
@@ -197,8 +194,8 @@ ggplot(data = data_subset, aes(x = year)) +
 
 ggplot(data = data_subset, aes(x = emissions_per_area)) +
   geom_histogram(binwidth = 10, fill = "red", color = "black") +
-  labs(title = "Distribution of emissions per area", 
-       x = "Emissions per area", 
+  labs(title = "Distribution of emissions per area",
+       x = "Emissions per area",
        y = "Count of assets") +
    scale_x_continuous(breaks = seq(0, 150, by = 20)) +
    scale_y_continuous(breaks = seq(0, 700, by = 50)) + # Adjust breaks as needed
@@ -208,13 +205,13 @@ data_subset$energy_carrier[data_subset$energy_carrier == "4"] <- NA ##
 energy_carrier_counts <- table(data_subset$energy_carrier)
 
 
-pie(energy_carrier_counts, 
-    labels = paste(names(energy_carrier_counts), round(prop.table(energy_carrier_counts) * 100, 1), "%"), 
-    col = c("blue", "green", "red"), 
+pie(energy_carrier_counts,
+    labels = paste(names(energy_carrier_counts), round(prop.table(energy_carrier_counts) * 100, 1), "%"),
+    col = c("blue", "green", "red"),
     main = "Share of Energy Carriers")
 
 
 # CLEAN UP #################################################
 
 # Clear environment
-rm(list = ls()) 
+rm(list = ls())
