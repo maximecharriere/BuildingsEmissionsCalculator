@@ -122,7 +122,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
 #' The parallel execution model can be adjusted based on system resources by changing the number of
 #' workers in the `future::plan` call.
 #' @export
-fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, log_file = "log/log.txt") {
+fill_buildings_df <- function(buildings_df, regbl_db_path = NULL) {
   progressr::handlers(global = TRUE)
   progressr::handlers("cli")
 
