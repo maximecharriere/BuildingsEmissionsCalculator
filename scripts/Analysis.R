@@ -2,6 +2,8 @@
 # Content: Financed emissions mortgages BCJ
 
 
+
+
 # LOAD PACKAGES ############################################
 install.packages("pacman")
 install.packages("openxlsx")
@@ -18,10 +20,16 @@ library(knitr)
 # IMPORT FILE ############################################
 
 # Excel XLSX
-data <- read.xlsx("20240904_BCJ.xlsx", startRow = 4, colNames = TRUE)
-head(data)
-data$bank_share <- as.numeric(data$bank_share)
-typeof(data$bank_share)
+INTERACTIVE <- TRUE
+if (INTERACTIVE) {
+  file_in <- file.choose() # Use File Explorer
+} else {
+  file_in <- excel_filepath
+}
+wb <- openxlsx2::wb_load(file_in)
+
+# Read the excel file
+data <- openxlsx2::wb_to_df(wb, sheet = "byBuilding", start_row = 5, col_names = TRUE)
 data_subset <- data[1:2044, ]
 # Check the new dimensions
 cat("Number of rows in the subset:", nrow(data_subset), "\n")
@@ -40,8 +48,8 @@ print(error_summary)
 #### Check
 data_subset <- data_subset %>%
   mutate(
-    check_equal = ifelse(!is.na(emissions_per_area) & !is.na(asset_emissions) & !is.na(energy_relevant_area),
-                         emissions_per_area == (asset_emissions / energy_relevant_area),
+    check_equal = ifelse(!is.na(emissions_per_area) & !is.na(asset_emissions) & !is.na(asset_energetic_area),
+                         emissions_per_area == (asset_emissions / asset_energetic_area),
                          NA)
   )
 
@@ -74,17 +82,20 @@ data_subset <- data_subset %>%
   filter(emissions_per_area <= 350 | is.na(emissions_per_area))
 
 # Calculate emissions ############################################
-data_subset$financed_emissions <- data_subset$asset_emissions*data_subset$bank_share
-data_subset$financed_area <- data_subset$asset_emissions * data_subset$bank_share*data_subset$energy_relevant_area
+#data_subset$financed_emissions <- data_subset$asset_emissions*data_subset$bank_share
+#data_subset$financed_area <- data_subset$asset_emissions * data_subset$bank_share*data_subset$energy_relevant_area
 
 # Create values ############################################
+
+# sum of asset energetic area
+total_asset_energetic_area <- sum(data_subset$asset_energetic_area, na.rm = TRUE)
 
 # sum of asset value
 total_asset_value <- sum(data_subset$asset_value, na.rm = TRUE)
 # sum of mortgage value
 total_mortgage_value <- sum(data_subset$mortgage_value, na.rm = TRUE)
 # sum of financed emissions (absolute)
-total_financed_emmissions <- sum(data_subset$financed_emissions, na.rm =TRUE)
+total_mortgage_emissions <- sum(data_subset$mortgage_emissions, na.rm =TRUE)
 
 # emission intensity t CO2eq / Mio. CHF invested
 emission_intensity_per_investment <- (sum(data_subset$financed_emissions, na.rm = TRUE)/1000)/(total_mortgage_value/100000)
