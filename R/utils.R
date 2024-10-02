@@ -66,16 +66,68 @@ find_closest_station <- function(climate, building) {
 #' desired_columns <- c("EGID", "STRNAME", "DEINR", "DPLZ4")
 #' standardized_df <- standardize_buildings_df(buildings_df, desired_columns)
 #' # standardized_df will now include DEINR and DPLZ4 columns with NA values.
-standardize_buildings_df <- function(buildings_df, buildings_df_columns_names) {
+#'
+
+convert_columns_types <- function(buildings_df) {
+  columns_info <- .constants$buildings_df_columns
+  na_counts_before <- colSums(is.na(buildings_df))
+  # Loop through the columns of buildings_df
+  for (col in names(buildings_df)) {
+    if (col %in% names(columns_info)) {
+      # Get the type for the current column from columns_info
+      col_type <- columns_info[[col]]$type
+
+      # Perform the conversion based on the type
+      buildings_df[[col]] <- switch(col_type,
+        "character" = as.character(buildings_df[[col]]),
+        "integer" = as.integer(buildings_df[[col]]),
+        "double" = as.numeric(buildings_df[[col]]),
+        "date" = as.Date(buildings_df[[col]], origin = "1970-01-01"),
+        "logical" = as.logical(buildings_df[[col]]),
+        stop(paste0("The type of the column '",col,"' (",col_type, ") is unknown."))
+      )
+    } else {
+      # Print a warning if the column is not defined in columns_info
+      warning(paste0("Unknown column: '", col, "' - If necessary, please add it to `constants.json`"))
+    }
+  }
+  na_counts_dif <- colSums(is.na(buildings_df)) - na_counts_before
+  if(length(na_counts_dif[na_counts_dif != 0])){
+    print("NA values added! During the columns type convertion, some NA values have been added. Here are the number of added NA for each columns:")
+    print(na_counts_dif[na_counts_dif>0])
+  }
+  return(buildings_df)
+}
+
+
+add_missing_columns <- function(buildings_df) {
+  columns_info <- .constants$buildings_df_columns
+
   # Identify which of the desired columns are missing from the dataframe
-  missing_columns <- setdiff(buildings_df_columns_names, names(buildings_df))
+  missing_columns <- setdiff(names(columns_info), names(buildings_df))
 
   # For each missing column, add it to the dataframe with NA values
-  for (col in missing_columns) {
-    buildings_df[[col]] <- NA
+  for (col_name in missing_columns) {
+    buildings_df[[col_name]] <- NA
+    warning(paste0("Column '", col_name, "' was missing and has been added with NA values."))
   }
 
   return(buildings_df)
+}
+
+get_column_types <- function() {
+  # Extract the column types and the corresponding numeric values
+  #browser()
+  columns_info <- .constants$buildings_df_columns
+  type_mapping <- .constants$openxlsx2_type_mapping
+
+  # Create a named numeric vector to store the types
+  types <- sapply(columns_info, function(col_info) {
+    # Map the type string to its corresponding numeric value using type_mapping
+    type_mapping[[col_info$type]]
+  })
+
+  return(types)
 }
 
 # Append a new error message to the existing error comments, if any
@@ -98,3 +150,5 @@ sanitize_filename <- function(input_string) {
 
   return(sanitized_string)
 }
+
+

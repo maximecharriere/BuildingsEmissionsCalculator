@@ -127,7 +127,8 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL) {
   progressr::handlers("cli")
 
   # Add missing columns to the dataframe, filled with NA values
-  buildings_df <- standardize_buildings_df(buildings_df, names(.constants$buildings_df_columns)) #TODO with the new handling of Excel tables, this function does not work anymore. If extra columns are added, it's not possible to past the table in the Excel sheet.
+  buildings_df <- add_missing_columns(buildings_df)
+  buildings_df <- convert_columns_types(buildings_df)
 
   # Initialize a progress bar with the total number of iterations
   p <- progressr::progressor(nrow(buildings_df))
