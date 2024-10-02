@@ -86,3 +86,4 @@ openxlsx2::wb_save(wb, file_out)
 # Open the Excel file
 shell(file.path(getwd(), file_out), wait = FALSE)
 
+# Test de MAJ depuis RStudio. A supprimer
