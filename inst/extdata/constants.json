@@ -1,5 +1,4 @@
 {
-  "saveLogs": false,
   "energeticAreaFactor": 1.3,
   "buildingClass_Regbl2Sia": {
     "1110": 2,
@@ -65,7 +64,12 @@
     },
     "STRNAME": {
       "type": "character",
-      "description": "The street name",
+      "description": "The street's name",
+      "xpath": ".//d1:streetNameItem/d1:descriptionLong"
+    },
+    "DPLZNAME": {
+      "type": "character",
+      "description": "The commune's name",
       "xpath": ".//d1:streetNameItem/d1:descriptionLong"
     },
     "DPLZ4": {
@@ -77,6 +81,43 @@
       "type": "integer",
       "description": "The unique building identifier",
       "xpath": ".//d1:EGID"
+    },
+    "EWID": {
+      "type": "integer",
+      "description": "The unique dwelling identifier",
+      "xpath": ".//d1:EGID"
+    },
+    "mortgage_id": {
+      "type": "character",
+      "description": "The unique mortgage identifier"
+    },
+    "asset_ewid_count": {
+      "type": "integer",
+      "description": "The number of dwellings in the asset"
+    },
+    "asset_building_share": {
+      "type": "integer",
+      "description": "The share on the building included in the asset"
+    },
+    "asset_living_area": {
+      "type": "integer",
+      "description": "The living area of the asset"
+    },
+    "asset_energetic_area": {
+      "type": "integer",
+      "description": "The energetic area of the asset"
+    },
+    "asset_value": {
+      "type": "integer",
+      "description": "The value of the asset in CHF"
+    },
+    "mortgage_value": {
+      "type": "integer",
+      "description": "The value of the mortgage in CHF"
+    },
+    "asset_bank_share": {
+      "type": "integer",
+      "description": "The share of the bank in the asset"
     },
     "GKLAS": {
       "type": "integer",
@@ -193,9 +234,17 @@
       "type": "double",
       "description": "Annual CO2 emissions per area, in kg/m2 per year"
     },
+    "building_emissions": {
+      "type": "double",
+      "description": "Total annual CO2 emissions of the entire building, in kg per year"
+    },
     "asset_emissions": {
       "type": "double",
-      "description": "Total annual CO2 emissions, in kg per year"
+      "description": "Total annual CO2 emissions of the asset, in kg per year"
+    },
+    "mortgage_emissions": {
+      "type": "double",
+      "description": "Total annual CO2 emissions financed in the mortgage, in kg per year"
     },
     "error_comments": {
       "type": "character",
@@ -205,7 +254,7 @@
 
 
 
-  
+
   "buildingGenerator": {
     "roofAngle": 30,
     "maxBuildingWidth": 15,
