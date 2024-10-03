@@ -140,36 +140,23 @@ print(distinct_building_types)
 data_subset <- data_subset %>%
   mutate(mortgage_type = if_else(`Habitation` == "1", "Residential", "Commercial"))
 
-
-
-####### MORTGAGE TYPE SUMMARY
-mortgage_type_summary <- data_subset %>%
+####### KPI SUMMARY grouped by different variables
+## mortgage_type, Type d'immeuble, Usage de l'immeuble, GKLAS, sia_energy_carrier
+type_summary <- data_subset %>%
   group_by(mortgage_type) %>%
   summarise(
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     median_emissions = median(emissions_per_area, na.rm = TRUE),
+    mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(total_mortgage_value/100000),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
     sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
     share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
     count = n()
   )
-print(mortgage_type_summary)
-kable(mortgage_type_summary, caption = "Emission Summary by Building Type")
+print(type_summary)
+kable(type_summary, caption = "Emission Summary by Building Type")
 
 
-######
-emission_summary <- data_subset %>%
-  group_by(`Type d'immeuble`) %>%
-  summarise(
-    mean_emissions = mean(emissions_per_area, na.rm = TRUE),
-    median_emissions = median(emissions_per_area, na.rm = TRUE),
-    sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
-    sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
-    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
-    count = n()
-  )
-print(emission_summary)
-kable(emission_summary, caption = "Emission Summary by Building Type")
 
 # CALCULATE COVERAGES #############################################
 ## comparing the number of non-missing values for each variable to the total number of rows
@@ -227,8 +214,8 @@ ggplot(data = data_subset, aes(x = sia_year)) +
   labs(title = "Distribution of Year Buildings Were Built",
        x = "Year Built",
        y = "Count of Buildings") +
-  scale_x_continuous(breaks = seq(1900, 2030, by = 5)) +
-  scale_y_continuous(breaks = seq(0, 400, by = 50)) + # Adjust breaks as needed
+  scale_x_continuous(breaks = seq(1900, 2030, by = 10), limits = c(1900,2030)) +
+  scale_y_continuous(breaks = seq(0, 35000, by = 1000)) + # Adjust breaks as needed
   theme_minimal()
 
 ggplot(data = data_subset, aes(x = emissions_per_area)) +
@@ -236,16 +223,16 @@ ggplot(data = data_subset, aes(x = emissions_per_area)) +
   labs(title = "Distribution of emissions per area",
        x = "Emissions per area",
        y = "Count of assets") +
-  scale_x_continuous(breaks = seq(0, 150, by = 20)) +
-  scale_y_continuous(breaks = seq(0, 700, by = 50)) + # Adjust breaks as needed
+  scale_x_continuous(breaks = seq(0, 400, by = 10)) +
+  scale_y_continuous(breaks = seq(0, 35000, by = 1000)) + # Adjust breaks as needed
   theme_minimal()
 
-data_subset$energy_carrier[data_subset$energy_carrier == "4"] <- NA ##
-energy_carrier_counts <- table(data_subset$energy_carrier)
-
+data_subset$energy_carrier[data_subset$sia_energy_carrier == "4"] <- NA ##
+energy_carrier_counts <- table(data_subset$sia_energy_carrier)
+custom_names <- c("Gas","Oil","Other")
 
 pie(energy_carrier_counts,
-    labels = paste(names(energy_carrier_counts), round(prop.table(energy_carrier_counts) * 100, 1), "%"),
+    labels = paste(custom_names, round(prop.table(energy_carrier_counts) * 100, 1), "%"),
     col = c("blue", "green", "red"),
     main = "Share of Energy Carriers")
 
