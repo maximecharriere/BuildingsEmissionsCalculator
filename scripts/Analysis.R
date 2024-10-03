@@ -28,7 +28,7 @@ wb <- openxlsx2::wb_load(file_in)
 
 # Read the excel file
 data <- openxlsx2::wb_to_df(wb, sheet = "byBuilding", start_row = 5, col_names = TRUE)
-data_subset <- data[1:2049, ]
+data_subset <- data[1:31746, ]
 # Check the new dimensions
 cat("Number of rows in the subset:", nrow(data_subset), "\n")
 
@@ -43,7 +43,7 @@ error_summary <- data_subset %>%
 # View the summary
 print(error_summary)
 
-#### Check
+#### Check does not work
 data_subset <- data %>%
   mutate(
     check_equal = ifelse(!is.na(emissions_per_area) & !is.na(asset_emissions) & !is.na(asset_energetic_area),
@@ -107,26 +107,39 @@ total_financed_emissions <- sum(data_subset$mortgage_emissions, na.rm =TRUE)
 
 # Mean emission intensity (t CO2eq / Mio. CHF invested)
 mean_emission_intensity_per_investment <- (sum(data_subset$mortgage_emissions, na.rm = TRUE)/1000)/(total_mortgage_value/100000)
-print(emission_intensity_per_investment)
+print(mean_emission_intensity_per_investment)
 # Mean emission intensity (kg CO2/ m2)
 mean_emission_intensity_per_m2 <- mean(data_subset$emissions_per_area, na.rm = TRUE)
 print(mean_emission_intensity_per_m2)
 
 # mean bank share of mortgage on total assets
 mean_bank_share <- total_mortgage_value / total_asset_value
+print(mean_bank_share)
 
 # ANALYSIS BY MORTGAGE/ BUILDING TYPE #############################################
+distinct_usage_types <- data_subset %>%
+  distinct(`Usage de l'immeuble`)
+
+print(distinct_usage_types)
+
+
+## AND
+
 distinct_building_types <- data_subset %>%
-  distinct(`Type de bien`)
+  distinct(`Type d'immeuble`)
 
 print(distinct_building_types)
 
-data_subset <- data_subset %>%
+## data_subset <- data_subset %>%
   mutate(mortgage_type = case_when(
-    `Type de bien` %in% c("Agriculture", "Industrie, grands commerces", "Commercial", "Constructions multifonctionnelles, petits commerces", "Habitation à rendement","Hôtel, restaurant, pension") ~ "Commercial",
-    `Type de bien` %in% c("PPE Habitation","Autre couverture hypothècaire" ) ~ "Residential",
+    `Type d'immeuble` %in% c("Agriculture", "Industrie, grands commerces", "Commercial", "Constructions multifonctionnelles, petits commerces", "Habitation à rendement","Hôtel, restaurant, pension") ~ "Commercial",
+    `Type d'immeuble` %in% c("PPE Habitation" ) ~ "Residential",
     TRUE ~ "Other"  # In case there are other values you want to handle separately
   ))
+
+data_subset <- data_subset %>%
+  mutate(mortgage_type = if_else(`Habitation` == "1", "Residential", "Commercial"))
+
 
 
 ####### MORTGAGE TYPE SUMMARY
@@ -135,7 +148,6 @@ mortgage_type_summary <- data_subset %>%
   summarise(
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     median_emissions = median(emissions_per_area, na.rm = TRUE),
-    max_emissions = max(emissions_per_area, na.rm = TRUE),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
     sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
     share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
@@ -147,11 +159,10 @@ kable(mortgage_type_summary, caption = "Emission Summary by Building Type")
 
 ######
 emission_summary <- data_subset %>%
-  group_by(`Type de bien`) %>%
+  group_by(`Type d'immeuble`) %>%
   summarise(
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     median_emissions = median(emissions_per_area, na.rm = TRUE),
-    max_emissions = max(emissions_per_area, na.rm = TRUE),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
     sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
     share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
@@ -164,10 +175,6 @@ kable(emission_summary, caption = "Emission Summary by Building Type")
 ## comparing the number of non-missing values for each variable to the total number of rows
 # Addresses available = proportion of addresses for which we have valid data.
 total_rows <- nrow(data_subset)
-
-# Coverage ratio for addresses (non-missing addresses)
-coverage_addresses <- sum(!is.na(data_subset$ADDRESS)) / total_rows
-print(coverage_addresses)
 
 # Coverage ratio for EGID (non-missing EGID)
 coverage_EGID <- sum(!is.na(data_subset$EGID)) / total_rows
@@ -188,7 +195,7 @@ data_subset <- data_subset %>%
 coverage_financed_emissions <- sum(data_subset$emissions_proportion, na.rm = TRUE) / total_mortgage_value
 print(1-coverage_financed_emissions)
 
-## Whereas the code can get results for 79% of the rows, it represents 73% of total mortgage value.
+## Whereas the code can get results for 70% of the rows, it represents 72% of total mortgage value.
 
 
 # OR Coverage ratio related to mortgage value
@@ -215,12 +222,12 @@ print(coverage_ratio_area)
 
 
 # PLOTS ############################################
-ggplot(data = data_subset, aes(x = year)) +
+ggplot(data = data_subset, aes(x = sia_year)) +
   geom_histogram(binwidth = 10, fill = "skyblue", color = "black") +
   labs(title = "Distribution of Year Buildings Were Built",
        x = "Year Built",
        y = "Count of Buildings") +
-  scale_x_continuous(breaks = seq(1700, 2030, by = 20)) +
+  scale_x_continuous(breaks = seq(1900, 2030, by = 5)) +
   scale_y_continuous(breaks = seq(0, 400, by = 50)) + # Adjust breaks as needed
   theme_minimal()
 
