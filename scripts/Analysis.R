@@ -1,5 +1,5 @@
 # Author:   Annika Schmidt
-# Content: Financed emissions mortgages BCJ
+# Content: Analysis Financed emissions of mortgages BCJ
 
 
 # LOAD PACKAGES ############################################
@@ -18,11 +18,17 @@ library(knitr)
 # IMPORT FILE ############################################
 
 # Excel XLSX
-data <- read.xlsx("20240904_BCJ.xlsx", startRow = 4, colNames = TRUE)
-head(data)
-data$bank_share <- as.numeric(data$bank_share)
-typeof(data$bank_share)
-data_subset <- data[1:2044, ]
+INTERACTIVE <- TRUE
+if (INTERACTIVE) {
+  file_in <- file.choose() # Use File Explorer
+} else {
+  file_in <- excel_filepath
+}
+wb <- openxlsx2::wb_load(file_in)
+
+# Read the excel file
+data <- openxlsx2::wb_to_df(wb, sheet = "byBuilding", start_row = 5, col_names = TRUE)
+data_subset <- data[1:2049, ]
 # Check the new dimensions
 cat("Number of rows in the subset:", nrow(data_subset), "\n")
 
@@ -38,14 +44,14 @@ error_summary <- data_subset %>%
 print(error_summary)
 
 #### Check
-data_subset <- data_subset %>%
+data_subset <- data %>%
   mutate(
-    check_equal = ifelse(!is.na(emissions_per_area) & !is.na(asset_emissions) & !is.na(energy_relevant_area),
-                         emissions_per_area == (asset_emissions / energy_relevant_area),
+    check_equal = ifelse(!is.na(emissions_per_area) & !is.na(asset_emissions) & !is.na(asset_energetic_area),
+                         emissions_per_area == (asset_emissions / asset_energetic_area),
                          NA)
   )
 
-summary(data_subset$check_equal)
+summary(data$check_equal)
 
 ### Check for outliers
 # Boxplots
@@ -53,6 +59,13 @@ summary(data_subset$check_equal)
 ggplot(data_subset, aes(y = emissions_per_area)) +
   geom_boxplot(fill = "lightblue", color = "black") +
   labs(title = "Boxplot with Outliers", y = "Emmissions per area") +
+  theme_minimal()
+
+# Density plot
+ggplot(data_subset, aes(x = emissions_per_area)) +
+  geom_density(fill = "lightblue", alpha = 0.5) +
+  geom_rug(sides = "b", color = "red") +
+  labs(title = "Density Plot with Outliers", x = "Emissions per area") +
   theme_minimal()
 
 # Identify outliers
@@ -65,44 +78,53 @@ ggplot(data_subset, aes(y = emissions_per_area)) +
 
 # Filter out outliers
 #data_subset <- data_subset %>%
- # filter(emissions_per_area >= lower_bound & emissions_per_area <= upper_bound)
+# filter(emissions_per_area >= lower_bound & emissions_per_area <= upper_bound)
 
 ### OR
 
-# Remove observations where 'emissions_per_area' is greater than 350
-data_subset <- data_subset %>%
-  filter(emissions_per_area <= 350 | is.na(emissions_per_area))
+# Mutate observations where 'emissions_per_area' is greater 150
+data_subset_reduced <- data %>%
+  mutate(emissions_per_area = ifelse(emissions_per_area > 150, NA, emissions_per_area))
 
 # Calculate emissions ############################################
-data_subset$financed_emissions <- data_subset$asset_emissions*data_subset$bank_share
-data_subset$financed_area <- data_subset$asset_emissions * data_subset$bank_share*data_subset$energy_relevant_area
+#data_subset$financed_emissions <- data_subset$asset_emissions*data_subset$bank_share
+#data_subset$financed_area <- data_subset$asset_emissions * data_subset$bank_share*data_subset$energy_relevant_area
 
 # Create values ############################################
 
-# sum of asset value
+# Total surface of the assets (m2)
+total_asset_energetic_area <- sum(data_subset$asset_energetic_area, na.rm = TRUE)
+
+# total asset value (CHF)
 total_asset_value <- sum(data_subset$asset_value, na.rm = TRUE)
-# sum of mortgage value
+# total mortgage value (CHF)
 total_mortgage_value <- sum(data_subset$mortgage_value, na.rm = TRUE)
-# sum of financed emissions (absolute)
-total_financed_emmissions <- sum(data_subset$financed_emissions, na.rm =TRUE)
 
-# emission intensity t CO2eq / Mio. CHF invested
-emission_intensity_per_investment <- (sum(data_subset$financed_emissions, na.rm = TRUE)/1000)/(total_mortgage_value/100000)
+# total asset emissions (absolute, in kg CO2)
+total_asset_emissions <- sum(data_subset$asset_emissions, na.rm = TRUE)
+# total financed emissions (absolute, in kg CO2)
+total_financed_emissions <- sum(data_subset$mortgage_emissions, na.rm =TRUE)
+
+# Mean emission intensity (t CO2eq / Mio. CHF invested)
+mean_emission_intensity_per_investment <- (sum(data_subset$mortgage_emissions, na.rm = TRUE)/1000)/(total_mortgage_value/100000)
 print(emission_intensity_per_investment)
+# Mean emission intensity (kg CO2/ m2)
+mean_emission_intensity_per_m2 <- mean(data_subset$emissions_per_area, na.rm = TRUE)
+print(mean_emission_intensity_per_m2)
 
-# bank share of mortgage on total assets
-total_bank_share <- total_mortgage_value / total_asset_value
-
+# mean bank share of mortgage on total assets
+mean_bank_share <- total_mortgage_value / total_asset_value
 
 # ANALYSIS BY MORTGAGE/ BUILDING TYPE #############################################
 distinct_building_types <- data_subset %>%
-  distinct(Type.de.bien)
+  distinct(`Type de bien`)
+
 print(distinct_building_types)
 
 data_subset <- data_subset %>%
   mutate(mortgage_type = case_when(
-    Type.de.bien %in% c("Agriculture", "Autre couverture hypothècaire", "Industrie, grands commerces", "Commercial", "Constructions multifonctionnelles, petits commerces", "Habitation à rendement","Hôtel, restaurant, pension") ~ "Commercial",
-    Type.de.bien %in% c("PPE Habitation") ~ "Residential",
+    `Type de bien` %in% c("Agriculture", "Industrie, grands commerces", "Commercial", "Constructions multifonctionnelles, petits commerces", "Habitation à rendement","Hôtel, restaurant, pension") ~ "Commercial",
+    `Type de bien` %in% c("PPE Habitation","Autre couverture hypothècaire" ) ~ "Residential",
     TRUE ~ "Other"  # In case there are other values you want to handle separately
   ))
 
@@ -114,8 +136,8 @@ mortgage_type_summary <- data_subset %>%
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     median_emissions = median(emissions_per_area, na.rm = TRUE),
     max_emissions = max(emissions_per_area, na.rm = TRUE),
-    sum_financed_emissions = sum(financed_emissions, na.rm = TRUE),
-    sum_financed_area = sum(financed_area, na.rm = TRUE),
+    sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
+    sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
     share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
     count = n()
   )
@@ -125,13 +147,13 @@ kable(mortgage_type_summary, caption = "Emission Summary by Building Type")
 
 ######
 emission_summary <- data_subset %>%
-  group_by(Type.de.bien) %>%
+  group_by(`Type de bien`) %>%
   summarise(
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     median_emissions = median(emissions_per_area, na.rm = TRUE),
     max_emissions = max(emissions_per_area, na.rm = TRUE),
-    sum_financed_emissions = sum(financed_emissions, na.rm = TRUE),
-    sum_financed_area = sum(financed_area, na.rm = TRUE),
+    sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
+    sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
     share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
     count = n()
   )
@@ -152,18 +174,28 @@ coverage_EGID <- sum(!is.na(data_subset$EGID)) / total_rows
 print(coverage_EGID)
 
 # Coverage ratio for emisisons_per_area
-coverage_emissions_per_area <- sum(!is.na(data_subset$emissions_per_area)) / total_rows
-print(coverage_emissions_per_area)
+coverage_mortgage_emissions <- sum(!is.na(data_subset$mortgage_emissions)) / total_rows
+print(coverage_mortgage_emissions)
 
-# Coverage ratio for financed emissions
-coverage_financed_emissions <- sum(!is.na(data_subset$financed_emissions)) / total_rows
-print(coverage_financed_emissions)
+# Coverage ratio for financed emissions relative to investments (%)
+# where do I have data for mortage emissions, * mortgage_value / total_mortgage_value
+data_subset <- data_subset %>%
+  mutate(
+    emissions_proportion = ifelse(is.na(mortgage_emissions),
+                                  mortgage_value,
+                                  NA)
+  )
+coverage_financed_emissions <- sum(data_subset$emissions_proportion, na.rm = TRUE) / total_mortgage_value
+print(1-coverage_financed_emissions)
 
-# Coverage ratio related to mortgage value
+## Whereas the code can get results for 79% of the rows, it represents 73% of total mortgage value.
+
+
+# OR Coverage ratio related to mortgage value
 # Sum of mortgage values when financed emissions is not NA / Total mortgages
 coverage_ratio_mortgage <- data_subset %>%
   summarise(
-    sum_mortgage_condition = sum(mortgage_value[!is.na(financed_emissions)], na.rm = TRUE),
+    sum_mortgage_condition = sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE),
     sum_mortgage = sum(mortgage_value, na.rm = TRUE)
   ) %>%
   mutate(ratio = sum_mortgage_condition / sum_mortgage)
@@ -174,8 +206,8 @@ print(coverage_ratio_mortgage)
 # Sum of energy relevant area when financed emissions is not NA / Total energy relevant area
 coverage_ratio_area <- data_subset %>%
   summarise(
-    sum_area_condition = sum(energy_relevant_area[!is.na(financed_emissions)], na.rm = TRUE),
-    sum_area = sum(energy_relevant_area, na.rm = TRUE)
+    sum_area_condition = sum(asset_energetic_area[!is.na(mortgage_emissions)], na.rm = TRUE),
+    sum_area = sum(asset_energetic_area, na.rm = TRUE)
   ) %>%
   mutate(ratio = sum_area_condition / sum_area)
 
@@ -197,8 +229,8 @@ ggplot(data = data_subset, aes(x = emissions_per_area)) +
   labs(title = "Distribution of emissions per area",
        x = "Emissions per area",
        y = "Count of assets") +
-   scale_x_continuous(breaks = seq(0, 150, by = 20)) +
-   scale_y_continuous(breaks = seq(0, 700, by = 50)) + # Adjust breaks as needed
+  scale_x_continuous(breaks = seq(0, 150, by = 20)) +
+  scale_y_continuous(breaks = seq(0, 700, by = 50)) + # Adjust breaks as needed
   theme_minimal()
 
 data_subset$energy_carrier[data_subset$energy_carrier == "4"] <- NA ##
