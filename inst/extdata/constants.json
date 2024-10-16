@@ -249,6 +249,10 @@
     "error_comments": {
       "type": "character",
       "description": "A string containing error messages"
+    },
+    "log_comments": {
+      "type": "character",
+      "description": "A string containing logs messages"
     }
   },
 

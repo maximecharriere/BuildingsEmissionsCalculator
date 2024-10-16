@@ -130,14 +130,7 @@ get_column_types <- function() {
   return(types)
 }
 
-# Append a new error message to the existing error comments, if any
-append_error_message <- function(current_errors, new_error) {
-  if (is.na(current_errors)) {
-    return(new_error)
-  } else {
-    return(paste(current_errors, new_error, sep = " | "))
-  }
-}
+
 
 # Sanitize a string to remove disallowed characters for a filename
 sanitize_filename <- function(input_string) {
@@ -152,3 +145,19 @@ sanitize_filename <- function(input_string) {
 }
 
 
+# Append a new message to the existing one, if any
+paste_if <- function(current_message, new_message, sep = "\n") {
+  return(ifelse(is.na(current_message), new_message, paste(current_message, new_message, sep = sep)))
+}
+
+# logger
+append_log <- function(current_log, new_log, level = "INFO") {
+  # Get the current time
+  timestamp <- Sys.time()
+
+  # Format the message with the timestamp and log level
+  new_log_formatted <- paste0("[", format(timestamp, "%Y-%m-%d %H:%M:%S"), "] [", level, "] ", new_log)
+
+  # Append the formatted message
+  return(paste_if(current_log, new_log_formatted))
+}
