@@ -50,10 +50,10 @@ regbl_2_sia_converter <- function(building) {
   # Convert the energy carrier type from RegBl to the SIA 380/1 standard
   if (building$GENH1 %in% names(.constants$energyCarrier_Regbl2Sia)) {
     building$sia_energy_carrier <- .constants$energyCarrier_Regbl2Sia[[as.character(building$GENH1)]]
-    building$log_comments <- append_log(building$log_comments, paste0("Convert RegBl energy carrier to SIA: ", building$sia_energy_carrier))
+    building$log_comments <- append_log(building$log_comments, paste0("Convert RegBl energy carrier '",building$GENH1,"' to SIA: ", building$sia_energy_carrier))
   } else {
-    building$sia_energy_carrier <- "other"
-    building$log_comments <- append_log(building$log_comments, paste0("Energy carrier (", building$GENH1 , ") not taken into account by the SIA calculator."))
+    building$sia_energy_carrier <- "undefined"
+    building$log_comments <- append_log(building$log_comments, paste0("Energy carrier (", building$GENH1 , ") not specified in the LUT '.constants$energyCarrier_Regbl2Sia'. Please update the LUT."), level = "WARNING")
   }
   # Energy relevant area
   building$sia_area <- building$GEBF
