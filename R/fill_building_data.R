@@ -15,7 +15,7 @@
 #' @examples
 #' building_data <- list(EGID = "123456")
 #' enriched_building_data <- fill_building_data(building_data)
-fill_building_data <- function(building, sqlite_conn = NULL) {
+fill_building_data <- function(building, sqlite_conn = NULL, sqlite_address_search = TRUE, sqlite_parcel_search = TRUE, geoadmin_api_search = TRUE) {
   building <- tryCatch(
     {
       # library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
@@ -23,7 +23,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
       #############
       # Identify the building
       #############
-      building <- egid_search(building, sqlite_conn)
+      building <- egid_search(building, sqlite_conn, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
 
       #############
       # Building data
@@ -122,7 +122,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
 #' The parallel execution model can be adjusted based on system resources by changing the number of
 #' workers in the `future::plan` call.
 #' @export
-fill_buildings_df <- function(buildings_df, regbl_db_path = NULL) {
+fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, sqlite_address_search = TRUE, sqlite_parcel_search = TRUE, geoadmin_api_search = TRUE) {
   progressr::handlers(global = TRUE)
   progressr::handlers("cli")
 
@@ -155,14 +155,14 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL) {
     # Set up parallelization plan (e.g., multisession to use multiple cores)
     future::plan(future::multisession, workers = 4)
     buildings <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) {
-      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn)
+      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
       p()
       return(building)
     })
   } else {
     buildings <- list()
     for (i in seq_len(nrow(buildings_df))) {
-      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn)
+      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
       p()
       buildings[[i]] <- building
     }

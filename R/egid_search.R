@@ -1,4 +1,4 @@
-egid_search <- function(building, sqlite_conn = NULL) {
+egid_search <- function(building, sqlite_conn = NULL, sqlite_address_search = TRUE, sqlite_parcel_search = TRUE, geoadmin_api_search = TRUE) {
   if (is.null(sqlite_conn)) {
     stop("Database connection not provided.")
   }
@@ -12,25 +12,34 @@ egid_search <- function(building, sqlite_conn = NULL) {
     building <- split_address(building)
   }
   
-  # Search for the EGID in the SQLite database by street name, number, and postal code
-  search1_egids <- splitted_address_search(building, sqlite_conn)
+  # 1: Search for the EGID in the SQLite database by street name, number, and postal code
+  search1_egids <- list()
+  if (sqlite_address_search){
+    search1_egids <- address_search(building, sqlite_conn)
   if (length(search1_egids) == 1) {
     building$EGID <- search1_egids[1]
     return(building)
+    }
   }
 
-  # Search for the EGID in the SQLite database by parcel number and postal code
+  # 2: Search for the EGID in the SQLite database by parcel number and postal code
+  search2_egids <- list()
+  if (sqlite_parcel_search){
   search2_egids <- parcel_search(building, sqlite_conn)
   if (length(search2_egids) == 1) {
     building$EGID <- search2_egids[1]
     return(building)
+    }
   }
 
-  # If the EGID is not found, search using the Swiss GeoAdmin API
+  # 3: If the EGID is not found, search using the Swiss GeoAdmin API
+  search3_egids <- list()
+  if (geoadmin_api_search){
   search3_egids <- oneline_address_search(building)
   if (length(search3_egids) == 1) {
     building$EGID <- search3_egids[1]
     return(building)
+    }
   }
 
   # If no unique EGID is found with one of the methods, we count the occurrences of each unique EGID. The one with the highest count is selected.
@@ -149,11 +158,15 @@ oneline_address_search <- function(building) {
   )
 
   # Perform the API request
-  response <- httr::GET(url, query = params)
+  response <- tryCatch({
+    httr::GET(url, query = params, httr::timeout(10))  # 10-second timeout to avoid long wait times
+  }, error = function(e) {
+    stop("Failed to retrieve data from the Geo Admin API due to a connection issue: ", e$message, "\nTurn off the `geoadmin_api_search` parameter to skip this step.")
+  })
 
   # Check if the request was successful
   if (httr::status_code(response) != 200) {
-    stop("Failed to retrieve data from the API.")
+    stop("Failed to retrieve data from the API. Status code: ", httr::status_code(response), "\nTurn off the `geoadmin_api_search` parameter to skip this step.")
   }
 
   # Parse the JSON response

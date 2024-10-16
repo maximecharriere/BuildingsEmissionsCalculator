@@ -17,7 +17,10 @@ packageDescription('BuildingsEmissionsCalculator', fields=c("Title", "Version"))
 INTERACTIVE <- FALSE # FALSE / TRUE # Choose if the File Explorer is used to search Excel file, or if the file path is directly written in the R script.
 excel_filepath <- "tests/testdata/tests_0.4.1.xlsx" #R ne comprend pas les backslash --> remplacer le filepath par double backslash ou slash normal
 regbl_database_path <- "data/regbl_db.sqlite"
-max_rows = -1 # The number of row to fill. Put -1 to fill the entire table.
+max_rows <- -1 # The number of row to fill. Put -1 to fill the entire table.
+sqlite_address_search <- TRUE
+sqlite_parcel_search <- TRUE
+geoadmin_api_search <- TRUE
 
 #######################
 # Load the Excel data #
@@ -59,10 +62,10 @@ buildings_df <- openxlsx2::wb_to_df(wb, sheet = "byBuilding", dims = buildings_t
 # Call the BuildingsEmissionsCalculator on row where emissionsTotal is NA
 execution_time <- system.time({
   if (max_rows>0){
-    buildings_df[1:max_rows,] <- BuildingsEmissionsCalculator::fill_buildings_df(buildings_df[1:max_rows,], regbl_db_path = regbl_database_path)
+    buildings_df[1:max_rows,] <- BuildingsEmissionsCalculator::fill_buildings_df(buildings_df[1:max_rows,], regbl_db_path = regbl_database_path, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
   }
   else {
-    buildings_df <- BuildingsEmissionsCalculator::fill_buildings_df(buildings_df, regbl_db_path = regbl_database_path)
+    buildings_df <- BuildingsEmissionsCalculator::fill_buildings_df(buildings_df, regbl_db_path = regbl_database_path, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
   }
 })
 print(execution_time)
