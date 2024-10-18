@@ -14,8 +14,8 @@ packageDescription('BuildingsEmissionsCalculator', fields=c("Title", "Version"))
 ##############
 
 # The Excel file must follow the "05_Templates/template_<version>.xlsx" template
-INTERACTIVE <- FALSE # FALSE / TRUE # Choose if the File Explorer is used to search Excel file, or if the file path is directly written in the R script.
-excel_filepath <- "BCJ/template_0.4.0.xlsx" #R ne comprend pas les backslash --> remplacer le filepath par double backslash ou slash normal
+INTERACTIVE <- TRUE # FALSE / TRUE # Choose if the File Explorer is used to search Excel file, or if the file path is directly written in the R script.
+# excel_filepath <- "BCJ/template_0.4.0.xlsx" #R ne comprend pas les backslash --> remplacer le filepath par double backslash ou slash normal
 regbl_database_path <- "data/regbl_db.sqlite"
 max_rows = -1 # The number of row to fill. Put -1 to fill the entire table.
 
