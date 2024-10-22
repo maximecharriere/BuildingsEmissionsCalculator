@@ -70,6 +70,7 @@ execution_time <- system.time({
 })
 print(execution_time)
 
+
 #######################
 # Save the Excel data #
 #######################
@@ -89,4 +90,11 @@ openxlsx2::wb_save(wb, file_out)
 # Open the Excel file
 shell(file.path(getwd(), file_out), wait = FALSE)
 
-# Test de MAJ depuis RStudio. A supprimer
+############
+# Analysis #
+############
+
+# CREATE YOUR R ANALYSIS HERE
+
+
+
