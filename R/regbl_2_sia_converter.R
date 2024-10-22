@@ -52,8 +52,8 @@ regbl_2_sia_converter <- function(building) {
     building$sia_energy_carrier <- .constants$energyCarrier_Regbl2Sia[[as.character(building$GENH1)]]
     building$log_comments <- append_log(building$log_comments, paste0("Convert RegBl energy carrier '",building$GENH1,"' to SIA: ", building$sia_energy_carrier))
   } else {
-    building$sia_energy_carrier <- "undefined"
-    building$log_comments <- append_log(building$log_comments, paste0("Energy carrier (", building$GENH1 , ") not specified in the LUT '.constants$energyCarrier_Regbl2Sia'. Please update the LUT."), level = "WARNING")
+    building$sia_energy_carrier <- .constants$energyCarrier_Regbl2Sia[["default"]]
+    building$log_comments <- append_log(building$log_comments, paste0("Energy carrier (", building$GENH1 , ") not specified in the LUT '.constants$energyCarrier_Regbl2Sia'. Please update the LUT. Default value set to '",building$sia_energy_carrier,"'."), level = "WARNING")
   }
   # Energy relevant area
   building$sia_area <- building$GEBF

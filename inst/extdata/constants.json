@@ -47,8 +47,9 @@
     "7580" : "other" ,
     "7581" : "other" ,
     "7582" : "other" ,
-    "7598" : "undefined" ,
-    "7599" : "other" 
+    "7598" : "oilHeating" ,
+    "7599" : "oilHeating" ,
+    "default" : "oilHeating"
   },
   "constructionYear_RegblPeriod2Year": {
     "8011": 1900,
