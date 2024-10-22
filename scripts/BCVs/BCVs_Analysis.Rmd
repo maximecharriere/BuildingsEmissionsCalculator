@@ -319,9 +319,9 @@ According to years built
 ```{r, message=FALSE}
 ggplot(data = data_subset, aes(x = sia_year)) +
   geom_histogram(binwidth = 10, fill = "skyblue", color = "black") +
-  labs(title = "Distribution of Year Buildings Were Built",
-       x = "Year Built",
-       y = "Count of Buildings") +
+  labs(title = "Distribution of Building Construction Years",
+       x = "Year of Construction",
+       y = "Number of Buildings") +
   scale_x_continuous(breaks = seq(1900, 2030, by = 10), limits = c(1900,2030)) +
   scale_y_continuous(breaks = seq(0, 35000, by = 1000)) + 
   theme_minimal() # Adjust breaks as needed
@@ -331,9 +331,9 @@ Distribution of emissions per area (kg CO2/m2)
 ```{r, message=FALSE}
 ggplot(data = data_subset, aes(x = emissions_per_area)) +
   geom_histogram(binwidth = 10, fill = "red", color = "black") +
-  labs(title = "Distribution of emissions per area",
-       x = "Emissions per area",
-       y = "Count of assets") +
+  labs(title = "Emission Intensity per Square Meter for Mortgaged Properties",
+       x = "Emission Intensity (kg CO2/m2)",
+       y = "Number of Properties") +
   scale_x_continuous(breaks = seq(0, 400, by = 10)) +
   scale_y_continuous(breaks = seq(0, 35000, by = 1000)) + # Adjust breaks as needed
   theme_minimal()
@@ -348,6 +348,6 @@ custom_names <- c("Gas","Oil","Other")
 pie(energy_carrier_counts,
     labels = paste(custom_names, round(prop.table(energy_carrier_counts) * 100, 1), "%"),
     col = c("blue", "green", "red"),
-    main = "Share of Energy Carriers")
+    main = "Proportional Distribution of Energy Carriers")
 
 ```
