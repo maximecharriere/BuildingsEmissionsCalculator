@@ -162,6 +162,7 @@ kable(type_summary, caption = "Emission Summary by Building Type")
 ## comparing the number of non-missing values for each variable to the total number of rows
 # Addresses available = proportion of addresses for which we have valid data.
 total_rows <- nrow(data_subset)
+print(total_rows)
 
 # Coverage ratio for EGID (non-missing EGID)
 coverage_EGID <- sum(!is.na(data_subset$EGID)) / total_rows
