@@ -27,17 +27,21 @@ regbl_2_sia_converter <- function(building) {
   # If the period of construction is not available in RegBl, use 1900.
   if (!is.na(building$GBAUJ)) {
     building$sia_year <- building$GBAUJ
+    building$log_comments <- append_log(building$log_comments, paste0("Get building year directly from GBAUJ: ", building$sia_year))
   } else {
     building$sia_year <- .constants$constructionYear_RegblPeriod2Year[[as.character(building$GBAUP)]]
     if (is.na(building$sia_year)) {
       building$sia_year <- 1900
     }
+    building$log_comments <- append_log(building$log_comments, paste0("Converted building period (GBAUP) to building year : ", building$sia_year))
   }
   # Find the closest climate station in the 40 listed in SIA 2028:2010 https://www.sia.ch/fileadmin/content/download/sia-norm/korrigenda_sn/2028-C1_2015_d.pdf
   building$sia_climate_code <- find_closest_station(.climate, building)
+  building$log_comments <- append_log(building$log_comments, paste0("Get closest climate station: ", building$sia_climate_code))
   # Convert the building class from RegBl to the SIA 380/1 standard
   if (building$GKLAS %in% names(.constants$buildingClass_Regbl2Sia)) {
     building$sia_utilisation_key <- .constants$buildingClass_Regbl2Sia[[as.character(building$GKLAS)]]
+    building$log_comments <- append_log(building$log_comments, paste0("Convert RegBl building class to SIA: ", building$sia_utilisation_key))
   } else if (is.na(building$GKLAS)) {
     stop("No Building class (GKLAS) found on RegBl database.")
   } else {
@@ -46,8 +50,10 @@ regbl_2_sia_converter <- function(building) {
   # Convert the energy carrier type from RegBl to the SIA 380/1 standard
   if (building$GENH1 %in% names(.constants$energyCarrier_Regbl2Sia)) {
     building$sia_energy_carrier <- .constants$energyCarrier_Regbl2Sia[[as.character(building$GENH1)]]
+    building$log_comments <- append_log(building$log_comments, paste0("Convert RegBl energy carrier '",building$GENH1,"' to SIA: ", building$sia_energy_carrier))
   } else {
-    building$sia_energy_carrier <- "other"
+    building$sia_energy_carrier <- .constants$energyCarrier_Regbl2Sia[["default"]]
+    building$log_comments <- append_log(building$log_comments, paste0("Energy carrier (", building$GENH1 , ") not specified in the LUT '.constants$energyCarrier_Regbl2Sia'. Please update the LUT. Default value set to '",building$sia_energy_carrier,"'."), level = "WARNING")
   }
   # Energy relevant area
   building$sia_area <- building$GEBF

@@ -29,8 +29,27 @@
     "1278": 10
   },
   "energyCarrier_Regbl2Sia": {
-    "7520": "gasHeating",
-    "7530": "oilHeating"
+    "7500" : "other", 
+    "7501" : "other", 
+    "7510" : "other",  
+    "7511" : "other",  
+    "7512" : "other",  
+    "7513" : "other",  
+    "7520" : "gasHeating" ,
+    "7530" : "oilHeating" ,
+    "7540" : "other" ,
+    "7541" : "other" ,
+    "7542" : "other" ,
+    "7543" : "other" ,
+    "7550" : "other" ,
+    "7560" : "other" ,
+    "7570" : "other" ,
+    "7580" : "other" ,
+    "7581" : "other" ,
+    "7582" : "other" ,
+    "7598" : "oilHeating" ,
+    "7599" : "oilHeating" ,
+    "default" : "oilHeating"
   },
   "constructionYear_RegblPeriod2Year": {
     "8011": 1900,
@@ -249,6 +268,10 @@
     "error_comments": {
       "type": "character",
       "description": "A string containing error messages"
+    },
+    "log_comments": {
+      "type": "character",
+      "description": "A string containing logs messages"
     }
   },
 

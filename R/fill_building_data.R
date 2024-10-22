@@ -15,35 +15,38 @@
 #' @examples
 #' building_data <- list(EGID = "123456")
 #' enriched_building_data <- fill_building_data(building_data)
-fill_building_data <- function(building, sqlite_conn = NULL) {
+fill_building_data <- function(building, sqlite_conn = NULL, sqlite_address_search = TRUE, sqlite_parcel_search = TRUE, geoadmin_api_search = TRUE) {
   building <- tryCatch(
     {
-      # library(co2calculatorPACTA2022) # TODO found why the script is not working if I remove this line
+      #############
+      # Building identification
+      #############
+      building$log_comments <- append_log(building$log_comments, "### Building identification ###")
+      building <- egid_search(building, sqlite_conn, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
+      building$log_comments <- append_log(building$log_comments, paste0("EGID found: ", building$EGID))
 
       #############
-      # Identify the building
+      # Get Building data from RegBl SQLite database
       #############
-      building <- egid_search(building, sqlite_conn)
-
-      #############
-      # Building data
-      #############
-
+      building$log_comments <- append_log(building$log_comments, "### Requesting Building data from RegBl Database ###")
       # Request regbl to get the building data
       building <- request_regbl_data(building, sqlite_conn = sqlite_conn)
 
       # If the building is demolished, stop the process
       if (!(is.na(building$GABBJ))) {
-        stop("Building was demolished in ", building$GABBJ, ".")
+        stop("Building is demolished. Stop the process.")
       }
 
       # Compute the energetic area of the building
+      building$log_comments <- append_log(building$log_comments, "### Compute the energetic area of the building ###")
       building$GEBF <- get_building_energetic_area(building)
 
       # Convert the building data from the regbl format to the sia format
+      building$log_comments <- append_log(building$log_comments, "### Convert the building data from the RegBl format to the SIA format ###")
       building <- regbl_2_sia_converter(building)
 
       # Calculate the CO2 emissions of the building
+      building$log_comments <- append_log(building$log_comments, "### Calculate the CO2 emissions with the SIA calculator ###")
       tryCatch(
         {
           result <- calculate_emissions(
@@ -71,14 +74,17 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
       )
 
       #############
-      # Asset data
+      # Compute Asset data
       #############
+      building$log_comments <- append_log(building$log_comments, "### Compute Energetic Area of the Asset ###")
       building <- fill_asset_energetic_area(building)
+      building$log_comments <- append_log(building$log_comments, "### Compute Asset Emissions ###")
       building$asset_emissions <- get_asset_emissions(building)
 
       #############
-      # Mortgage data
+      # Compute Mortgage data
       #############
+      building$log_comments <- append_log(building$log_comments, "### Compute Mortgage Emissions ###")
       building$asset_bank_share <- get_asset_bank_share(building)
       building$mortgage_emissions <- get_mortgage_emissions(building)
 
@@ -86,7 +92,8 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
       return(building)
     },
     error = function(e) {
-      building$error_comments <- append_error_message(building$error_comments, e$message)
+      building$error_comments <- paste_if(building$error_comments, e$message)
+      building$log_comments <- append_log(building$log_comments, e$message, level = "ERROR")
       message("Error on EGID ", building$EGID, ": ", e$message)
       return(building)
     }
@@ -122,7 +129,7 @@ fill_building_data <- function(building, sqlite_conn = NULL) {
 #' The parallel execution model can be adjusted based on system resources by changing the number of
 #' workers in the `future::plan` call.
 #' @export
-fill_buildings_df <- function(buildings_df, regbl_db_path = NULL) {
+fill_buildings_df <- function(buildings_df, regbl_db_path = NULL, sqlite_address_search = TRUE, sqlite_parcel_search = TRUE, geoadmin_api_search = TRUE) {
   progressr::handlers(global = TRUE)
   progressr::handlers("cli")
 
@@ -155,14 +162,14 @@ fill_buildings_df <- function(buildings_df, regbl_db_path = NULL) {
     # Set up parallelization plan (e.g., multisession to use multiple cores)
     future::plan(future::multisession, workers = 4)
     buildings <- future.apply::future_lapply(seq_len(nrow(buildings_df)), function(i) {
-      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn)
+      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
       p()
       return(building)
     })
   } else {
     buildings <- list()
     for (i in seq_len(nrow(buildings_df))) {
-      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn)
+      building <- fill_building_data(buildings_df[i, ], sqlite_conn = sqlite_conn, sqlite_address_search = sqlite_address_search, sqlite_parcel_search = sqlite_parcel_search, geoadmin_api_search = geoadmin_api_search)
       p()
       buildings[[i]] <- building
     }
@@ -199,13 +206,14 @@ get_asset_building_share <- function(building) {
 
 get_building_area <- function(building) {
   if (is.na(building$GAREA) || is.na(building$GASTW)) {
-    stop("The Building cannot be processed because the ground area or the number of floors is missing in RegBl.")
+    stop("The Building cannot be processed because the ground area or the number of floors is unknown.")
   }
   return(building$GAREA * building$GASTW)
 }
 
 get_building_energetic_area <- function(building) {
   if (!is.na(building$GEBF)) {
+    building$log_comments <- append_log(building$log_comments, "Energetic area already available in the building data.")
     return(building$GEBF)
   } else {
     return(get_building_area(building) * .constants$energeticAreaFactor)
@@ -214,11 +222,14 @@ get_building_energetic_area <- function(building) {
 
 fill_asset_energetic_area <- function(building) {
   if (!is.na(building$asset_energetic_area)) {
+    building$log_comments <- append_log(building$log_comments, "Asset Energetic Area already provided.")
     return(building)
   } else if (!is.na(building$asset_living_area)) {
+    building$log_comments <- append_log(building$log_comments, "Asset Living Area provided, used to compute the Asset Energetic Area.")
     building$asset_energetic_area <- building$asset_living_area * .constants$energeticAreaFactor
     return(building)
   } else {
+    building$log_comments <- append_log(building$log_comments, "Compute the Asset Energetic Area from the Building Energetic Area and the Asset Building Share.")
     building$asset_building_share <- get_asset_building_share(building)
     building$GEBF <- get_building_energetic_area(building)
     building$asset_energetic_area <- building$GEBF * building$asset_building_share

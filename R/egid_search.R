@@ -1,36 +1,58 @@
-egid_search <- function(building, sqlite_conn = NULL) {
+egid_search <- function(building, sqlite_conn = NULL, sqlite_address_search = TRUE, sqlite_parcel_search = TRUE, geoadmin_api_search = TRUE) {
   if (is.null(sqlite_conn)) {
-    stop("Database connection not provided.")
+    stop("RegBl SQLite Database connection not provided.")
   }
 
   if (!is.na(building$EGID)) {
+    building$log_comments <- append_log(building$log_comments, "EGID already provided.")
     return(building)
   }
 
-  # Split the address into components if the address is not already split
+  # 0: Split the address into components if the address is not already split
   if (is.na(building$STRNAME) && is.na(building$DEINR) && !is.na(building$ADDRESS)) {
+    building$log_comments <- append_log(building$log_comments, "Step 0: Splitting ADDRESS into STRNAME and DEINR.")
+
     building <- split_address(building)
-  }
-  
-  # Search for the EGID in the SQLite database by street name, number, and postal code
-  search1_egids <- splitted_address_search(building, sqlite_conn)
-  if (length(search1_egids) == 1) {
-    building$EGID <- search1_egids[1]
-    return(building)
+    building$log_comments <- append_log(building$log_comments, paste0("Splitting complete. ADDRESS: '", building$ADDRESS, "' splitted in STRNAME: '", building$STRNAME, "' and DEINR: '", building$DEINR, "'."))
   }
 
-  # Search for the EGID in the SQLite database by parcel number and postal code
-  search2_egids <- parcel_search(building, sqlite_conn)
-  if (length(search2_egids) == 1) {
-    building$EGID <- search2_egids[1]
-    return(building)
+  # 1: Search for the EGID in the SQLite database by street name, number, and postal code
+  search1_egids <- list()
+  if (sqlite_address_search){
+    building$log_comments <- append_log(building$log_comments, "Step 1: Searching for EGID by street name, number, and postal code in the SQLite RegBl Database.")
+    search1_egids <- address_search(building, sqlite_conn)
+    building$log_comments <- append_log(building$log_comments, paste0("Found ", length(search1_egids), " EGIDs."))
+
+    if (length(search1_egids) == 1) {
+      building$EGID <- search1_egids[1]
+      return(building)
+    }
   }
 
-  # If the EGID is not found, search using the Swiss GeoAdmin API
-  search3_egids <- oneline_address_search(building)
-  if (length(search3_egids) == 1) {
-    building$EGID <- search3_egids[1]
-    return(building)
+  # 2: Search for the EGID in the SQLite database by parcel number and postal code
+  search2_egids <- list()
+  if (sqlite_parcel_search){
+    building$log_comments <- append_log(building$log_comments, "Step 2: Searching for EGID by parcel number and postal code in the SQLite RegBl Database.")
+    search2_egids <- parcel_search(building, sqlite_conn)
+    building$log_comments <- append_log(building$log_comments, paste0("Found ", length(search2_egids), " EGIDs."))
+
+    if (length(search2_egids) == 1) {
+      building$EGID <- search2_egids[1]
+      return(building)
+    }
+  }
+
+  # 3: If the EGID is not found, search using the Swiss GeoAdmin API
+  search3_egids <- list()
+  if (geoadmin_api_search){
+    building$log_comments <- append_log(building$log_comments, "Step 3: Searching for EGID using the Swiss GeoAdmin API.")
+    search3_egids <- oneline_address_search(building)
+    building$log_comments <- append_log(building$log_comments, paste0("Found ", length(search3_egids), " EGIDs."))
+
+    if (length(search3_egids) == 1) {
+      building$EGID <- search3_egids[1]
+      return(building)
+    }
   }
 
   # If no unique EGID is found with one of the methods, we count the occurrences of each unique EGID. The one with the highest count is selected.
@@ -74,47 +96,51 @@ split_address <- function(building) {
   return(building)
 }
 
-splitted_address_search <- function(building, sqlite_conn) {
-  if (!is.na(building$DEINR) && !is.na(building$STRNAME) && !is.na(building$DPLZ4)) {
-    # Search by address
-    query <- paste(
-      "SELECT EGID FROM entrance WHERE DPLZ4 =", shQuote(building$DPLZ4),
-      "AND STRNAME =", shQuote(building$STRNAME),
-      "AND DEINR =", shQuote(building$DEINR)
-    )
-    result <- RSQLite::dbGetQuery(sqlite_conn, query)
-
-    return(unique(result$EGID)) # return EGID without duplicates
+address_search <- function(building, sqlite_conn) {
+  if (is.na(building$DEINR) || is.na(building$STRNAME) || is.na(building$DPLZ4)) {
+    building$log_comments <- append_log(building$log_comments, "Address components missing (DEINR, STRNAME or DPLZ4). Skipping SQLite address search.")
+    return(character())
   }
 
-  return(character()) # return empty character vector
+  # Search by address
+  query <- paste(
+    "SELECT EGID FROM entrance WHERE DPLZ4 =", shQuote(building$DPLZ4),
+    "AND STRNAME =", shQuote(building$STRNAME),
+    "AND DEINR =", shQuote(building$DEINR)
+  )
+  result <- RSQLite::dbGetQuery(sqlite_conn, query)
+
+  return(unique(result$EGID)) # return EGID without duplicates
 }
+
 
 parcel_search <- function(building, sqlite_conn) {
-  if (!is.na(building$LPARZ) && !is.na(building$DPLZ4)) {
-    # Search by parcel
-    query_building <- paste("SELECT EGID FROM building WHERE LPARZ =", shQuote(building$LPARZ))
-    result_building <- RSQLite::dbGetQuery(sqlite_conn, query_building)
+  if (is.na(building$LPARZ) || is.na(building$DPLZ4)) {
+    building$log_comments <- append_log(building$log_comments, "Parcel components missing (LPARZ or DPLZ4). Skipping SQLite parcel search.")
+    return(character())
+  }
+  # Search by parcel
+  query_building <- paste("SELECT EGID FROM building WHERE LPARZ =", shQuote(building$LPARZ))
+  result_building <- RSQLite::dbGetQuery(sqlite_conn, query_building)
 
-    if (nrow(result_building) == 0) {
-      return(character())
-    }
-
-    egids <- paste(result_building$EGID, collapse = ", ")
-    query_entrance <- paste(
-      "SELECT EGID FROM entrance WHERE EGID IN (", egids, ")",
-      "AND DPLZ4 =", shQuote(building$DPLZ4)
-    )
-    result_entrance <- RSQLite::dbGetQuery(sqlite_conn, query_entrance)
-    if (nrow(result_entrance) == 0) {
-      return(character())
-    }
-
-    return(unique(result_entrance$EGID)) # return EGID without duplicates
+  if (nrow(result_building) == 0) {
+    return(character())
   }
 
-  return(character()) # return empty character vector
+  egids <- paste(result_building$EGID, collapse = ", ")
+  query_entrance <- paste(
+    "SELECT EGID FROM entrance WHERE EGID IN (", egids, ")",
+    "AND DPLZ4 =", shQuote(building$DPLZ4)
+  )
+  result_entrance <- RSQLite::dbGetQuery(sqlite_conn, query_entrance)
+  if (nrow(result_entrance) == 0) {
+    return(character())
+  }
+
+  return(unique(result_entrance$EGID)) # return EGID without duplicates
 }
+
+
 
 
 #' Retrieve EGID from Swiss GeoAdmin API Based on Address Information
@@ -149,11 +175,15 @@ oneline_address_search <- function(building) {
   )
 
   # Perform the API request
-  response <- httr::GET(url, query = params)
+  response <- tryCatch({
+    httr::GET(url, query = params, httr::timeout(10))  # 10-second timeout to avoid long wait times
+  }, error = function(e) {
+    stop("Failed to retrieve data from the Geo Admin API due to a connection issue: ", e$message, "\nTurn off the `geoadmin_api_search` parameter to skip this step.")
+  })
 
   # Check if the request was successful
   if (httr::status_code(response) != 200) {
-    stop("Failed to retrieve data from the API.")
+    stop("Failed to retrieve data from the API. Status code: ", httr::status_code(response), "\nTurn off the `geoadmin_api_search` parameter to skip this step.")
   }
 
   # Parse the JSON response
