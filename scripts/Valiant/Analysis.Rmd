@@ -40,7 +40,7 @@ wb <- openxlsx2::wb_load(file_in)
 
 # Read the excel file
 data <- openxlsx2::wb_to_df(wb, sheet = "byBuilding", start_row = 5, col_names = TRUE)
-data_subset <- data[1:31746, ]
+data_subset <- data[1:23380, ]
 # Check the new dimensions
 cat("Number of rows in the subset:", nrow(data_subset), "\n")
 ```
@@ -145,89 +145,13 @@ print(summary_variables)
 
 # ANALYSIS
 
-## USAGE TYPES
-
-```{r}
-# Count the number of occurrences for each distinct usage type
-usage_type_counts <- data_subset %>%
-  group_by(`Usage de l'immeuble`) %>%
-  summarise(count = n())
-
-# Output the counts for each usage type
-usage_type_counts
-```
-## BUILDING TYPES
-```{r}
-# Count the number of occurrences for each distinct building type
-building_type_counts <- data_subset %>%
-  group_by(`Type d'immeuble`) %>%
-  summarise(count = n())
-
-# Output the counts for each usage type
-building_type_counts
-
-```
-
-```{r}
-data_subset <- data_subset %>%
-  mutate(mortgage_type = if_else(`Habitation` == "1", "Residential", "Commercial"))
-```
-
 ## ANALYSIS BY 
 KPI SUMMARY grouped by different variables
-### 1) MORTGAGE TYPE
-
-```{r}
-type_summary_mortgage <- data_subset %>%
-  group_by(mortgage_type) %>%
-  summarise(
-    mean_emissions = mean(emissions_per_area, na.rm = TRUE),
-    mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
-    sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
-    sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
-    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
-    count = n()
-  )
-print(type_summary_mortgage, caption = "Emission Summary by Mortgage Type")
-```
-
-### 2) BUILDING TYPE
-
-```{r}
-type_summary_building_type <- data_subset %>%
-  group_by(`Type d'immeuble`) %>%
-  summarise(
-    sum(asset_value, na.rm = TRUE),
-    sum(mortgage_value, na.rm  = TRUE),
-    mean_emissions = mean(emissions_per_area, na.rm = TRUE),
-    mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
-    sum_asset_emissions = sum(asset_emissions, na.rm = TRUE),
-    sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
-    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
-    count = n()
-  )
-print(type_summary_building_type, caption = "Emission Summary by Building Type")
-```
-
-### 2) USAGE TYPE
-```{r}
-type_summary_usage_type <- data_subset %>%
-  group_by(`Usage de l'immeuble`) %>%
-  summarise(
-    mean_emissions = mean(emissions_per_area, na.rm = TRUE),
-    mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
-    sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
-    sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
-    share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
-    count = n()
-  )
-print(type_summary_usage_type, caption = "Emission Summary by Usage Type")
-```
 
 ```{r}
 gklas_mapping <- data.frame(
-  GKLAS = c(1110, 1121, 1122, 1130, 1211, 1212, 1220, 1230, 1231, 1241),
-  GKLAS_def = c('Maisons à un logement', 'Maisons à deux logements', 'Immeubles à trois logements et plus', 'Habitat communautaire', 'Hôtels', 'Autres bâtiments dhébergement de tourisme', 'Immeubles de bureaux', 'Bâtiments commerciaux', 'Restaurants et bars dans des bâtiments sans usage résidentiel', 'Gares, aérogares, centraux téléphoniques')  # Replace with your specific numbers
+  GKLAS = c(1110, 1121, 1122, 1130, 1211, 1212, 1220, 1230, 1242, 1251),
+  GKLAS_def = c('Maisons à un logement', 'Maisons à deux logements', 'Immeubles à trois logements et plus', 'Habitat communautaire', 'Hôtels', 'Autres bâtiments dhébergement de tourisme', 'Immeubles de bureaux', 'Bâtiments commerciaux', 'Garages', 'Bâtiments industriels')  # Replace with your specific numbers
 )
 
 # Join the mapping table with the original data frame
@@ -271,9 +195,6 @@ Now, export all summaries to Excel
 wb2 <- createWorkbook()
 # List of data frames (tables) to export
 tables_list <- list(
-  "Mortgage Type Summary" = type_summary_mortgage,
-  "Building Type Summary" = type_summary_building_type,
-  "Usage Type Summary" = type_summary_usage_type,
   "GKLAS Summary" = type_summary_GKLAS,
   "Energy Carrier Summary" = type_summary_energy_carrier
 )
