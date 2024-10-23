@@ -139,7 +139,7 @@ summary_variables <- data.frame(
             mean_bank_share)
 )
 # Print the data frame
-print(summary_variables)
+kable(summary_variables)
 
 ```
 
@@ -206,7 +206,7 @@ for (sheet_name in names(tables_list)) {
 }
 
 # Save the workbook to an Excel file
-saveWorkbook(wb2, "Emission_Summary_Tables_BCVs.xlsx", overwrite = TRUE)
+saveWorkbook(wb2, "Emission_Summary_Tables_Valiant.xlsx", overwrite = TRUE)
 ```
 
 # COVERAGES

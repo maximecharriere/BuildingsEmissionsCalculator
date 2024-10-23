@@ -365,17 +365,17 @@ install.packages(&quot;pacman&quot;)</code></pre>
 <pre><code>## Paket &#39;pacman&#39; erfolgreich ausgepackt und MD5 Summen abgeglichen
 ## 
 ## Die heruntergeladenen Binärpakete sind in 
-##  C:\Users\AnnikaSchmidtSwissCl\AppData\Local\Temp\RtmpktcCnu\downloaded_packages</code></pre>
+##  C:\Users\AnnikaSchmidtSwissCl\AppData\Local\Temp\RtmpQj1oZQ\downloaded_packages</code></pre>
 <pre class="r"><code>install.packages(&quot;openxlsx&quot;)</code></pre>
 <pre><code>## Paket &#39;openxlsx&#39; erfolgreich ausgepackt und MD5 Summen abgeglichen
 ## 
 ## Die heruntergeladenen Binärpakete sind in 
-##  C:\Users\AnnikaSchmidtSwissCl\AppData\Local\Temp\RtmpktcCnu\downloaded_packages</code></pre>
+##  C:\Users\AnnikaSchmidtSwissCl\AppData\Local\Temp\RtmpQj1oZQ\downloaded_packages</code></pre>
 <pre class="r"><code>install.packages(&quot;knitr&quot;)</code></pre>
 <pre><code>## Paket &#39;knitr&#39; erfolgreich ausgepackt und MD5 Summen abgeglichen
 ## 
 ## Die heruntergeladenen Binärpakete sind in 
-##  C:\Users\AnnikaSchmidtSwissCl\AppData\Local\Temp\RtmpktcCnu\downloaded_packages</code></pre>
+##  C:\Users\AnnikaSchmidtSwissCl\AppData\Local\Temp\RtmpQj1oZQ\downloaded_packages</code></pre>
 <pre class="r"><code>pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny,
                stringr, tidyr)
@@ -531,25 +531,54 @@ summary_variables &lt;- data.frame(
             mean_bank_share)
 )
 # Print the data frame
-print(summary_variables)</code></pre>
-<pre><code>##                                                             Metric
-## 1                                  Total Asset Energetic Area (m2)
-## 2                                          Total Asset Value (CHF)
-## 3                                       Total Mortgage Value (CHF)
-## 4                                   Total Asset Emissions (kg CO2)
-## 5                                Total Financed Emissions (kg CO2)
-## 6 Mean Emission Intensity per Mio CHF (t CO2eq/ Mio. CHF invested)
-## 7                       Mean Emission Intensity per m2 (kg CO2/m2)
-## 8                      Mean Bank Share of Mortgage on Total Assets
-##                 Value
-## 1     4668319.5000000
-## 2 19792244057.0000000
-## 3 10863132583.0000000
-## 4   166414728.3475505
-## 5    90648879.0741193
-## 6           9.3965012
-## 7          36.2774183
-## 8           0.5488581</code></pre>
+kable(summary_variables)</code></pre>
+<table>
+<colgroup>
+<col width="76%" />
+<col width="23%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Metric</th>
+<th align="right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Total Asset Energetic Area (m2)</td>
+<td align="right">4668319.5000000</td>
+</tr>
+<tr class="even">
+<td align="left">Total Asset Value (CHF)</td>
+<td align="right">19792244057.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">Total Mortgage Value (CHF)</td>
+<td align="right">10863132583.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">Total Asset Emissions (kg CO2)</td>
+<td align="right">166414728.3475505</td>
+</tr>
+<tr class="odd">
+<td align="left">Total Financed Emissions (kg CO2)</td>
+<td align="right">90648879.0741193</td>
+</tr>
+<tr class="even">
+<td align="left">Mean Emission Intensity per Mio CHF (t CO2eq/ Mio. CHF
+invested)</td>
+<td align="right">9.3965012</td>
+</tr>
+<tr class="odd">
+<td align="left">Mean Emission Intensity per m2 (kg CO2/m2)</td>
+<td align="right">36.2774183</td>
+</tr>
+<tr class="even">
+<td align="left">Mean Bank Share of Mortgage on Total Assets</td>
+<td align="right">0.5488581</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="analysis" class="section level1">
@@ -635,7 +664,7 @@ for (sheet_name in names(tables_list)) {
 }
 
 # Save the workbook to an Excel file
-saveWorkbook(wb2, &quot;Emission_Summary_Tables_BCVs.xlsx&quot;, overwrite = TRUE)</code></pre>
+saveWorkbook(wb2, &quot;Emission_Summary_Tables_Valiant.xlsx&quot;, overwrite = TRUE)</code></pre>
 </div>
 </div>
 </div>
