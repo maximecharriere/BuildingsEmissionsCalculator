@@ -224,11 +224,23 @@ type_summary_usage_type <- data_subset %>%
 print(type_summary_usage_type, caption = "Emission Summary by Usage Type")
 ```
 
+```{r}
+gklas_mapping <- data.frame(
+  GKLAS = c(1110, 1121, 1122, 1130, 1211, 1212, 1220, 1230, 1231, 1241),
+  GKLAS_def = c('Maisons à un logement', 'Maisons à deux logements', 'Immeubles à trois logements et plus', 'Habitat communautaire', 'Hôtels', 'Autres bâtiments dhébergement de tourisme', 'Immeubles de bureaux', 'Bâtiments commerciaux', 'Restaurants et bars dans des bâtiments sans usage résidentiel', 'Gares, aérogares, centraux téléphoniques')  # Replace with your specific numbers
+)
+
+# Join the mapping table with the original data frame
+data_subset <- data_subset %>%
+  left_join(gklas_mapping, by = "GKLAS")
+
+```
+
 ### 3) GKLAS
 GKLAS = Classe de bâtiment selon EUROSTAT (voir RegBL_Catalogue, page 57/58)
 ```{r}
 type_summary_GKLAS <- data_subset %>%
-  group_by(GKLAS) %>%
+  group_by(GKLAS_def) %>%
   summarise(
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
@@ -239,7 +251,6 @@ type_summary_GKLAS <- data_subset %>%
   )
 print(type_summary_GKLAS, caption = "Emission Summary by GKLAS")
 ```
-
 ### 4) ENERGY CARRIER
 ```{r}
 type_summary_energy_carrier <- data_subset %>%
