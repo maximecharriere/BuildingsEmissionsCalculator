@@ -66,7 +66,7 @@ kable(error_summary, caption = "Summary of Error Comments")
 #It displays the distribution of data based on quartiles and highlights outliers as points outside the whiskers.
 ggplot(data_subset, aes(y = emissions_per_area)) +
   geom_boxplot(fill = "lightblue", color = "black") +
-  labs(title = "Boxplot with Outliers", y = "Emmissions per area") +
+  labs(title = "Boxplot with Outliers", y = "Emmission Intensity (kg CO2eq/m2)") +
   theme_minimal()
 ```
 
@@ -75,9 +75,18 @@ ggplot(data_subset, aes(y = emissions_per_area)) +
 ggplot(data_subset, aes(x = emissions_per_area)) +
   geom_density(fill = "lightblue", alpha = 0.5) +
   geom_rug(sides = "b", color = "red") +
-  labs(title = "Density Plot with Outliers", x = "Emissions per area") +
+  labs(title = "Density Plot with Outliers", x = "Emission Intensity (kg CO2eq/m2)") +
   theme_minimal()
 ```
+```{r, echo=FALSE}
+# Density plot
+ggplot(data_subset, aes(x = heat_energy)) +
+  geom_density(fill = "lightblue", alpha = 0.5) +
+  geom_rug(sides = "b", color = "red") +
+  labs(title = "Density Plot with Outliers", x = "Energy Intensity (MJ/m2)") +
+  theme_minimal()
+```
+
 ### FILTER OUTLIERS
 ```{r}
 # Mutate observations where 'emissions_per_area' is greater 150
@@ -115,6 +124,10 @@ mean_emission_intensity_per_m2 <- mean(data_subset$emissions_per_area, na.rm = T
 
 # mean bank share of mortgage on total assets
 mean_bank_share <- total_mortgage_value / total_asset_value
+
+# Energy Intensity in kWh/m2
+conversion_factor <- 0.277777778 # from MJ to kWh
+energy_intensity <- data_subset$heat_energy*conversion_factor
 ```
 
 ```{r}
