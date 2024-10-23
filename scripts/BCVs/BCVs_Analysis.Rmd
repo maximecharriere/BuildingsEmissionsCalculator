@@ -87,6 +87,10 @@ data_subset_reduced <- data %>%
 
 ## CREATE VARIABLES
 ```{r}
+# energy intensity in kWh per m2
+conversion_factor <- 0.277777778
+data_subset$energy_intensity <- data_subset$heat_energy * conversion_factor
+
 # Create a subset where mortgage_value is not NA
 data_subset_non_na_mortgage <- data_subset %>%
   filter(!is.na(mortgage_emissions))
@@ -113,6 +117,9 @@ mean_emission_intensity_per_investment <- (sum(data_subset$mortgage_emissions, n
 # Mean emission intensity (kg CO2/ m2)
 mean_emission_intensity_per_m2 <- mean(data_subset$emissions_per_area, na.rm = TRUE)
 
+# Mean energy intensity (kWh/ m2)
+mean_energy_intensity_per_m2 <- mean(data_subset$energy_intensity, na.rm = TRUE)
+
 # mean bank share of mortgage on total assets
 mean_bank_share <- total_mortgage_value / total_asset_value
 ```
@@ -128,6 +135,7 @@ summary_variables <- data.frame(
              "Total Financed Emissions (kg CO2)",
              "Mean Emission Intensity per Mio CHF (t CO2eq/ Mio. CHF invested)",
              "Mean Emission Intensity per m2 (kg CO2/m2)",
+             "Mean energy intensity (kWh/ m2)",
              "Mean Bank Share of Mortgage on Total Assets"),
   Value = c(total_asset_energetic_area,
             total_asset_value,
@@ -136,10 +144,11 @@ summary_variables <- data.frame(
             total_financed_emissions,
             mean_emission_intensity_per_investment,
             mean_emission_intensity_per_m2,
+            mean_energy_intensity_per_m2,
             mean_bank_share)
 )
 # Print the data frame
-print(summary_variables)
+kable(summary_variables)
 
 ```
 
@@ -181,6 +190,7 @@ KPI SUMMARY grouped by different variables
 type_summary_mortgage <- data_subset %>%
   group_by(mortgage_type) %>%
   summarise(
+    mean_energy = mean(energy_intensity, na.rm = TRUE),
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
@@ -199,6 +209,7 @@ type_summary_building_type <- data_subset %>%
   summarise(
     sum(asset_value, na.rm = TRUE),
     sum(mortgage_value, na.rm  = TRUE),
+    mean_energy = mean(energy_intensity, na.rm = TRUE),
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
     sum_asset_emissions = sum(asset_emissions, na.rm = TRUE),
@@ -214,6 +225,7 @@ print(type_summary_building_type, caption = "Emission Summary by Building Type")
 type_summary_usage_type <- data_subset %>%
   group_by(`Usage de l'immeuble`) %>%
   summarise(
+    mean_energy = mean(energy_intensity, na.rm = TRUE),
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
@@ -242,6 +254,7 @@ GKLAS = Classe de bâtiment selon EUROSTAT (voir RegBL_Catalogue, page 57/58)
 type_summary_GKLAS <- data_subset %>%
   group_by(GKLAS_def) %>%
   summarise(
+    mean_energy = mean(energy_intensity, na.rm = TRUE),
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
@@ -256,6 +269,7 @@ print(type_summary_GKLAS, caption = "Emission Summary by GKLAS")
 type_summary_energy_carrier <- data_subset %>%
   group_by(sia_energy_carrier) %>%
   summarise(
+    mean_energy = mean(energy_intensity, na.rm = TRUE),
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
     mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
