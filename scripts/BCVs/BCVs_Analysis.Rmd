@@ -192,7 +192,7 @@ type_summary_mortgage <- data_subset %>%
   summarise(
     mean_energy = mean(energy_intensity, na.rm = TRUE),
     mean_emissions = mean(emissions_per_area, na.rm = TRUE),
-    mean_emission_intensity_per_investment = sum(mortgage_emissions, na.rm = TRUE)/1000/(sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000),
+    mean_emission_intensity_per_investment = (sum(mortgage_emissions, na.rm = TRUE)/1000)/((sum(mortgage_value[!is.na(mortgage_emissions)], na.rm = TRUE)/1000000)),
     sum_financed_emissions = sum(asset_emissions, na.rm = TRUE),
     sum_asset_energetic_area = sum(asset_energetic_area, na.rm = TRUE),
     share_mortgage_value = (sum(mortgage_value, na.rm = TRUE)/ total_mortgage_value),
@@ -200,6 +200,57 @@ type_summary_mortgage <- data_subset %>%
   )
 print(type_summary_mortgage, caption = "Emission Summary by Mortgage Type")
 ```
+The investment amounts (the denominator in your intensity calculation) could differ significantly between the two mortgage types. For example, residential mortgages are often smaller, but more numerous, while commercial mortgages may involve fewer but much larger loans.
+If the total invested in residential mortgages is much higher, but the emissions are relatively lower, this would naturally lead to a lower emission intensity per investment for residential properties.
+
+```{r}
+# Filter data for Commercial mortgages
+
+commercial_data <- data_subset %>%
+  filter(mortgage_type == "Commercial") %>%
+  mutate(
+    emission_intensity_per_investment = (mortgage_emissions / 1000) / (mortgage_value[!is.na(mortgage_emissions)] / 1000000)
+  )
+
+# Plot distribution
+ggplot(commercial_data, aes(x =  emission_intensity_per_investment)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Mean Emission Intensity (Commercial Mortgages)",
+       x = "Mean Emission Intensity per Investment",
+       y = "Count") +
+  xlim(0,1000)+
+  ylim(0,50)+
+  theme_minimal()
+```
+```{r}
+ggplot(commercial_data, aes(y = emission_intensity_per_investment)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "Boxplot with Outliers", y = "Emmission intensity (t CO2 per Mio. CHF invested") +
+  theme_minimal()+
+  ylim(0,100)
+```
+
+
+```{r}
+# Filter data for Commercial mortgages
+
+residential_data <- data_subset %>%
+  filter(mortgage_type == "Residential") %>%
+  mutate(
+    emission_intensity_per_investment = (mortgage_emissions / 1000) / (mortgage_value / 1000000)
+  )
+
+# Plot distribution
+ggplot(residential_data, aes(x =  emission_intensity_per_investment)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Mean Emission Intensity (Residential Mortgages)",
+       x = "Mean Emission Intensity per Investment",
+       y = "Count") +
+  xlim(0,250)+
+  ylim(0,1500)+
+  theme_minimal()
+```
+
 
 ### 2) BUILDING TYPE
 
@@ -306,6 +357,9 @@ saveWorkbook(wb2, "Emission_Summary_Tables_BCVs.xlsx", overwrite = TRUE)
 ## 1) Relative to number of mortgages
 Comparing the number of non-missing values for each variable to the total number of rows (one row = one mortgage)
 ```{r}
+# 
+
+
 # Addresses available = proportion of addresses for which we have valid data.
 total_rows <- nrow(data_subset)
 print(total_rows)
@@ -345,6 +399,24 @@ coverage_ratio_area <- data_subset %>%
 
 print(coverage_ratio_area)
 ```
+## 4) Coverage of conservative assumption of Oil 
+
+Count where Variable GENH1 equal to 7598 (Indéterminé) or 7599 (Autre). For those the assumption of Oil was used. Thus, we used the emission factor of 0.0737.
+```{r}
+# 
+count_assumption <- data_subset %>%
+  filter(GENH1 %in% c(7598, 7599)) %>%
+  summarise(
+    count = n()/total_rows,
+    total_emissions_share = sum(mortgage_emissions, na.rm = TRUE)/ total_financed_emissions
+  )
+
+# Print the result
+print(count_assumption)
+
+```
+For 13.5% of total mortgages (31'746) we have used the assumption of oil heating as we did not have information on the energy carrier. 
+The assumption of oil heating, when no information was available, makes up 14.6 % of all absolute emissions (t CO2 116'059) of the BCVs.
 
 # PLOTS
 According to years built
